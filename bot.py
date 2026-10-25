@@ -2,15 +2,13 @@ import pandas as pd
 import numpy as np
 import os
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 
-# ==========================================
-# 1. CONFIGURACIÓN Y RUTAS DE ARCHIVOS
-# ==========================================
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
-# Catálogo completo de equipos y estrellas con sus factores de impacto
+# Catálogo completo de los 30 equipos de la NBA (Este y Oeste)
 datos_nba_reales = {
+    # --- CONFERENCIA ESTE ---
     'Celtics': {'PTS': 120.6, 'PTS_OPP': 109.2, 'RITMO': 98.5, 'ESTRELLA': 'Jayson Tatum', 'BONO_ESTRELLA': 4.5},
     'Knicks': {'PTS': 112.8, 'PTS_OPP': 110.1, 'RITMO': 96.0, 'ESTRELLA': 'Jalen Brunson', 'BONO_ESTRELLA': 4.0},
     'Bucks': {'PTS': 119.5, 'PTS_OPP': 116.4, 'RITMO': 101.0, 'ESTRELLA': 'Giannis Antetokounmpo', 'BONO_ESTRELLA': 5.0},
@@ -26,6 +24,8 @@ datos_nba_reales = {
     'Hornets': {'PTS': 106.6, 'PTS_OPP': 116.8, 'RITMO': 98.0, 'ESTRELLA': 'LaMelo Ball', 'BONO_ESTRELLA': 3.5},
     'Wizards': {'PTS': 114.5, 'PTS_OPP': 123.0, 'RITMO': 102.0, 'ESTRELLA': 'Kyle Kuzma', 'BONO_ESTRELLA': 2.5},
     'Pistons': {'PTS': 110.0, 'PTS_OPP': 119.0, 'RITMO': 99.5, 'ESTRELLA': 'Cade Cunningham', 'BONO_ESTRELLA': 3.5},
+
+    # --- CONFERENCIA OESTE ---
     'Thunder': {'PTS': 120.1, 'PTS_OPP': 112.7, 'RITMO': 101.0, 'ESTRELLA': 'Shai Gilgeous-Alexander', 'BONO_ESTRELLA': 5.5},
     'Nuggets': {'PTS': 114.9, 'PTS_OPP': 109.6, 'RITMO': 96.5, 'ESTRELLA': 'Nikola Jokic', 'BONO_ESTRELLA': 6.0},
     'Timberwolves': {'PTS': 113.0, 'PTS_OPP': 106.5, 'RITMO': 97.0, 'ESTRELLA': 'Anthony Edwards', 'BONO_ESTRELLA': 4.5},
@@ -43,27 +43,42 @@ datos_nba_reales = {
     'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'ESTRELLA': 'Victor Wembanyama', 'BONO_ESTRELLA': 4.5}
 }
 
-# ==========================================
-# 2. MÓDULO DE PREDICCIÓN (Ejecución 10:00 AM)
-# ==========================================
-def generar_prediccion_partido(local, visitante, linea_apuesta=220.5, estrella_local=True, estrella_visita=True):
-    stats_loc = datos_nba_reales.get(local, {'PTS': 114, 'PTS_OPP': 112, 'RITMO': 98, 'BONO_ESTRELLA': 3})
-    stats_vis = datos_nba_reales.get(visitante, {'PTS': 112, 'PTS_OPP': 114, 'RITMO': 98, 'BONO_ESTRELLA': 3})
+def obtener_partidos_hoy_api():
+    """Consulta partidos de la jornada usando la API pública."""
+    hoy = datetime.utcnow().strftime('%Y-%m-%d')
+    url = f"https://api.balldontlie.io/v1/games?dates[]={hoy}"
+    headers = {"Authorization": os.environ.get("BALLDONTLIE_API_KEY", "")}
+    
+    partidos = []
+    try:
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json().get('data', [])
+            for juego in data:
+                local = juego['home_team']['name']
+                visitante = juego['visitor_team']['name']
+                partidos.append({"local": local, "visitante": visitante, "linea": 225.5})
+    except Exception as e:
+        print(f"⚠️ Aviso de API: {e}")
+    return partidos
 
-    bono_loc = stats_loc['BONO_ESTRELLA'] if estrella_local else 0.0
-    bono_vis = stats_vis['BONO_ESTRELLA'] if estrella_visita else 0.0
+def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
+    local_key = next((k for k in datos_nba_reales.keys() if k.lower() in local.lower()), 'Celtics')
+    visita_key = next((k for k in datos_nba_reales.keys() if k.lower() in visitante.lower()), 'Knicks')
+
+    stats_loc = datos_nba_reales[local_key]
+    stats_vis = datos_nba_reales[visita_key]
 
     ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
     factor_ritmo = ritmo_combinado / 99.0
 
-    ofensiva_local = (((stats_loc['PTS'] + stats_vis['PTS_OPP']) / 2) + bono_loc) * factor_ritmo
-    ofensiva_visita = (((stats_vis['PTS'] + stats_loc['PTS_OPP']) / 2) + bono_vis) * factor_ritmo
+    ofensiva_local = (((stats_loc['PTS'] + stats_vis['PTS_OPP']) / 2) + stats_loc['BONO_ESTRELLA']) * factor_ritmo
+    ofensiva_visita = (((stats_vis['PTS'] + stats_loc['PTS_OPP']) / 2) + stats_vis['BONO_ESTRELLA']) * factor_ritmo
 
     if stats_loc['PTS_OPP'] < 111 and stats_vis['PTS_OPP'] < 111:
         ofensiva_local -= 3.0
         ofensiva_visita -= 3.0
 
-    # Simulación Monte Carlo
     n_sims = 2000
     puntos_locales_sim = np.clip(np.random.normal(ofensiva_local, 7.5, n_sims), 85, 150)
     puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita, 7.5, n_sims), 85, 150)
@@ -77,95 +92,37 @@ def generar_prediccion_partido(local, visitante, linea_apuesta=220.5, estrella_l
 
     prediccion = {
         'Fecha': datetime.today().strftime('%Y-%m-%d'),
-        'Local': local,
-        'Visitante': visitante,
+        'Local': local_key,
+        'Visitante': visita_key,
         'Pred_Ganador_Local': bool(prob_local >= 0.5),
         'Line_Apuesta': linea_apuesta,
         'Pred_OU': "OVER" if prob_over > 50 else "UNDER",
-        'Promedio_Simulado': promedio_simulado
+        'Promedio_Simulado': round(promedio_simulado, 1)
     }
     
-    print(f"🔮 Predicción generada para {local} vs {visitante}: Ganador Local={prediccion['Pred_Ganador_Local']} | O/U={prediccion['Pred_OU']}")
+    print(f"🏀 {local_key} vs {visita_key} | Ganador Local: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
     return prediccion
 
-# ==========================================
-# 3. MÓDULO DE VERIFICACIÓN Y APRENDIZAJE (Ejecución 3:00 AM)
-# ==========================================
-def evaluar_resultados_ayer(partidos_ayer_reales):
-    """
-    partidos_ayer_reales es una lista de diccionarios con los resultados oficiales 
-    obtenidos desde una API externa de deportes (ej. Balldontlie API).
-    """
-    if not os.path.exists(ARCHIVO_HISTORIAL):
-        print("⚠️ No hay historial previo para evaluar.")
-        return
-
-    df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
-    
-    for real in partidos_ayer_reales:
-        local = real['Local']
-        visitante = real['Visitante']
-        pts_l = real['Pts_Real_Local']
-        pts_v = real['Pts_Real_Visitante']
-        total_real = pts_l + pts_v
-
-        # Buscar si el sistema tenía registrada una predicción para este juego
-        match = df_hist[(df_hist['Local'] == local) & (df_hist['Visitante'] == visitante) & (df_hist['Total_Real'].isna())]
-        
-        if not match.empty:
-            idx = match.index[0]
-            ganador_real_es_local = pts_l > pts_v
-            acerto_ganador = ganador_real_es_local == df_hist.loc[idx, 'Pred_Ganador_Local']
-            
-            linea = df_hist.loc[idx, 'Line_Apuesta']
-            ou_real = "OVER" if total_real > linea else "UNDER"
-            acerto_ou = ou_real == df_hist.loc[idx, 'Pred_OU']
-
-            # Actualizar base de datos con la realidad (Auto-aprendizaje)
-            df_hist.loc[idx, 'Total_Real'] = total_real
-            df_hist.loc[idx, 'Acerto_Ganador'] = "ACIERTO" if acerto_ganador else "FALLO"
-            df_hist.loc[idx, 'Acerto_Lineas'] = "ACIERTO" if acerto_ou else "FALLO"
-            
-            print(f"📊 Evaluado {local} vs {visitante}: Ganador [{'ACIERTO' if acerto_ganador else 'FALLO'}] | O/U [{'ACIERTO' if acerto_ou else 'FALLO'}]")
-
-    df_hist.to_csv(ARCHIVO_HISTORIAL, index=False)
-    print("💾 Historial actualizado y guardado de forma autónoma.")
-
-# ==========================================
-# 4. PUNTO DE ENTRADA PRINCIPAL DEL SCRIPT
-# ==========================================
 if __name__ == "__main__":
-    print("🤖 Bot de la NBA ejecutándose en la nube...")
+    print("🤖 Bot autónomo analizando la jornada de la NBA...")
     
-    # Aquí puedes programar llamadas automáticas a una API de deportes 
-    # para jalar los partidos del día o los resultados de la jornada pasada.
+    partidos_hoy = obtener_partidos_hoy_api()
     
-    # Ejemplo de prueba manual del flujo:
-    pred = generar_prediccion_partido("Celtics", "Knicks", 225.5)
-    
-    # Guardar simulación pendiente de calificar
-    df_new = pd.DataFrame([pred])
-    if os.path.exists(ARCHIVO_HISTORIAL):
-        df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
-        pd.concat([df_existing, df_new], ignore_index=True).to_csv(ARCHIVO_HISTORIAL, index=False)
-    else:
-        df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
-        # ==========================================
-# 4. LISTA DE PARTIDOS A PRONOSTICAR HOY
-# ==========================================
-if __name__ == "__main__":
-    print("🤖 Bot de la NBA ejecutándose en la nube...")
-    
-    # Aquí defines los partidos que te interesa analizar hoy en la nube
-    partidos_de_hoy = [
-        {"local": "Lakers", "visitante": "Warriors", "linea": 232.5},
-        {"local": "Bucks", "visitante": "Nuggets", "linea": 226.0},
-        {"local": "Celtics", "visitante": "Suns", "linea": 228.5}
-    ]
+    # Respaldo dinámico con múltiples enfrentamientos del Este y Oeste si la API no responde o no hay juegos en vivo
+    if not partidos_hoy:
+        print("📌 Ejecutando cartelera representativa de ambas conferencias...")
+        partidos_hoy = [
+            {"local": "Celtics", "visitante": "Knicks", "linea": 220.5},
+            {"local": "Bucks", "visitante": "Heat", "linea": 224.0},
+            {"local": "Cavaliers", "visitante": "Pacers", "linea": 232.5},
+            {"local": "Thunder", "visitante": "Nuggets", "linea": 231.0},
+            {"local": "Lakers", "visitante": "Suns", "linea": 234.5},
+            {"local": "Warriors", "visitante": "Mavericks", "linea": 238.0},
+            {"local": "Timberwolves", "visitante": "Clippers", "linea": 218.5}
+        ]
     
     nuevos_registros = []
-    
-    for p in partidos_de_hoy:
+    for p in partidos_hoy:
         pred = generar_prediccion_partido(
             local=p["local"], 
             visitante=p["visitante"], 
@@ -173,14 +130,12 @@ if __name__ == "__main__":
         )
         nuevos_registros.append(pred)
     
-    # Guardar las predicciones del día en el historial en la nube
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
         df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
-        # Concatenar sin duplicar y guardar
         df_final = pd.concat([df_existing, df_new], ignore_index=True)
         df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Predicciones del día calculadas y guardadas exitosamente en la nube!")
+    print("✨ ¡Predicciones de la jornada completadas y guardadas en la nube!")
