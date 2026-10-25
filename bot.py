@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
 import os
-import requests
 from datetime import datetime
 
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
-# Catálogo completo de los 30 equipos de la NBA (Este y Oeste)
+# Catálogo completo de los 30 equipos de la NBA
 datos_nba_reales = {
     # --- CONFERENCIA ESTE ---
     'Celtics': {'PTS': 120.6, 'PTS_OPP': 109.2, 'RITMO': 98.5, 'ESTRELLA': 'Jayson Tatum', 'BONO_ESTRELLA': 4.5},
@@ -43,31 +42,9 @@ datos_nba_reales = {
     'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'ESTRELLA': 'Victor Wembanyama', 'BONO_ESTRELLA': 4.5}
 }
 
-def obtener_partidos_hoy_api():
-    """Consulta partidos de la jornada usando la API pública."""
-    hoy = datetime.utcnow().strftime('%Y-%m-%d')
-    url = f"https://api.balldontlie.io/v1/games?dates[]={hoy}"
-    headers = {"Authorization": os.environ.get("BALLDONTLIE_API_KEY", "")}
-    
-    partidos = []
-    try:
-        response = requests.get(url, headers=headers, timeout=10)
-        if response.status_code == 200:
-            data = response.json().get('data', [])
-            for juego in data:
-                local = juego['home_team']['name']
-                visitante = juego['visitor_team']['name']
-                partidos.append({"local": local, "visitante": visitante, "linea": 225.5})
-    except Exception as e:
-        print(f"⚠️ Aviso de API: {e}")
-    return partidos
-
 def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
-    local_key = next((k for k in datos_nba_reales.keys() if k.lower() in local.lower()), 'Celtics')
-    visita_key = next((k for k in datos_nba_reales.keys() if k.lower() in visitante.lower()), 'Knicks')
-
-    stats_loc = datos_nba_reales[local_key]
-    stats_vis = datos_nba_reales[visita_key]
+    stats_loc = datos_nba_reales.get(local, {'PTS': 114, 'PTS_OPP': 112, 'RITMO': 98, 'BONO_ESTRELLA': 3})
+    stats_vis = datos_nba_reales.get(visitante, {'PTS': 112, 'PTS_OPP': 114, 'RITMO': 98, 'BONO_ESTRELLA': 3})
 
     ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
     factor_ritmo = ritmo_combinado / 99.0
@@ -92,37 +69,33 @@ def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
 
     prediccion = {
         'Fecha': datetime.today().strftime('%Y-%m-%d'),
-        'Local': local_key,
-        'Visitante': visita_key,
+        'Local': local,
+        'Visitante': visitante,
         'Pred_Ganador_Local': bool(prob_local >= 0.5),
         'Line_Apuesta': linea_apuesta,
         'Pred_OU': "OVER" if prob_over > 50 else "UNDER",
         'Promedio_Simulado': round(promedio_simulado, 1)
     }
     
-    print(f"🏀 {local_key} vs {visita_key} | Ganador Local: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
+    print(f"🏀 {local} vs {visitante} | Ganador Local: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
     return prediccion
 
 if __name__ == "__main__":
-    print("🤖 Bot autónomo analizando la jornada de la NBA...")
+    print("🤖 Bot autónomo analizando la cartelera real del día...")
     
-    partidos_hoy = obtener_partidos_hoy_api()
-    
-    # Respaldo dinámico con múltiples enfrentamientos del Este y Oeste si la API no responde o no hay juegos en vivo
-    if not partidos_hoy:
-        print("📌 Ejecutando cartelera representativa de ambas conferencias...")
-        partidos_hoy = [
-            {"local": "Celtics", "visitante": "Knicks", "linea": 220.5},
-            {"local": "Bucks", "visitante": "Heat", "linea": 224.0},
-            {"local": "Cavaliers", "visitante": "Pacers", "linea": 232.5},
-            {"local": "Thunder", "visitante": "Nuggets", "linea": 231.0},
-            {"local": "Lakers", "visitante": "Suns", "linea": 234.5},
-            {"local": "Warriors", "visitante": "Mavericks", "linea": 238.0},
-            {"local": "Timberwolves", "visitante": "Clippers", "linea": 218.5}
-        ]
+    # CARTELERA ACTUALIZADA DE HOY (Basada en tu imagen de la aplicación)
+    partidos_de_hoy = [
+        {"local": "Jazz", "visitante": "Lakers", "linea": 234.5},
+        {"local": "Nets", "visitante": "Pacers", "linea": 230.0},
+        {"local": "Knicks", "visitante": "Magic", "linea": 218.5},
+        {"local": "Thunder", "visitante": "Clippers", "linea": 226.5},
+        {"local": "Timberwolves", "visitante": "Raptors", "linea": 222.0},
+        {"local": "76ers", "visitante": "Pistons", "linea": 221.5},
+        {"local": "Kings", "visitante": "Grizzlies", "linea": 231.0}
+    ]
     
     nuevos_registros = []
-    for p in partidos_hoy:
+    for p in partidos_de_hoy:
         pred = generar_prediccion_partido(
             local=p["local"], 
             visitante=p["visitante"], 
@@ -138,4 +111,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Predicciones de la jornada completadas y guardadas en la nube!")
+    print("✨ ¡Cartelera de hoy analizada y guardada exitosamente!")
