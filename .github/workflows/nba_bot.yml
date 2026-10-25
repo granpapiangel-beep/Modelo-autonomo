@@ -19,7 +19,7 @@ jobs:
           python-version: '3.10'
 
       - name: Instalar librerías necesarias
-        run: pip install pandas numpy requests
+        run: pip install pandas numpy requests nba_api
 
       - name: Ejecutar el script del Bot
-        run: python bot_actualizado.py
+        run: python bot.py
