@@ -22,4 +22,4 @@ jobs:
         run: pip install pandas numpy requests nba_api
 
       - name: Ejecutar el script del Bot
-        run: python bot.py
+        run: python bot_actualizado.py
