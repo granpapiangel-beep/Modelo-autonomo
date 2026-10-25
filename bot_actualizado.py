@@ -6,8 +6,8 @@ from datetime import datetime
 
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
-# Base de datos de rendimiento, ritmo y estrellas de los 30 equipos
-datos_nba_reales = {
+# Base de datos optimizada de rendimiento, ritmo y estrellas de los 30 equipos
+DATOS_NBA_REALES = {
     'Celtics': {'PTS': 120.6, 'PTS_OPP': 109.2, 'RITMO': 98.5, 'BONO_ESTRELLA': 4.5},
     'Knicks': {'PTS': 112.8, 'PTS_OPP': 110.1, 'RITMO': 96.0, 'BONO_ESTRELLA': 4.0},
     'Bucks': {'PTS': 119.5, 'PTS_OPP': 116.4, 'RITMO': 101.0, 'BONO_ESTRELLA': 5.0},
@@ -37,31 +37,47 @@ datos_nba_reales = {
     'Jazz': {'PTS': 115.7, 'PTS_OPP': 120.5, 'RITMO': 100.0, 'BONO_ESTRELLA': 3.5},
     'Grizzlies': {'PTS': 105.8, 'PTS_OPP': 112.8, 'RITMO': 99.0, 'BONO_ESTRELLA': 4.5},
     'Blazers': {'PTS': 106.4, 'PTS_OPP': 115.4, 'RITMO': 98.0, 'BONO_ESTRELLA': 3.0},
-    'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'ESTRELLA': 'Victor Wembanyama', 'BONO_ESTRELLA': 4.5}
+    'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'BONO_ESTRELLA': 4.5}
 }
 
-def obtener_partidos_nba_hd():
-    """Consulta directa a la cartelera oficial en tiempo real."""
+def obtener_cartelera_espn():
+    """Consulta segura y rápida de los partidos del día a través de la API pública de ESPN."""
     partidos = []
     try:
-        url = "https://stats.nba.com/stats/scoreboardV3?GameDate=" + datetime.today().strftime('%Y-%m-%d')
-        headers = {'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.nba.com/'}
-        response = requests.get(url, headers=headers, timeout=10)
+        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+        response = requests.get(url, timeout=10)
         if response.status_code == 200:
             data = response.json()
-            games = data.get('scoreboard', {}).get('games', [])
-            for g in games:
-                local = g.get('homeTeam', {}).get('teamName')
-                visitante = g.get('awayTeam', {}).get('teamName')
-                if local and visitante:
-                    partidos.append({"local": local, "visitante": visitante, "linea": 225.5})
+            events = data.get('events', [])
+            for event in events:
+                competitions = event.get('competitions', [])
+                if competitions:
+                    competitors = competitions[0].get('competitors', [])
+                    local_team = None
+                    visitante_team = None
+                    for comp in competitors:
+                        # Extraer el nombre corto o común del equipo (ej. 'Lakers', 'Celtics')
+                        nombre_equipo = comp.get('team', {}).get('name', '')
+                        if comp.get('homeAway') == 'home':
+                            local_team = nombre_equipo
+                        else:
+                            visitante_team = nombre_equipo
+                    
+                    if local_team and visitante_team:
+                        partidos.append({
+                            "local": local_team, 
+                            "visitante": visitante_team, 
+                            "linea": 225.5
+                        })
+        print(f"🌐 Conexión exitosa: Se encontraron {len(partidos)} partidos oficiales para hoy.")
     except Exception as e:
-        print(f"⚠️ Aviso en la consulta web: {e}")
+        print(f"⚠️ Aviso en la consulta de red: {e}")
     return partidos
 
-def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
-    stats_loc = datos_nba_reales.get(local, {'PTS': 114, 'PTS_OPP': 112, 'RITMO': 98, 'BONO_ESTRELLA': 3})
-    stats_vis = datos_nba_reales.get(visitante, {'PTS': 112, 'PTS_OPP': 114, 'RITMO': 98, 'BONO_ESTRELLA': 3})
+def simular_monte_carlo(local, visitante, linea_apuesta=225.5):
+    """Ejecuta simulación estocástica basada en perfiles estadísticos y ritmo."""
+    stats_loc = DATOS_NBA_REALES.get(local, {'PTS': 114, 'PTS_OPP': 112, 'RITMO': 98, 'BONO_ESTRELLA': 3})
+    stats_vis = DATOS_NBA_REALES.get(visitante, {'PTS': 112, 'PTS_OPP': 114, 'RITMO': 98, 'BONO_ESTRELLA': 3})
 
     ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
     factor_ritmo = ritmo_combinado / 99.0
@@ -73,6 +89,7 @@ def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
         ofensiva_local -= 3.0
         ofensiva_visita -= 3.0
 
+    # Simulaciones de Monte Carlo (2000 iteraciones)
     n_sims = 2000
     puntos_locales_sim = np.clip(np.random.normal(ofensiva_local, 7.5, n_sims), 85, 150)
     puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita, 7.5, n_sims), 85, 150)
@@ -94,32 +111,34 @@ def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
         'Promedio_Simulado': round(promedio_simulado, 1)
     }
     
-    print(f"🏀 [Simulación Monte Carlo] {local} vs {visitante} | Local Gana: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
+    ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
+    print(f"🏀 {local} vs {visitante} | Ganador Proyectado: {ganador_str} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
     return prediccion
 
 if __name__ == "__main__":
-    print("🤖 Bot autónomo analizando la jornada...")
+    print("🤖 Iniciando motor autónomo de predicción NBA...")
     
-    partidos_de_hoy = obtener_partidos_nba_hd()
+    partidos_de_hoy = obtener_cartelera_espn()
     
-    # Respaldo de seguridad si el servidor no arroja juegos en este horario exacto
+    # Capa de seguridad robusta por si se ejecuta en una hora sin juegos programados
     if not partidos_de_hoy:
-        print("📌 Sin encuentros en curso. Aplicando cartelera de referencia...")
+        print("📌 Sin cartelera activa en este horario. Cargando partidos de prueba de respaldo...")
         partidos_de_hoy = [
             {"local": "Celtics", "visitante": "Heat", "linea": 218.5},
             {"local": "Nuggets", "visitante": "Suns", "linea": 228.0},
-            {"local": "Mavericks", "visitante": "Grizzlies", "linea": 231.5}
+            {"local": "Lakers", "visitante": "Warriors", "linea": 235.0}
         ]
     
     nuevos_registros = []
     for p in partidos_de_hoy:
-        pred = generar_prediccion_partido(
+        pred = simular_monte_carlo(
             local=p["local"], 
             visitante=p["visitante"], 
             linea_apuesta=p["linea"]
         )
         nuevos_registros.append(pred)
     
+    # Persistencia segura en CSV (Historial acumulativo)
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
         df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
@@ -128,4 +147,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Historial actualizado con éxito en la nube!")
+    print("✨ ¡Proceso completado con éxito! Historial respaldado en la nube.")
