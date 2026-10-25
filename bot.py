@@ -1,3 +1,4 @@
+# Actualización de cartelera real
 import pandas as pd
 import numpy as np
 import os
