@@ -150,3 +150,37 @@ if __name__ == "__main__":
         pd.concat([df_existing, df_new], ignore_index=True).to_csv(ARCHIVO_HISTORIAL, index=False)
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
+        # ==========================================
+# 4. LISTA DE PARTIDOS A PRONOSTICAR HOY
+# ==========================================
+if __name__ == "__main__":
+    print("🤖 Bot de la NBA ejecutándose en la nube...")
+    
+    # Aquí defines los partidos que te interesa analizar hoy en la nube
+    partidos_de_hoy = [
+        {"local": "Lakers", "visitante": "Warriors", "linea": 232.5},
+        {"local": "Bucks", "visitante": "Nuggets", "linea": 226.0},
+        {"local": "Celtics", "visitante": "Suns", "linea": 228.5}
+    ]
+    
+    nuevos_registros = []
+    
+    for p in partidos_de_hoy:
+        pred = generar_prediccion_partido(
+            local=p["local"], 
+            visitante=p["visitante"], 
+            linea_apuesta=p["linea"]
+        )
+        nuevos_registros.append(pred)
+    
+    # Guardar las predicciones del día en el historial en la nube
+    df_new = pd.DataFrame(nuevos_registros)
+    if os.path.exists(ARCHIVO_HISTORIAL):
+        df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
+        # Concatenar sin duplicar y guardar
+        df_final = pd.concat([df_existing, df_new], ignore_index=True)
+        df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
+    else:
+        df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
+        
+    print("✨ ¡Predicciones del día calculadas y guardadas exitosamente en la nube!")
