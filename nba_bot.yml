@@ -2,10 +2,9 @@ name: Bot Autónomo NBA 24/7
 
 on:
   schedule:
-    # Se ejecuta automáticamente todos los días a las 3:00 AM y 10:00 AM (Hora UTC)
     - cron: '0 3 * * *'
     - cron: '0 10 * * *'
-  workflow_dispatch: # Permite ejecutar el bot de forma manual cuando quieras hacer pruebas
+  workflow_dispatch: 
 
 jobs:
   run-bot:
