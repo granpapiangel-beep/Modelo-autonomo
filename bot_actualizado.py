@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np
 import os
+import requests
 from datetime import datetime
-from nba_api.live.nba.endpoints import scoreboard
 
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
@@ -37,21 +37,26 @@ datos_nba_reales = {
     'Jazz': {'PTS': 115.7, 'PTS_OPP': 120.5, 'RITMO': 100.0, 'BONO_ESTRELLA': 3.5},
     'Grizzlies': {'PTS': 105.8, 'PTS_OPP': 112.8, 'RITMO': 99.0, 'BONO_ESTRELLA': 4.5},
     'Blazers': {'PTS': 106.4, 'PTS_OPP': 115.4, 'RITMO': 98.0, 'BONO_ESTRELLA': 3.0},
-    'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'BONO_ESTRELLA': 4.5}
+    'Spurs': {'PTS': 112.1, 'PTS_OPP': 118.6, 'RITMO': 101.0, 'ESTRELLA': 'Victor Wembanyama', 'BONO_ESTRELLA': 4.5}
 }
 
-def obtener_partidos_en_vivo_nba():
-    """Extrae automáticamente la cartelera oficial del día usando la API de la NBA."""
+def obtener_partidos_nba_hd():
+    """Consulta directa a la cartelera oficial en tiempo real."""
     partidos = []
     try:
-        board = scoreboard.ScoreBoard()
-        games = board.get_games()
-        for game in games:
-            local = game['homeTeam']['teamName']
-            visitante = game['awayTeam']['teamName']
-            partidos.append({"local": local, "visitante": visitante, "linea": 225.5})
+        url = "https://stats.nba.com/stats/scoreboardV3?GameDate=" + datetime.today().strftime('%Y-%m-%d')
+        headers = {'User-Agent': 'Mozilla/5.0', 'Referer': 'https://www.nba.com/'}
+        response = requests.get(url, headers=headers, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            games = data.get('scoreboard', {}).get('games', [])
+            for g in games:
+                local = g.get('homeTeam', {}).get('teamName')
+                visitante = g.get('awayTeam', {}).get('teamName')
+                if local and visitante:
+                    partidos.append({"local": local, "visitante": visitante, "linea": 225.5})
     except Exception as e:
-        print(f"⚠️ Nota al conectar con el calendario oficial: {e}")
+        print(f"⚠️ Aviso en la consulta web: {e}")
     return partidos
 
 def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
@@ -89,21 +94,21 @@ def generar_prediccion_partido(local, visitante, linea_apuesta=220.5):
         'Promedio_Simulado': round(promedio_simulado, 1)
     }
     
-    print(f"🏀 [Automático] {local} vs {visitante} | Ganador Local: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
+    print(f"🏀 [Simulación Monte Carlo] {local} vs {visitante} | Local Gana: {prediccion['Pred_Ganador_Local']} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
     return prediccion
 
 if __name__ == "__main__":
-    print("🤖 Bot autónomo consultando la cartelera oficial de la NBA en tiempo real...")
+    print("🤖 Bot autónomo analizando la jornada...")
     
-    partidos_de_hoy = obtener_partidos_en_vivo_nba()
+    partidos_de_hoy = obtener_partidos_nba_hd()
     
-    # Respaldo de seguridad inteligente por si la consulta se realiza en un horario sin partidos programados
+    # Respaldo de seguridad si el servidor no arroja juegos en este horario exacto
     if not partidos_de_hoy:
-        print("📌 Sin partidos activos en este preciso instante. Cargando cartelera base de referencia...")
+        print("📌 Sin encuentros en curso. Aplicando cartelera de referencia...")
         partidos_de_hoy = [
-            {"local": "Lakers", "visitante": "Warriors", "linea": 232.5},
-            {"local": "Celtics", "visitante": "Knicks", "linea": 220.5},
-            {"local": "Bucks", "visitante": "Nuggets", "linea": 226.0}
+            {"local": "Celtics", "visitante": "Heat", "linea": 218.5},
+            {"local": "Nuggets", "visitante": "Suns", "linea": 228.0},
+            {"local": "Mavericks", "visitante": "Grizzlies", "linea": 231.5}
         ]
     
     nuevos_registros = []
@@ -123,4 +128,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso autónomo completado con éxito!")
+    print("✨ ¡Historial actualizado con éxito en la nube!")
