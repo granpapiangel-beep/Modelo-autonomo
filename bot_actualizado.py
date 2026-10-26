@@ -50,39 +50,33 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Analiza el boxscore de ESPN para desglosar el rendimiento de los 5 titulares y la banca."""
-    # Valores por defecto de respaldo
-    def_loc = {'PTS_TITULARES': 85.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
-    def_vis = {'PTS_TITULARES': 83.0, 'PTS_BANCA': 29.0, 'RITMO': 98.0}
+    """Asigna perfiles realistas de titulares y banca basados en promedios reales de la NBA."""
+    # Valores base reales por equipo (Titulares ~82 pts + Banca ~32 pts = ~114 pts totales)
+    def_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
+    def_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     
     try:
         url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
         resp = requests.get(url_summary, timeout=5)
         if resp.status_code == 200:
-            sum_data = resp.json()
-            boxscore = sum_data.get('boxscore', {})
-            teams_box = boxscore.get('players', [])
-            
-            if len(teams_box) >= 2:
-                # Procesar equipo visitante y local según la estructura de la API
-                # (Por simplicidad en la iteración inicial, calculamos dinámicamente o asignamos perfiles)
-                pass
+            # Espacio preparado para parseo avanzado de boxscore en vivo
+            pass
     except Exception:
         pass
         
     return def_loc, def_vis
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo integrando el peso de titulares y aportación de banca."""
+    """Simulación de Monte Carlo con escala realista de puntos de la NBA."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
     stats_vis = partido["stats_vis"]
     linea_apuesta = partido["linea"]
 
-    # Ponderación avanzada: 75% el poder de los 5 titulares, 25% el impacto de la banca
-    poder_ofensivo_local = (stats_loc['PTS_TITULARES'] * 0.75) + (stats_loc['PTS_BANCA'] * 0.25)
-    poder_ofensivo_visita = (stats_vis['PTS_TITULARES'] * 0.75) + (stats_vis['PTS_BANCA'] * 0.25)
+    # Suma directa del aporte ofensivo (Titulares + Banca = Puntos esperados del equipo)
+    poder_ofensivo_local = stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']
+    poder_ofensivo_visita = stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']
 
     ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
     factor_ritmo = ritmo_combinado / 99.0
@@ -90,16 +84,17 @@ def simular_monte_carlo_con_rotacion(partido):
     ofensiva_local_final = poder_ofensivo_local * factor_ritmo
     ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
 
-    # Simulaciones estocásticas de Monte Carlo (2000 iteraciones)
+    # Simulaciones de Monte Carlo con escala real (2000 iteraciones)
     n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(ofensiva_local_final, 7.0, n_sims), 80, 150)
-    puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita_final, 7.0, n_sims), 80, 150)
+    # Rango lógico individual por equipo: entre 90 y 145 puntos
+    puntos_locales_sim = np.clip(np.random.normal(ofensiva_local_final, 8.0, n_sims), 90, 145)
+    puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita_final, 8.0, n_sims), 90, 145)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
     
-    diff_poder = (ofensiva_local_final + 2.5) - ofensiva_visita_final
+    diff_poder = (ofensiva_local_final + 3.0) - ofensiva_visita_final
     prob_local = 1 / (1 + np.exp(-diff_poder / 10))
 
     prediccion = {
@@ -113,7 +108,7 @@ def simular_monte_carlo_con_rotacion(partido):
     }
     
     ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
-    print(f"🏀 [Rotación Titulares/Banca] {local} vs {visitante} | Ganador: {ganador_str} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
+    print(f"🏀 [Simulación Realista] {local} vs {visitante} | Ganador: {ganador_str} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
     return prediccion
 
 def ejecutar_feedback_loop():
@@ -137,9 +132,9 @@ if __name__ == "__main__":
             "event_id": "000000",
             "local": "Celtics", 
             "visitante": "Heat", 
-            "stats_loc": {'PTS_TITULARES': 88.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5},
-            "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 95.0},
-            "linea": 220.5
+            "stats_loc": {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5},
+            "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0},
+            "linea": 225.5
         }]
     
     nuevos_registros = []
