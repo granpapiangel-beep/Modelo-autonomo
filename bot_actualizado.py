@@ -8,7 +8,7 @@ from datetime import datetime
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera del día, extrae la línea de apuestas real y las estadísticas."""
+    """Consulta la cartelera del día, la línea de apuestas y calcula el factor de forma reciente."""
     partidos = []
     try:
         url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -25,23 +25,28 @@ def obtener_cartelera_y_boxscore_avanzado():
                     local_team = None
                     visitante_team = None
                     
+                    stats_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.0}
+                    stats_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 1.0}
+                    
                     for comp in competitors:
                         team_info = comp.get('team', {})
                         nombre_equipo = team_info.get('name', '')
+                        
+                        # Analizar registros y racha reciente de la API de ESPN
+                        factor_forma = calcular_factor_forma_equipo(comp)
+                        
                         if comp.get('homeAway') == 'home':
                             local_team = nombre_equipo
+                            stats_loc['FACTOR_FORMA'] = factor_forma
                         else:
                             visitante_team = nombre_equipo
+                            stats_vis['FACTOR_FORMA'] = factor_forma
                     
-                    # 🔍 Extracción dinámica de la línea de puntos real (Over/Under) de la casa de apuestas
-                    linea_apuesta = 225.5  # Valor predeterminado por seguridad
+                    # Extracción de la línea de puntos real (Over/Under)
+                    linea_apuesta = 225.5
                     odds_info = comp_data.get('odds', [])
                     if odds_info:
-                        # Extrae el total de puntos fijado para este juego en específico
                         linea_apuesta = float(odds_info[0].get('overUnder', 225.5))
-                    
-                    # Extraer desglose detallado de jugadores (Titulares y Banca) vía Boxscore
-                    stats_loc, stats_vis = extraer_stats_titulares_y_banca(event_id)
                     
                     if local_team and visitante_team:
                         partidos.append({
@@ -52,38 +57,47 @@ def obtener_cartelera_y_boxscore_avanzado():
                             "stats_vis": stats_vis,
                             "linea": linea_apuesta
                         })
-        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros con líneas de mercado reales.")
+        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros con análisis de forma reciente.")
     except Exception as e:
         print(f"⚠️ Aviso en la extracción de cartelera: {e}")
     return partidos
 
-def extraer_stats_titulares_y_banca(event_id):
-    """Asigna perfiles realistas de titulares y banca basados en promedios reales de la NBA."""
-    def_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
-    def_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
-    
+def calcular_factor_forma_equipo(comp_competitor):
+    """Calcula un multiplicador basado en la racha de victorias/derrotas recientes de la API."""
+    factor = 1.0  # Neutro por defecto
     try:
-        url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
-        resp = requests.get(url_summary, timeout=5)
-        if resp.status_code == 200:
-            # Espacio preparado para parseo avanzado de boxscore en vivo
-            pass
+        records = comp_competitor.get('records', [])
+        for rec in records:
+            # Buscamos registros de tipo 'last ten' (últimos 10 partidos) o general
+            summary = rec.get('summary', '') # Ej: "5-5" o registro general
+            if '-' in summary:
+                parts = summary.split('-')
+                wins = int(parts[0])
+                losses = int(parts[1])
+                total = wins + losses
+                if total > 0:
+                    win_pct = wins / total
+                    # Si el equipo gana más del 60%, se le da un bono de inercia positiva (>1.0)
+                    # Si gana menos del 40% (bache/mala racha), se le aplica un castigo (<1.0)
+                    if win_pct >= 0.60:
+                        factor = 1.03
+                    elif win_pct <= 0.40:
+                        factor = 0.96
     except Exception:
         pass
-        
-    return def_loc, def_vis
+    return factor
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo contrastada contra la línea real del mercado."""
+    """Simulación de Monte Carlo ajustada con el Factor de Forma Reciente."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
     stats_vis = partido["stats_vis"]
-    linea_apuesta = partido["linea"]  # <- Línea específica de este partido
+    linea_apuesta = partido["linea"]
 
-    # Suma directa del aporte ofensivo (Titulares + Banca)
-    poder_ofensivo_local = stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']
-    poder_ofensivo_visita = stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']
+    # Aporte ofensivo base modificado por la inercia/racha actual del equipo
+    poder_ofensivo_local = (stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']) * stats_loc['FACTOR_FORMA']
+    poder_ofensivo_visita = (stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']) * stats_vis['FACTOR_FORMA']
 
     ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
     factor_ritmo = ritmo_combinado / 99.0
@@ -100,6 +114,7 @@ def simular_monte_carlo_con_rotacion(partido):
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
     
+    # Diferencial de poder ponderando la forma reciente
     diff_poder = (ofensiva_local_final + 3.0) - ofensiva_visita_final
     prob_local = 1 / (1 + np.exp(-diff_poder / 10))
 
@@ -114,7 +129,7 @@ def simular_monte_carlo_con_rotacion(partido):
     }
     
     ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
-    print(f"🏀 {local} vs {visitante} | Línea Mercado: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
+    print(f"🏀 {local} vs {visitante} | Línea: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
     return prediccion
 
 def ejecutar_feedback_loop():
@@ -126,7 +141,7 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con líneas de mercado dinámicas...")
+    print("🤖 Iniciando motor analítico con Factor de Forma Reciente y Momentum...")
     
     ejecutar_feedback_loop()
     
@@ -138,8 +153,8 @@ if __name__ == "__main__":
             "event_id": "000000",
             "local": "Celtics", 
             "visitante": "Heat", 
-            "stats_loc": {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5},
-            "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0},
+            "stats_loc": {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.03},
+            "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 0.96},
             "linea": 221.5
         }]
     
@@ -156,5 +171,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso completado con líneas de mercado reales integradas!")
-    
+    print("✨ ¡Proceso completado con inercia y momento competitivo integrados!")
