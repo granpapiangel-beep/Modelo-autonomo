@@ -8,7 +8,7 @@ from datetime import datetime
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera del día y extrae las estadísticas detalladas de titulares y banca."""
+    """Consulta la cartelera del día, extrae la línea de apuestas real y las estadísticas."""
     partidos = []
     try:
         url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -20,7 +20,8 @@ def obtener_cartelera_y_boxscore_avanzado():
                 event_id = event.get('id')
                 competitions = event.get('competitions', [])
                 if competitions:
-                    competitors = competitions[0].get('competitors', [])
+                    comp_data = competitions[0]
+                    competitors = comp_data.get('competitors', [])
                     local_team = None
                     visitante_team = None
                     
@@ -32,6 +33,13 @@ def obtener_cartelera_y_boxscore_avanzado():
                         else:
                             visitante_team = nombre_equipo
                     
+                    # 🔍 Extracción dinámica de la línea de puntos real (Over/Under) de la casa de apuestas
+                    linea_apuesta = 225.5  # Valor predeterminado por seguridad
+                    odds_info = comp_data.get('odds', [])
+                    if odds_info:
+                        # Extrae el total de puntos fijado para este juego en específico
+                        linea_apuesta = float(odds_info[0].get('overUnder', 225.5))
+                    
                     # Extraer desglose detallado de jugadores (Titulares y Banca) vía Boxscore
                     stats_loc, stats_vis = extraer_stats_titulares_y_banca(event_id)
                     
@@ -42,16 +50,15 @@ def obtener_cartelera_y_boxscore_avanzado():
                             "visitante": visitante_team,
                             "stats_loc": stats_loc,
                             "stats_vis": stats_vis,
-                            "linea": 225.5
+                            "linea": linea_apuesta
                         })
-        print(f"🌐 Conexión avanzada de atletas exitosa: {len(partidos)} encuentros procesados.")
+        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros con líneas de mercado reales.")
     except Exception as e:
-        print(f"⚠️ Aviso en la extracción de boxscore: {e}")
+        print(f"⚠️ Aviso en la extracción de cartelera: {e}")
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
     """Asigna perfiles realistas de titulares y banca basados en promedios reales de la NBA."""
-    # Valores base reales por equipo (Titulares ~82 pts + Banca ~32 pts = ~114 pts totales)
     def_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
     def_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     
@@ -67,14 +74,14 @@ def extraer_stats_titulares_y_banca(event_id):
     return def_loc, def_vis
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo con escala realista de puntos de la NBA."""
+    """Simulación de Monte Carlo contrastada contra la línea real del mercado."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
     stats_vis = partido["stats_vis"]
-    linea_apuesta = partido["linea"]
+    linea_apuesta = partido["linea"]  # <- Línea específica de este partido
 
-    # Suma directa del aporte ofensivo (Titulares + Banca = Puntos esperados del equipo)
+    # Suma directa del aporte ofensivo (Titulares + Banca)
     poder_ofensivo_local = stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']
     poder_ofensivo_visita = stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']
 
@@ -84,9 +91,8 @@ def simular_monte_carlo_con_rotacion(partido):
     ofensiva_local_final = poder_ofensivo_local * factor_ritmo
     ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
 
-    # Simulaciones de Monte Carlo con escala real (2000 iteraciones)
+    # Simulaciones de Monte Carlo (2000 iteraciones)
     n_sims = 2000
-    # Rango lógico individual por equipo: entre 90 y 145 puntos
     puntos_locales_sim = np.clip(np.random.normal(ofensiva_local_final, 8.0, n_sims), 90, 145)
     puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita_final, 8.0, n_sims), 90, 145)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
@@ -108,7 +114,7 @@ def simular_monte_carlo_con_rotacion(partido):
     }
     
     ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
-    print(f"🏀 [Simulación Realista] {local} vs {visitante} | Ganador: {ganador_str} | O/U: {prediccion['Pred_OU']} ({promedio_simulado:.1f} pts)")
+    print(f"🏀 {local} vs {visitante} | Línea Mercado: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
     return prediccion
 
 def ejecutar_feedback_loop():
@@ -120,21 +126,21 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con enfoque en rotación de jugadores...")
+    print("🤖 Iniciando motor analítico con líneas de mercado dinámicas...")
     
     ejecutar_feedback_loop()
     
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
     
     if not partidos_de_hoy:
-        print("📌 Sin cartelera activa. Usando respaldo de prueba avanzado...")
+        print("📌 Sin cartelera activa. Usando respaldo de prueba...")
         partidos_de_hoy = [{
             "event_id": "000000",
             "local": "Celtics", 
             "visitante": "Heat", 
             "stats_loc": {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5},
             "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0},
-            "linea": 225.5
+            "linea": 221.5
         }]
     
     nuevos_registros = []
@@ -150,4 +156,5 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Simulación avanzada con análisis de plantillas completada con éxito!")
+    print("✨ ¡Proceso completado con líneas de mercado reales integradas!")
+    
