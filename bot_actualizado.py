@@ -8,7 +8,7 @@ from datetime import datetime
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera del día, la línea de apuestas y extrae estadísticas reales con respaldo robusto."""
+    """Consulta la cartelera del día, la línea de apuestas y extrae estadísticas con validación previa."""
     partidos = []
     try:
         url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -42,7 +42,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                             visitante_team = nombre_equipo
                             stats_vis['FACTOR_FORMA'] = factor_forma
                     
-                    # Extracción del boxscore detallado con respaldo robusto
+                    # Extracción del boxscore detallado con validación de estado previo
                     box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
                     if box_loc:
                         stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
@@ -66,15 +66,15 @@ def obtener_cartelera_y_boxscore_avanzado():
                             "stats_vis": stats_vis,
                             "linea": linea_apuesta
                         })
-        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con respaldo robusto.")
+        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con validación previa.")
     except Exception as e:
         print(f"⚠️ Aviso en la extracción de cartelera: {e}")
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
     """Extrae los puntos reales de los titulares y banca, aplicando un respaldo robusto si el juego no ha iniciado."""
-    loc_data = None
-    vis_data = None
+    loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
+    vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     try:
         url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
         resp = requests.get(url_summary, timeout=5)
@@ -82,6 +82,9 @@ def extraer_stats_titulares_y_banca(event_id):
             sum_data = resp.json()
             boxscore = sum_data.get('boxscore', {})
             teams_box = boxscore.get('players', [])
+            
+            if not teams_box:
+                return loc_data, vis_data
             
             resultados_equipos = []
             for team_box in teams_box:
@@ -121,11 +124,6 @@ def extraer_stats_titulares_y_banca(event_id):
                 loc_data = resultados_equipos[1]
     except Exception:
         pass
-        
-    if not loc_data:
-        loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
-    if not vis_data:
-        vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
         
     return loc_data, vis_data
 
@@ -202,7 +200,7 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con respaldo robusto...")
+    print("🤖 Iniciando motor analítico con respaldo robusto y autolimpieza...")
     
     ejecutar_feedback_loop()
     
