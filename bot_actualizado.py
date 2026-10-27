@@ -8,7 +8,7 @@ from datetime import datetime
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera del día, la línea de apuestas y extrae estadísticas con validación estricta."""
+    """Consulta la cartelera del día, la línea de apuestas y extrae estadísticas con validación estricta de partidos en vivo."""
     partidos = []
     try:
         url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -42,7 +42,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                             visitante_team = nombre_equipo
                             stats_vis['FACTOR_FORMA'] = factor_forma
                     
-                    # Extracción del boxscore detallado con validación estricta
+                    # Extracción del boxscore detallado con validación estricta de juego en curso
                     box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
                     if box_loc:
                         stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
@@ -72,7 +72,7 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Extrae los puntos reales con validación estricta de acumulación real para evitar desbordamientos."""
+    """Extrae los puntos reales descartando parciales en vivo para evitar proyecciones de 180 pts."""
     loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
     vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     
@@ -109,8 +109,11 @@ def extraer_stats_titulares_y_banca(event_id):
                         else:
                             pts_banca += puntos
                 
-                # Validación estricta: Si los titulares suman menos de 30 puntos, usamos el perfil base realista.
-                if pts_titulares < 30:
+                total_equipo_parcial = pts_titulares + pts_banca
+                
+                # 🛡️ VALIDACIÓN BLINDADA: Si el equipo lleva menos de 90 puntos totales acumulados 
+                # (lo que indica que el juego no ha terminado o es parcial en vivo), usamos el perfil base realista.
+                if total_equipo_parcial < 90.0:
                     res_dict = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
                 else:
                     res_dict = {'PTS_TITULARES': pts_titulares, 'PTS_BANCA': pts_banca, 'RITMO': 98.5}
@@ -198,7 +201,7 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con validación estricta y autolimpieza...")
+    print("🤖 Iniciando motor analítico con validación estricta de partidos en vivo...")
     
     ejecutar_feedback_loop()
     
@@ -229,4 +232,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso completado con validación estricta y base de datos sincronizada!")
+    print("✨ ¡Proceso completado con validación de partidos en vivo y base de datos sincronizada!")
