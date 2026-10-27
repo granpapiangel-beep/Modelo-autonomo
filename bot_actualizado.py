@@ -68,8 +68,7 @@ def calcular_factor_forma_equipo(comp_competitor):
     try:
         records = comp_competitor.get('records', [])
         for rec in records:
-            # Buscamos registros de tipo 'last ten' (últimos 10 partidos) o general
-            summary = rec.get('summary', '') # Ej: "5-5" o registro general
+            summary = rec.get('summary', '')
             if '-' in summary:
                 parts = summary.split('-')
                 wins = int(parts[0])
@@ -77,8 +76,6 @@ def calcular_factor_forma_equipo(comp_competitor):
                 total = wins + losses
                 if total > 0:
                     win_pct = wins / total
-                    # Si el equipo gana más del 60%, se le da un bono de inercia positiva (>1.0)
-                    # Si gana menos del 40% (bache/mala racha), se le aplica un castigo (<1.0)
                     if win_pct >= 0.60:
                         factor = 1.03
                     elif win_pct <= 0.40:
@@ -88,7 +85,7 @@ def calcular_factor_forma_equipo(comp_competitor):
     return factor
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo ajustada con el Factor de Forma Reciente."""
+    """Simulación de Monte Carlo ajustada con el Factor de Forma Reciente y líneas reales."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
@@ -114,7 +111,6 @@ def simular_monte_carlo_con_rotacion(partido):
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
     
-    # Diferencial de poder ponderando la forma reciente
     diff_poder = (ofensiva_local_final + 3.0) - ofensiva_visita_final
     prob_local = 1 / (1 + np.exp(-diff_poder / 10))
 
@@ -163,16 +159,7 @@ if __name__ == "__main__":
         pred = simular_monte_carlo_con_rotacion(p)
         nuevos_registros.append(pred)
     
-    df_new = pd.DataFrame(nuevos_registros)
-    if os.path.exists(ARCHIVO_HISTORIAL):
-        df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
-        df_final = pd.concat([df_existing, df_new], ignore_index=True)
-        df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
-    else:
-        df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
-        
-    print("✨ ¡Proceso completado con inercia y momento competitivo integrados!")
-# Guardar en el historial acumulativo y limpiar duplicados automáticamente
+    # Guardar en el historial acumulativo y limpiar duplicados automáticamente de forma limpia
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
         df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
