@@ -42,7 +42,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                             visitante_team = nombre_equipo
                             stats_vis['FACTOR_FORMA'] = factor_forma
                     
-                    # Extracción del boxscore detallado por jugadores (Titulares vs Banca reales)
+                    # Extracción del boxscore detallado por jugadores con mapeo correcto
                     box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
                     if box_loc:
                         stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
@@ -66,13 +66,13 @@ def obtener_cartelera_y_boxscore_avanzado():
                             "stats_vis": stats_vis,
                             "linea": linea_apuesta
                         })
-        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con boxscore y forma.")
+        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con mapeo correcto.")
     except Exception as e:
         print(f"⚠️ Aviso en la extracción de cartelera: {e}")
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Extrae los puntos reales de los 5 titulares y la banca desde el Boxscore de la API de ESPN."""
+    """Extrae los puntos reales (índice 1) de los titulares y banca desde el Boxscore de la API."""
     loc_data = None
     vis_data = None
     try:
@@ -92,10 +92,11 @@ def extraer_stats_titulares_y_banca(event_id):
                 for ath in athletes:
                     es_titular = ath.get('starter', False)
                     stats_jugador = ath.get('stats', [])
-                    # El primer elemento o campo suele ser los puntos anotados por el jugador
-                    if stats_jugador:
+                    
+                    # CORRECCIÓN DE MAPEO: El índice 1 corresponde a los puntos (PTS)
+                    if len(stats_jugador) > 1:
                         try:
-                            puntos = float(stats_jugador[0])
+                            puntos = float(stats_jugador[1])
                         except ValueError:
                             puntos = 0.0
                             
@@ -104,8 +105,8 @@ def extraer_stats_titulares_y_banca(event_id):
                         else:
                             pts_banca += puntos
                             
-                # Si el boxscore viene vacío o en ceros por ser juego previo, asignamos base analítica
-                if pts_titulares == 0:
+                # Respaldo si el juego es previo y los acumulados vienen en ceros
+                if pts_titulares < 20:
                     pts_titulares = 82.0
                     pts_banca = 32.0
                     
@@ -146,14 +147,13 @@ def calcular_factor_forma_equipo(comp_competitor):
     return factor
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo ajustada con titulares reales, banca y factor de forma."""
+    """Simulación de Monte Carlo ajustada con el mapeo correcto de jugadores y factor de forma."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
     stats_vis = partido["stats_vis"]
     linea_apuesta = partido["linea"]
 
-    # Aporte ofensivo base modificado por la inercia/racha actual del equipo
     poder_ofensivo_local = (stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']) * stats_loc['FACTOR_FORMA']
     poder_ofensivo_visita = (stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']) * stats_vis['FACTOR_FORMA']
 
@@ -163,7 +163,6 @@ def simular_monte_carlo_con_rotacion(partido):
     ofensiva_local_final = poder_ofensivo_local * factor_ritmo
     ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
 
-    # Simulaciones de Monte Carlo (2000 iteraciones)
     n_sims = 2000
     puntos_locales_sim = np.clip(np.random.normal(ofensiva_local_final, 8.0, n_sims), 90, 145)
     puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita_final, 8.0, n_sims), 90, 145)
@@ -198,7 +197,7 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con parseo de jugadores, inercia y autolimpieza...")
+    print("🤖 Iniciando motor analítico con mapeo correcto de atletas...")
     
     ejecutar_feedback_loop()
     
@@ -220,17 +219,13 @@ if __name__ == "__main__":
         pred = simular_monte_carlo_con_rotacion(p)
         nuevos_registros.append(pred)
     
-    # Guardar en el historial acumulativo y limpiar duplicados automáticamente de forma limpia
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
         df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
         df_final = pd.concat([df_existing, df_new], ignore_index=True)
-        
-        # Elimina duplicados si se ejecutó varias veces el mismo día
         df_final = df_final.drop_duplicates(subset=['Fecha', 'Local', 'Visitante'], keep='last')
-        
         df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso completado con éxito y base de datos sincronizada!")
+    print("✨ ¡Proceso completado con mapeo correcto y base de datos sincronizada!")
