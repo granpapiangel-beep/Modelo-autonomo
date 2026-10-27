@@ -8,7 +8,7 @@ from datetime import datetime
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera del día, la línea de apuestas y extrae estadísticas con validación estricta de partidos en vivo."""
+    """Consulta la cartelera, verifica si el juego concluyó y extrae estadísticas de forma segura."""
     partidos = []
     try:
         url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
@@ -21,6 +21,11 @@ def obtener_cartelera_y_boxscore_avanzado():
                 competitions = event.get('competitions', [])
                 if competitions:
                     comp_data = competitions[0]
+                    
+                    # Verificar si el partido ya finalizó oficialmente
+                    status_data = comp_data.get('status', {}).get('type', {})
+                    juego_terminado = status_data.get('completed', False)
+                    
                     competitors = comp_data.get('competitors', [])
                     local_team = None
                     visitante_team = None
@@ -32,7 +37,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                         team_info = comp.get('team', {})
                         nombre_equipo = team_info.get('name', '')
                         
-                        # Analizar registros y racha reciente de la API de ESPN
+                        # Analizar racha reciente de la API
                         factor_forma = calcular_factor_forma_equipo(comp)
                         
                         if comp.get('homeAway') == 'home':
@@ -42,14 +47,15 @@ def obtener_cartelera_y_boxscore_avanzado():
                             visitante_team = nombre_equipo
                             stats_vis['FACTOR_FORMA'] = factor_forma
                     
-                    # Extracción del boxscore detallado con validación estricta de juego en curso
-                    box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
-                    if box_loc:
-                        stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
-                        stats_loc['PTS_BANCA'] = box_loc['PTS_BANCA']
-                    if box_vis:
-                        stats_vis['PTS_TITULARES'] = box_vis['PTS_TITULARES']
-                        stats_vis['PTS_BANCA'] = box_vis['PTS_BANCA']
+                    # Solo extraemos boxscore individual si el juego YA TERMINÓ; de lo contrario usa la base realista
+                    if juego_terminado:
+                        box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
+                        if box_loc:
+                            stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
+                            stats_loc['PTS_BANCA'] = box_loc['PTS_BANCA']
+                        if box_vis:
+                            stats_vis['PTS_TITULARES'] = box_vis['PTS_TITULARES']
+                            stats_vis['PTS_BANCA'] = box_vis['PTS_BANCA']
 
                     # Extracción de la línea de puntos real (Over/Under)
                     linea_apuesta = 225.5
@@ -66,13 +72,13 @@ def obtener_cartelera_y_boxscore_avanzado():
                             "stats_vis": stats_vis,
                             "linea": linea_apuesta
                         })
-        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados correctamente.")
+        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con control de estado.")
     except Exception as e:
         print(f"⚠️ Aviso en la extracción de cartelera: {e}")
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Extrae los puntos reales descartando parciales en vivo para evitar proyecciones de 180 pts."""
+    """Extrae los puntos reales del boxscore finalizado."""
     loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
     vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     
@@ -97,7 +103,6 @@ def extraer_stats_titulares_y_banca(event_id):
                     es_titular = ath.get('starter', False)
                     stats_jugador = ath.get('stats', [])
                     
-                    # Mapeo correcto: El índice 1 corresponde a los puntos (PTS)
                     if len(stats_jugador) > 1:
                         try:
                             puntos = float(stats_jugador[1])
@@ -109,16 +114,11 @@ def extraer_stats_titulares_y_banca(event_id):
                         else:
                             pts_banca += puntos
                 
-                total_equipo_parcial = pts_titulares + pts_banca
-                
-                # 🛡️ VALIDACIÓN BLINDADA: Si el equipo lleva menos de 90 puntos totales acumulados 
-                # (lo que indica que el juego no ha terminado o es parcial en vivo), usamos el perfil base realista.
-                if total_equipo_parcial < 90.0:
-                    res_dict = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
-                else:
-                    res_dict = {'PTS_TITULARES': pts_titulares, 'PTS_BANCA': pts_banca, 'RITMO': 98.5}
-                    
-                resultados_equipos.append(res_dict)
+                resultados_equipos.append({
+                    'PTS_TITULARES': pts_titulares if pts_titulares > 20 else 82.0,
+                    'PTS_BANCA': pts_banca if pts_titulares > 20 else 32.0,
+                    'RITMO': 98.5
+                })
                 
             if len(resultados_equipos) >= 2:
                 vis_data = resultados_equipos[0]
@@ -130,7 +130,7 @@ def extraer_stats_titulares_y_banca(event_id):
 
 def calcular_factor_forma_equipo(comp_competitor):
     """Calcula un multiplicador basado en la racha de victorias/derrotas recientes de la API."""
-    factor = 1.0  # Neutro por defecto
+    factor = 1.0
     try:
         records = comp_competitor.get('records', [])
         for rec in records:
@@ -151,7 +151,7 @@ def calcular_factor_forma_equipo(comp_competitor):
     return factor
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo ajustada con respaldo robusto y factor de forma."""
+    """Simulación de Monte Carlo ajustada."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
@@ -201,7 +201,7 @@ def ejecutar_feedback_loop():
         df.to_csv(ARCHIVO_HISTORIAL, index=False)
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con validación estricta de partidos en vivo...")
+    print("🤖 Iniciando motor analítico con control de estado de partidos...")
     
     ejecutar_feedback_loop()
     
@@ -232,4 +232,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso completado con validación de partidos en vivo y base de datos sincronizada!")
+    print("✨ ¡Proceso completado con control de estado y base de datos sincronizada!")
