@@ -172,3 +172,17 @@ if __name__ == "__main__":
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
     print("✨ ¡Proceso completado con inercia y momento competitivo integrados!")
+# Guardar en el historial acumulativo y limpiar duplicados automáticamente
+    df_new = pd.DataFrame(nuevos_registros)
+    if os.path.exists(ARCHIVO_HISTORIAL):
+        df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
+        df_final = pd.concat([df_existing, df_new], ignore_index=True)
+        
+        # Elimina duplicados si se ejecutó varias veces el mismo día
+        df_final = df_final.drop_duplicates(subset=['Fecha', 'Local', 'Visitante'], keep='last')
+        
+        df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
+    else:
+        df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
+        
+    print("✨ ¡Proceso completado con inercia y momento competitivo integrados!")
