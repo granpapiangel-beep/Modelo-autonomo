@@ -4,86 +4,101 @@ import numpy as np
 import os
 import requests
 from datetime import datetime
+import logging
+
+# Configuración formal de logging para auditoría profesional en GitHub Actions
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[logging.StreamHandler()]
+)
 
 ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera, verifica si el juego concluyó y extrae estadísticas de forma segura."""
+    """Consulta la cartelera, verifica el estado del partido y extrae estadísticas de forma segura."""
     partidos = []
+    url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    
     try:
-        url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
         response = requests.get(url, timeout=10)
-        if response.status_code == 200:
-            data = response.json()
-            events = data.get('events', [])
-            for event in events:
-                event_id = event.get('id')
-                competitions = event.get('competitions', [])
-                if competitions:
-                    comp_data = competitions[0]
-                    
-                    # Verificar si el partido ya finalizó oficialmente
-                    status_data = comp_data.get('status', {}).get('type', {})
-                    juego_terminado = status_data.get('completed', False)
-                    
-                    competitors = comp_data.get('competitors', [])
-                    local_team = None
-                    visitante_team = None
-                    
-                    stats_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.0}
-                    stats_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 1.0}
-                    
-                    for comp in competitors:
-                        team_info = comp.get('team', {})
-                        nombre_equipo = team_info.get('name', '')
-                        
-                        # Analizar racha reciente de la API
-                        factor_forma = calcular_factor_forma_equipo(comp)
-                        
-                        if comp.get('homeAway') == 'home':
-                            local_team = nombre_equipo
-                            stats_loc['FACTOR_FORMA'] = factor_forma
-                        else:
-                            visitante_team = nombre_equipo
-                            stats_vis['FACTOR_FORMA'] = factor_forma
-                    
-                    # Solo extraemos boxscore individual si el juego YA TERMINÓ; de lo contrario usa la base realista
-                    if juego_terminado:
-                        box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
-                        if box_loc:
-                            stats_loc['PTS_TITULARES'] = box_loc['PTS_TITULARES']
-                            stats_loc['PTS_BANCA'] = box_loc['PTS_BANCA']
-                        if box_vis:
-                            stats_vis['PTS_TITULARES'] = box_vis['PTS_TITULARES']
-                            stats_vis['PTS_BANCA'] = box_vis['PTS_BANCA']
+        response.raise_for_status()
+        data = response.json()
+        events = data.get('events', [])
+        
+        for event in events:
+            event_id = event.get('id')
+            competitions = event.get('competitions', [])
+            if not competitions:
+                continue
+                
+            comp_data = competitions[0]
+            
+            # Verificar si el partido ya finalizó oficialmente
+            status_data = comp_data.get('status', {}).get('type', {})
+            juego_terminado = status_data.get('completed', False)
+            
+            competitors = comp_data.get('competitors', [])
+            local_team = None
+            visitante_team = None
+            
+            stats_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.0}
+            stats_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 1.0}
+            
+            for comp in competitors:
+                team_info = comp.get('team', {})
+                nombre_equipo = team_info.get('name', '')
+                factor_forma = calcular_factor_forma_equipo(comp)
+                
+                if comp.get('homeAway') == 'home':
+                    local_team = nombre_equipo
+                    stats_loc['FACTOR_FORMA'] = factor_forma
+                else:
+                    visitante_team = nombre_equipo
+                    stats_vis['FACTOR_FORMA'] = factor_forma
+            
+            # Extracción del boxscore detallado solo si el juego concluyó
+            if juego_terminado:
+                box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
+                if box_loc:
+                    stats_loc.update(box_loc)
+                if box_vis:
+                    stats_vis.update(box_vis)
 
-                    # Extracción de la línea de puntos real (Over/Under)
-                    linea_apuesta = 225.5
-                    odds_info = comp_data.get('odds', [])
-                    if odds_info:
-                        linea_apuesta = float(odds_info[0].get('overUnder', 225.5))
-                    
-                    if local_team and visitante_team:
-                        partidos.append({
-                            "event_id": event_id,
-                            "local": local_team, 
-                            "visitante": visitante_team,
-                            "stats_loc": stats_loc,
-                            "stats_vis": stats_vis,
-                            "linea": linea_apuesta
-                        })
-        print(f"🌐 Conexión avanzada exitosa: {len(partidos)} encuentros procesados con control de estado.")
+            # Extracción de la línea de puntos real (Over/Under)
+            linea_apuesta = 225.5
+            odds_info = comp_data.get('odds', [])
+            if odds_info:
+                try:
+                    linea_apuesta = float(odds_info[0].get('overUnder', 225.5))
+                except (ValueError, TypeError):
+                    pass
+            
+            if local_team and visitante_team:
+                partidos.append({
+                    "event_id": event_id,
+                    "local": local_team, 
+                    "visitante": visitante_team,
+                    "stats_loc": stats_loc,
+                    "stats_vis": stats_vis,
+                    "linea": linea_apuesta
+                })
+                
+        logging.info(f"Conexión avanzada exitosa: {len(partidos)} encuentros procesados con control de estado.")
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Error de red al consultar la cartelera de ESPN: {e}")
     except Exception as e:
-        print(f"⚠️ Aviso en la extracción de cartelera: {e}")
+        logging.error(f"Error inesperado en la extracción de cartelera: {e}")
+        
     return partidos
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Extrae los puntos reales del boxscore finalizado."""
+    """Extrae los puntos reales del boxscore finalizado con manejo seguro de excepciones."""
     loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
     vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
     
+    url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
     try:
-        url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
         resp = requests.get(url_summary, timeout=5)
         if resp.status_code == 200:
             sum_data = resp.json()
@@ -106,7 +121,7 @@ def extraer_stats_titulares_y_banca(event_id):
                     if len(stats_jugador) > 1:
                         try:
                             puntos = float(stats_jugador[1])
-                        except ValueError:
+                        except (ValueError, TypeError):
                             puntos = 0.0
                             
                         if es_titular:
@@ -123,13 +138,13 @@ def extraer_stats_titulares_y_banca(event_id):
             if len(resultados_equipos) >= 2:
                 vis_data = resultados_equipos[0]
                 loc_data = resultados_equipos[1]
-    except Exception:
-        pass
+    except Exception as e:
+        logging.warning(furer=f"No se pudo extraer el boxscore detallado para el evento {event_id}: {e}")
         
     return loc_data, vis_data
 
 def calcular_factor_forma_equipo(comp_competitor):
-    """Calcula un multiplicador basado en la racha de victorias/derrotas recientes de la API."""
+    """Calcula un multiplicador basado en la racha reciente de la API de forma segura."""
     factor = 1.0
     try:
         records = comp_competitor.get('records', [])
@@ -151,7 +166,7 @@ def calcular_factor_forma_equipo(comp_competitor):
     return factor
 
 def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo ajustada."""
+    """Simulación de Monte Carlo optimizada y robusta."""
     local = partido["local"]
     visitante = partido["visitante"]
     stats_loc = partido["stats_loc"]
@@ -179,36 +194,39 @@ def simular_monte_carlo_con_rotacion(partido):
     prob_local = 1 / (1 + np.exp(-diff_poder / 10))
 
     prediccion = {
-        'Fecha': datetime.today().strftime('%Y-%m-%d'),
+        'Fecha': datetime.now().strftime('%Y-%m-%d'),
         'Local': local,
         'Visitante': visitante,
         'Pred_Ganador_Local': bool(prob_local >= 0.5),
         'Line_Apuesta': linea_apuesta,
-        'Pred_OU': "OVER" if prob_over > 50 else "UNDER",
+        'Pred_OU': "OVER" if prob_over > 50 else "DEBAJO",
         'Promedio_Simulado': round(promedio_simulado, 1)
     }
     
     ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
-    print(f"🏀 {local} vs {visitante} | Línea: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
+    logging.info(f"🏀 {local} vs {visitante} | Línea: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
     return prediccion
 
 def ejecutar_feedback_loop():
     if not os.path.exists(ARCHIVO_HISTORIAL):
         return
-    df = pd.read_csv(ARCHIVO_HISTORIAL)
-    if 'Estado_Evaluacion' not in df.columns:
-        df['Estado_Evaluacion'] = 'Pendiente'
-        df.to_csv(ARCHIVO_HISTORIAL, index=False)
+    try:
+        df = pd.read_csv(ARCHIVO_HISTORIAL)
+        if 'Estado_Evaluacion' not in df.columns:
+            df['Estado_Evaluacion'] = 'Pendiente'
+            df.to_csv(ARCHIVO_HISTORIAL, index=False)
+    except Exception as e:
+        logging.warning(f"No se pudo procesar el archivo histórico: {e}")
 
 if __name__ == "__main__":
-    print("🤖 Iniciando motor analítico con control de estado de partidos...")
+    logging.info("🤖 Iniciando motor analítico profesional con logging industrial...")
     
     ejecutar_feedback_loop()
     
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
     
     if not partidos_de_hoy:
-        print("📌 Sin cartelera activa. Usando respaldo de prueba...")
+        logging.warning("📌 Sin cartelera activa. Usando respaldo de prueba...")
         partidos_de_hoy = [{
             "event_id": "000000",
             "local": "Celtics", 
@@ -225,11 +243,15 @@ if __name__ == "__main__":
     
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
-        df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
-        df_final = pd.concat([df_existing, df_new], ignore_index=True)
-        df_final = df_final.drop_duplicates(subset=['Fecha', 'Local', 'Visitante'], keep='last')
-        df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
+        try:
+            df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
+            df_final = pd.concat([df_existing, df_new], ignore_index=True)
+            df_final = df_final.drop_duplicates(subset=['Fecha', 'Local', 'Visitante'], keep='last')
+            df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
+        except Exception as e:
+            logging.error(f"Error al actualizar el archivo CSV histórico: {e}")
+            df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
         
-    print("✨ ¡Proceso completado con control de estado y base de datos sincronizada!")
+    logging.info("✨ ¡Proceso completado de forma industrial y base de datos sincronizada!")
