@@ -1,5 +1,5 @@
-Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado
-2026-10-28,Celtics,Nets,True,225.5,UNDER,213.6
-2026-10-28,Knicks,Pistons,False,225.5,UNDER,221.0
-2026-10-28,Spurs,Kings,True,225.5,UNDER,221.8
-2026-10-28,Lakers,Trail Blazers,True,233.5,UNDER,229.0
+Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,Estado_Evaluacion
+2026-10-28,Celtics,Nets,True,225.5,DEBAJO,213.3,
+2026-10-28,Knicks,Pistons,False,225.5,DEBAJO,220.9,
+2026-10-28,Spurs,Kings,True,225.5,DEBAJO,221.2,
+2026-10-28,Lakers,Trail Blazers,True,233.5,DEBAJO,228.9,
