@@ -2,16 +2,13 @@ name: Bot NBA Autónomo y Sincronización CSV
 
 on:
   schedule:
-    # Se ejecuta automáticamente todos los días a las 6:00 UTC (puedes ajustarlo)
     - cron: '0 6 * * *'
   workflow_dispatch:
-    # Te permite un botón en GitHub para ejecutarlo manualmente cuando quieras
 
 jobs:
   ejecutar-bot:
     runs-on: ubuntu-latest
     
-    # 🔑 PERMISO CRUCIAL: Permite que GitHub Actions modifique archivos del repositorio
     permissions:
       contents: write
 
@@ -32,15 +29,14 @@ jobs:
       - name: Ejecutar el script del Bot
         run: python bot_actualizado.py
 
-      - name: Subir cambios del CSV al repositorio de forma automática
+      - name: Sincronizar y subir cambios del CSV al repositorio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           
-          # Verificar si el archivo CSV existe y tiene cambios
-          git status
-          git add historial_evaluaciones_nba.csv
+          # Sincronizar con el repositorio remoto por si hubo cambios previos
+          git pull origin main --rebase || true
           
-          # Hacer commit y push solo si hay modificaciones (evita errores si no hay cambios)
+          git add historial_evaluaciones_nba.csv
           git diff --staged --quiet || git commit -m "📊 Actualización automática del historial CSV de la NBA [skip ci]"
-          git push
+          git push origin main
