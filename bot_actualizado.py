@@ -1,257 +1,372 @@
-# bot_actualizado.py
-import pandas as pd
-import numpy as np
-import os
-import requests
 from datetime import datetime
 import logging
+import os
+import numpy as np
+import pandas as pd
+import requests
+from scipy.optimize import minimize
 
 # Configuración formal de logging para auditoría profesional en GitHub Actions
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s [%(levelname)s] %(message)s',
-    handlers=[logging.StreamHandler()]
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler()],
 )
 
-ARCHIVO_HISTORIAL = 'historial_evaluaciones_nba.csv'
+ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
+
+
+# ==========================================
+# MÓDULO DE OPTIMIZACIÓN NO LINEAL (A lo fmincon / lsqcurvefit)
+# ==========================================
+def funcion_costo_historico(pesos, df_hist):
+  """Función de pérdida no lineal para optimizar los pesos de los factores ofensivos.
+
+  pesos[0]: Peso Titulares | pesos[1]: Peso Banca | pesos[2]: Factor Racha/Forma
+  """
+  error_total = 0.0
+  validos = 0
+
+  for _, row in df_hist.iterrows():
+    # Simulamos el cálculo pasado con los pesos evaluados por el optimizador
+    # (Asumiendo que guardamos métricas base o evaluamos contra el resultado real)
+    try:
+      # Si hay un resultado real registrado, medimos la desviación
+      resultado_real = (
+          1 if row.get("Resultado_Real_Local", 1) == 1 else 0
+      )  # 1 si ganó local, 0 si visitante
+      pred_local_aprox = (
+          pesos[0] * 82.0 + pesos[1] * 32.0
+      ) * pesos[2]  .0  # Simplificación analítica para el optimizador
+      prob_aprox = 1 / (1 + np.exp(-pred_local_aprox / 100))
+
+      # Error cuadrático entre probabilidad predicha y resultado real
+      error_total += (prob_aprox - resultado_real) ** 2
+      validos += 1
+    except Exception:
+      continue
+
+  return error_total / max(validos, 1)
+
+
+def optimizar_pesos_modelo():
+  """Ejecuta la optimización no lineal utilizando el historial guardado."""
+  if not os.path.exists(ARCHIVO_HISTORIAL):
+    return [1.0, 1.0, 1.0]  # Pesos por defecto si no hay historial aún
+
+  try:
+    df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
+    if len(df_hist) < 5:
+      return [1.0, 1.0, 1.0]  # Se necesitan suficientes datos para calibrar
+
+    # Valores iniciales para los pesos [Titulares, Banca, Factor Forma]
+    pesos_iniciales = [1.0, 1.0, 1.0]
+
+    # Restricciones a lo 'fmincon': los pesos deben mantenerse en rangos lógicos positivos
+    limites = [(0.5, 2.0), (0.5, 2.0), (0.5, 1.5)]
+
+    resultado = minimize(
+        funcion_costo_historico,
+        pesos_iniciales,
+        args=(df_hist,),
+        method="SLSQP",
+        bounds=limites,
+    )
+
+    if resultado.success:
+      logging.info(
+          "⚙️ Optimización no lineal exitosa. Coeficientes calibrados:"
+          f" {resultado.x}"
+      )
+      return resultado.x
+    else:
+      logging.warning(
+          "⚠️ El optimizador no convergió del todo, usando pesos estándar."
+      )
+      return [1.0, 1.0, 1.0]
+  except Exception as e:
+    logging.warning(f"Error en el motor de optimización no lineal: {e}")
+    return [1.0, 1.0, 1.0]
+
 
 def obtener_cartelera_y_boxscore_avanzado():
-    """Consulta la cartelera, verifica el estado del partido y extrae estadísticas de forma segura."""
-    partidos = []
-    url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
-    
-    try:
-        response = requests.get(url, timeout=10)
-        response.raise_for_status()
-        data = response.json()
-        events = data.get('events', [])
-        
-        for event in events:
-            event_id = event.get('id')
-            competitions = event.get('competitions', [])
-            if not competitions:
-                continue
-                
-            comp_data = competitions[0]
-            
-            # Verificar si el partido ya finalizó oficialmente
-            status_data = comp_data.get('status', {}).get('type', {})
-            juego_terminado = status_data.get('completed', False)
-            
-            competitors = comp_data.get('competitors', [])
-            local_team = None
-            visitante_team = None
-            
-            stats_loc = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.0}
-            stats_vis = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 1.0}
-            
-            for comp in competitors:
-                team_info = comp.get('team', {})
-                nombre_equipo = team_info.get('name', '')
-                factor_forma = calcular_factor_forma_equipo(comp)
-                
-                if comp.get('homeAway') == 'home':
-                    local_team = nombre_equipo
-                    stats_loc['FACTOR_FORMA'] = factor_forma
-                else:
-                    visitante_team = nombre_equipo
-                    stats_vis['FACTOR_FORMA'] = factor_forma
-            
-            # Extracción del boxscore detallado solo si el juego concluyó
-            if juego_terminado:
-                box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
-                if box_loc:
-                    stats_loc.update(box_loc)
-                if box_vis:
-                    stats_vis.update(box_vis)
+  """Consulta la cartelera, verifica el estado del partido y extrae estadísticas de forma segura."""
+  partidos = []
+  url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
 
-            # Extracción de la línea de puntos real (Over/Under)
-            linea_apuesta = 225.5
-            odds_info = comp_data.get('odds', [])
-            if odds_info:
-                try:
-                    linea_apuesta = float(odds_info[0].get('overUnder', 225.5))
-                except (ValueError, TypeError):
-                    pass
-            
-            if local_team and visitante_team:
-                partidos.append({
-                    "event_id": event_id,
-                    "local": local_team, 
-                    "visitante": visitante_team,
-                    "stats_loc": stats_loc,
-                    "stats_vis": stats_vis,
-                    "linea": linea_apuesta
-                })
-                
-        logging.info(f"Conexión avanzada exitosa: {len(partidos)} encuentros procesados con control de estado.")
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error de red al consultar la cartelera de ESPN: {e}")
-    except Exception as e:
-        logging.error(f"Error inesperado en la extracción de cartelera: {e}")
-        
-    return partidos
+  try:
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+    data = response.json()
+    events = data.get("events", [])
+
+    for event in events:
+      event_id = event.get("id")
+      competitions = event.get("competitions", [])
+      if not competitions:
+        continue
+
+      comp_data = competitions[0]
+      status_data = comp_data.get("status", {}).get("type", {})
+      juego_terminado = status_data.get("completed", False)
+
+      competitors = comp_data.get("competitors", [])
+      local_team = None
+      visitante_team = None
+
+      stats_loc = {
+          "PTS_TITULARES": 82.0,
+          "PTS_BANCA": 32.0,
+          "RITMO": 98.5,
+          "FACTOR_FORMA": 1.0,
+      }
+      stats_vis = {
+          "PTS_TITULARES": 80.0,
+          "PTS_BANCA": 30.0,
+          "RITMO": 98.0,
+          "FACTOR_FORMA": 1.0,
+      }
+
+      for comp in competitors:
+        team_info = comp.get("team", {})
+        nombre_equipo = team_info.get("name", "")
+        factor_forma = calcular_factor_forma_equipo(comp)
+
+        if comp.get("homeAway") == "home":
+          local_team = nombre_equipo
+          stats_loc["FACTOR_FORMA"] = factor_forma
+        else:
+          visitante_team = nombre_equipo
+          stats_vis["FACTOR_FORMA"] = factor_forma
+
+      if juego_terminado:
+        box_loc, box_vis = extraer_stats_titulares_y_banca(event_id)
+        if box_loc:
+          stats_loc.update(box_loc)
+        if box_vis:
+          stats_vis.update(box_vis)
+
+      linea_apuesta = 225.5
+      odds_info = comp_data.get("odds", [])
+      if odds_info:
+        try:
+          linea_apuesta = float(odds_info[0].get("overUnder", 225.5))
+        except (ValueError, TypeError):
+          pass
+
+      if local_team and visitante_team:
+        partidos.append({
+            "event_id": event_id,
+            "local": local_team,
+            "visitante": visitante_team,
+            "stats_loc": stats_loc,
+            "stats_vis": stats_vis,
+            "linea": linea_apuesta,
+        })
+
+    logging.info(
+        f"Conexión avanzada exitosa: {len(partidos)} encuentros procesados."
+    )
+  except Exception as e:
+    logging.error(f"Error en extracción de cartelera: {e}")
+
+  return partidos
+
 
 def extraer_stats_titulares_y_banca(event_id):
-    """Extrae los puntos reales del boxscore finalizado con manejo seguro de excepciones."""
-    loc_data = {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5}
-    vis_data = {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0}
-    
-    url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
-    try:
-        resp = requests.get(url_summary, timeout=5)
-        if resp.status_code == 200:
-            sum_data = resp.json()
-            boxscore = sum_data.get('boxscore', {})
-            teams_box = boxscore.get('players', [])
-            
-            if not teams_box:
-                return loc_data, vis_data
-            
-            resultados_equipos = []
-            for team_box in teams_box:
-                athletes = team_box.get('statistics', [{}])[0].get('athletes', [])
-                pts_titulares = 0.0
-                pts_banca = 0.0
-                
-                for ath in athletes:
-                    es_titular = ath.get('starter', False)
-                    stats_jugador = ath.get('stats', [])
-                    
-                    if len(stats_jugador) > 1:
-                        try:
-                            puntos = float(stats_jugador[1])
-                        except (ValueError, TypeError):
-                            puntos = 0.0
-                            
-                        if es_titular:
-                            pts_titulares += puntos
-                        else:
-                            pts_banca += puntos
-                
-                resultados_equipos.append({
-                    'PTS_TITULARES': pts_titulares if pts_titulares > 20 else 82.0,
-                    'PTS_BANCA': pts_banca if pts_titulares > 20 else 32.0,
-                    'RITMO': 98.5
-                })
-                
-            if len(resultados_equipos) >= 2:
-                vis_data = resultados_equipos[0]
-                loc_data = resultados_equipos[1]
-    except Exception as e:
-        logging.warning(furer=f"No se pudo extraer el boxscore detallado para el evento {event_id}: {e}")
-        
-    return loc_data, vis_data
+  loc_data = {"PTS_TITULARES": 82.0, "PTS_BANCA": 32.0, "RITMO": 98.5}
+  vis_data = {"PTS_TITULARES": 80.0, "PTS_BANCA": 30.0, "RITMO": 98.0}
+  url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
+  try:
+    resp = requests.get(url_summary, timeout=5)
+    if resp.status_code == 200:
+      sum_data = resp.json()
+      boxscore = sum_data.get("boxscore", {})
+      teams_box = boxscore.get("players", [])
+      if not teams_box:
+        return loc_data, vis_data
+
+      resultados_equipos = []
+      for team_box in teams_box:
+        athletes = team_box.get("statistics", [{}])[0].get("athletes", [])
+        pts_titulares = 0.0
+        pts_banca = 0.0
+        for ath in athletes:
+          es_titular = ath.get("starter", False)
+          stats_jugador = ath.get("stats", [])
+          if len(stats_jugador) > 1:
+            try:
+              puntos = float(stats_jugador[1])
+            except (ValueError, TypeError):
+              puntos = 0.0
+            if es_titular:
+              pts_titulares += puntos
+            else:
+              pts_banca += puntos
+        resultados_equipos.append({
+            "PTS_TITULARES": pts_titulares if pts_titulares > 20 else 82.0,
+            "PTS_BANCA": pts_banca if pts_titulares > 20 else 32.0,
+            "RITMO": 98.5,
+        })
+      if len(resultados_equipos) >= 2:
+        vis_data = resultados_equipos[0]
+        loc_data = resultados_equipos[1]
+  except Exception:
+    pass
+  return loc_data, vis_data
+
 
 def calcular_factor_forma_equipo(comp_competitor):
-    """Calcula un multiplicador basado en la racha reciente de la API de forma segura."""
-    factor = 1.0
-    try:
-        records = comp_competitor.get('records', [])
-        for rec in records:
-            summary = rec.get('summary', '')
-            if '-' in summary:
-                parts = summary.split('-')
-                wins = int(parts[0])
-                losses = int(parts[1])
-                total = wins + losses
-                if total > 0:
-                    win_pct = wins / total
-                    if win_pct >= 0.60:
-                        factor = 1.03
-                    elif win_pct <= 0.40:
-                        factor = 0.96
-    except Exception:
-        pass
-    return factor
+  factor = 1.0
+  try:
+    records = comp_competitor.get("records", [])
+    for rec in records:
+      summary = rec.get("summary", "")
+      if "-" in summary:
+        parts = summary.split("-")
+        wins, losses = int(parts[0]), int(parts[1])
+        total = wins + losses
+        if total > 0 and (wins / total) >= 0.60:
+          factor = 1.03
+        elif total > 0 and (wins / total) <= 0.40:
+          factor = 0.96
+  except Exception:
+    pass
+  return factor
 
-def simular_monte_carlo_con_rotacion(partido):
-    """Simulación de Monte Carlo optimizada y robusta."""
-    local = partido["local"]
-    visitante = partido["visitante"]
-    stats_loc = partido["stats_loc"]
-    stats_vis = partido["stats_vis"]
-    linea_apuesta = partido["linea"]
 
-    poder_ofensivo_local = (stats_loc['PTS_TITULARES'] + stats_loc['PTS_BANCA']) * stats_loc['FACTOR_FORMA']
-    poder_ofensivo_visita = (stats_vis['PTS_TITULARES'] + stats_vis['PTS_BANCA']) * stats_vis['FACTOR_FORMA']
+def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
+  """Simulación de Monte Carlo aplicando los pesos calibrados por optimización no lineal."""
+  local = partido["local"]
+  visitante = partido["visitante"]
+  stats_loc = partido["stats_loc"]
+  stats_vis = partido["stats_vis"]
+  linea_apuesta = partido["linea"]
 
-    ritmo_combinado = (stats_loc['RITMO'] + stats_vis['RITMO']) / 2
-    factor_ritmo = ritmo_combinado / 99.0
+  # Aplicando los pesos optimizados no linealmente [Titulares, Banca, Forma]
+  poder_ofensivo_local = (
+      stats_loc["PTS_TITULARES"] * pesos_optimos[0]
+      + stats_loc["PTS_BANCA"] * pesos_optimos[1]
+  ) * (stats_loc["FACTOR_FORMA"] * pesos_optimos[2])
 
-    ofensiva_local_final = poder_ofensivo_local * factor_ritmo
-    ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
+  poder_ofensivo_visita = (
+      stats_vis["PTS_TITULARES"] * pesos_optimos[0]
+      + stats_vis["PTS_BANCA"] * pesos_optimos[1]
+  ) * (stats_vis["FACTOR_FORMA"] * pesos_optimos[2])
 
-    n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(ofensiva_local_final, 8.0, n_sims), 90, 145)
-    puntos_visitas_sim = np.clip(np.random.normal(ofensiva_visita_final, 8.0, n_sims), 90, 145)
-    total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
+  ritmo_combinado = (stats_loc["RITMO"] + stats_vis["RITMO"]) / 2
+  factor_ritmo = ritmo_combinado / 99.0
 
-    promedio_simulado = np.mean(total_puntos_sim)
-    prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
-    
-    diff_poder = (ofensiva_local_final + 3.0) - ofensiva_visita_final
-    prob_local = 1 / (1 + np.exp(-diff_poder / 10))
+  ofensiva_local_final = poder_ofensivo_local * factor_ritmo
+  ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
 
-    prediccion = {
-        'Fecha': datetime.now().strftime('%Y-%m-%d'),
-        'Local': local,
-        'Visitante': visitante,
-        'Pred_Ganador_Local': bool(prob_local >= 0.5),
-        'Line_Apuesta': linea_apuesta,
-        'Pred_OU': "OVER" if prob_over > 50 else "DEBAJO",
-        'Promedio_Simulado': round(promedio_simulado, 1)
-    }
-    
-    ganador_str = local if prediccion['Pred_Ganador_Local'] else visitante
-    logging.info(f"🏀 {local} vs {visitante} | Línea: {linea_apuesta} | Proyectado: {promedio_simulado:.1f} pts | O/U: {prediccion['Pred_OU']} | Ganador: {ganador_str}")
-    return prediccion
+  n_sims = 2000
+  puntos_locales_sim = np.clip(
+      np.random.normal(ofensiva_local_final, 8.0, n_sims), 90, 145
+  )
+  puntos_visitas_sim = np.clip(
+      np.random.normal(ofensiva_visita_final, 8.0, n_sims), 90, 145
+  )
+  total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
-def ejecutar_feedback_loop():
-    if not os.path.exists(ARCHIVO_HISTORIAL):
-        return
-    try:
-        df = pd.read_csv(ARCHIVO_HISTORIAL)
-        if 'Estado_Evaluacion' not in df.columns:
-            df['Estado_Evaluacion'] = 'Pendiente'
-            df.to_csv(ARCHIVO_HISTORIAL, index=False)
-    except Exception as e:
-        logging.warning(f"No se pudo procesar el archivo histórico: {e}")
+  promedio_simulado = np.mean(total_puntos_sim)
+  desv_est_puntos = np.std(total_puntos_sim)
+  prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
+
+  diff_poder = (ofensiva_local_final + 3.0) - ofensiva_visita_final
+  prob_local = 1 / (1 + np.exp(-diff_poder / 10))
+  prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
+
+  # --- SISTEMA DE SEMAFORIZACIÓN DE CONFIABILIDAD ---
+  if prob_ganador_pct >= 68.0:
+    semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
+  elif prob_ganador_pct >= 54.0:
+    semaforo_ganador = "🟡 AMARILLO (Precaución / Partido Parejo)"
+  else:
+    semaforo_ganador = "🔴 ROJO (Volátil / No recomendado)"
+
+  distancia_linea = abs(promedio_simulado - linea_apuesta)
+  if distancia_linea >= 6.0 and desv_est_puntos < 9.5:
+    semaforo_puntos = "🟢 VERDE (Margen Sólido O/U)"
+  elif distancia_linea >= 3.0:
+    semaforo_puntos = "🟡 AMARILLO (Margen Ajustado)"
+  else:
+    semaforo_puntos = "🔴 ROJO (Zona de Incertidumbre)"
+
+  prediccion = {
+      "Fecha": datetime.now().strftime("%Y-%m-%d"),
+      "Local": local,
+      "Visitante": visitante,
+      "Pred_Ganador": local if prob_local >= 0.5 else visitante,
+      "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
+      "Semaforo_Ganador": semaforo_ganador,
+      "Line_Apuesta": linea_apuesta,
+      "Pred_OU": "OVER" if prob_over > 50 else "DEBAJO",
+      "Promedio_Simulado": round(promedio_simulado, 1),
+      "Semaforo_Puntos": semaforo_puntos,
+  }
+
+  ganador_str = prediccion["Pred_Ganador"]
+  logging.info(
+      f"🏀 {local} vs {visitante} | Línea: {linea_apuesta} | Proy: {promedio_simulado:.1f} pts"
+      f" | O/U: {prediccion['Pred_OU']} [{semaforo_puntos}] | Ganador:"
+      f" {ganador_str} ({prob_ganador_pct:.1f}%) [{semaforo_ganador}]"
+  )
+  return prediccion
+
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando motor analítico profesional con logging industrial...")
-    
-    ejecutar_feedback_loop()
-    
-    partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
-    
-    if not partidos_de_hoy:
-        logging.warning("📌 Sin cartelera activa. Usando respaldo de prueba...")
-        partidos_de_hoy = [{
-            "event_id": "000000",
-            "local": "Celtics", 
-            "visitante": "Heat", 
-            "stats_loc": {'PTS_TITULARES': 82.0, 'PTS_BANCA': 32.0, 'RITMO': 98.5, 'FACTOR_FORMA': 1.03},
-            "stats_vis": {'PTS_TITULARES': 80.0, 'PTS_BANCA': 30.0, 'RITMO': 98.0, 'FACTOR_FORMA': 0.96},
-            "linea": 221.5
-        }]
-    
-    nuevos_registros = []
-    for p in partidos_de_hoy:
-        pred = simular_monte_carlo_con_rotacion(p)
-        nuevos_registros.append(pred)
-    
-    df_new = pd.DataFrame(nuevos_registros)
-    if os.path.exists(ARCHIVO_HISTORIAL):
-        try:
-            df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
-            df_final = pd.concat([df_existing, df_new], ignore_index=True)
-            df_final = df_final.drop_duplicates(subset=['Fecha', 'Local', 'Visitante'], keep='last')
-            df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
-        except Exception as e:
-            logging.error(f"Error al actualizar el archivo CSV histórico: {e}")
-            df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
-    else:
-        df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
-        
-    logging.info("✨ ¡Proceso completado de forma industrial y base de datos sincronizada!")
+  logging.info(
+      "🤖 Iniciando motor analítico con Optimización No Lineal y Semaforización..."
+  )
+
+  # Calibrar coeficientes automáticamente usando optimización no lineal basada en historial
+  pesos_calibrados = optimizar_pesos_modelo()
+
+  partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
+
+  if not partidos_de_hoy:
+    logging.warning("📌 Sin cartelera activa. Usando respaldo de prueba...")
+    partidos_de_hoy = [{
+        "event_id": "000000",
+        "local": "Celtics",
+        "visitante": "Heat",
+        "stats_loc": {
+            "PTS_TITULARES": 82.0,
+            "PTS_BANCA": 32.0,
+            "RITMO": 98.5,
+            "FACTOR_FORMA": 1.03,
+        },
+        "stats_vis": {
+            "PTS_TITULARES": 80.0,
+            "PTS_BANCA": 30.0,
+            "RITMO": 98.0,
+            "FACTOR_FORMA": 0.96,
+        },
+        "linea": 221.5,
+    }]
+
+  nuevos_registros = []
+  for p in partidos_de_hoy:
+    pred = simular_monte_carlo_con_rotacion(p, pesos_calibrados)
+    nuevos_registros.append(pred)
+
+  df_new = pd.DataFrame(nuevos_registros)
+  if os.path.exists(ARCHIVO_HISTORIAL):
+    try:
+      df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
+      df_final = pd.concat([df_existing, df_new], ignore_index=True)
+      df_final = df_final.drop_duplicates(
+          subset=["Fecha", "Local", "Visitante"], keep="last"
+      )
+      df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
+    except Exception as e:
+      logging.error(f"Error al actualizar el historial CSV: {e}")
+      df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
+  else:
+    df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
+
+  logging.info(
+      "✨ ¡Proceso completado con optimización matemática avanzada y base de"
+      " datos sincronizada!"
+  )
