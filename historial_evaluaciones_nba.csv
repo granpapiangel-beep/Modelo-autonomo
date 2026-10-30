@@ -30,6 +30,6 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-10-29,Hawks,Cavaliers,True,237.5,DEBAJO,221.4,,,,,
 2026-10-29,Pelicans,Kings,True,235.5,DEBAJO,213.9,,,,,
 2026-10-29,Trail Blazers,Grizzlies,True,232.5,DEBAJO,228.6,,,,,
-2026-10-30,Hawks,Cavaliers,,225.5,OVER,251.6,,Hawks,84.7,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U)
-2026-10-30,Pelicans,Kings,,225.5,OVER,258.4,,Pelicans,87.9,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U)
-2026-10-30,Trail Blazers,Grizzlies,,225.5,OVER,251.6,,Grizzlies,94.2,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U)
+2026-10-30,Hawks,Cavaliers,,225.5,OVER,226.6,,Hawks,79.9,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
+2026-10-30,Pelicans,Kings,,225.5,OVER,241.6,,Pelicans,86.5,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U)
+2026-10-30,Trail Blazers,Grizzlies,,225.5,OVER,228.5,,Grizzlies,93.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado)
