@@ -28,19 +28,13 @@ def funcion_costo_historico(pesos, df_hist):
   validos = 0
 
   for _, row in df_hist.iterrows():
-    # Simulamos el cálculo pasado con los pesos evaluados por el optimizador
-    # (Asumiendo que guardamos métricas base o evaluamos contra el resultado real)
     try:
-      # Si hay un resultado real registrado, medimos la desviación
-      resultado_real = (
-          1 if row.get("Resultado_Real_Local", 1) == 1 else 0
-      )  # 1 si ganó local, 0 si visitante
-      pred_local_aprox = (
-          pesos[0] * 82.0 + pesos[1] * 32.0
-      ) * pesos[2]  .0  # Simplificación analítica para el optimizador
+      resultado_real = 1 if row.get("Resultado_Real_Local", 1) == 1 else 0
+      pred_local_aprox = (pesos[0] * 82.0 + pesos[1] * 32.0) * pesos[
+          2
+      ]  # Simplificación analítica para el optimizador
       prob_aprox = 1 / (1 + np.exp(-pred_local_aprox / 100))
 
-      # Error cuadrático entre probabilidad predicha y resultado real
       error_total += (prob_aprox - resultado_real) ** 2
       validos += 1
     except Exception:
@@ -57,12 +51,9 @@ def optimizar_pesos_modelo():
   try:
     df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
     if len(df_hist) < 5:
-      return [1.0, 1.0, 1.0]  # Se necesitan suficientes datos para calibrar
+      return [1.0, 1.0, 1.0]
 
-    # Valores iniciales para los pesos [Titulares, Banca, Factor Forma]
     pesos_iniciales = [1.0, 1.0, 1.0]
-
-    # Restricciones a lo 'fmincon': los pesos deben mantenerse en rangos lógicos positivos
     limites = [(0.5, 2.0), (0.5, 2.0), (0.5, 1.5)]
 
     resultado = minimize(
@@ -243,7 +234,6 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
   stats_vis = partido["stats_vis"]
   linea_apuesta = partido["linea"]
 
-  # Aplicando los pesos optimizados no linealmente [Titulares, Banca, Forma]
   poder_ofensivo_local = (
       stats_loc["PTS_TITULARES"] * pesos_optimos[0]
       + stats_loc["PTS_BANCA"] * pesos_optimos[1]
@@ -320,7 +310,6 @@ if __name__ == "__main__":
       "🤖 Iniciando motor analítico con Optimización No Lineal y Semaforización..."
   )
 
-  # Calibrar coeficientes automáticamente usando optimización no lineal basada en historial
   pesos_calibrados = optimizar_pesos_modelo()
 
   partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
