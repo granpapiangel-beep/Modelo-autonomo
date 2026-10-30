@@ -2,8 +2,9 @@ name: Bot NBA Autónomo y Sincronización CSV
 
 on:
   schedule:
-    - cron: '0 6 * * *'
-  workflow_dispatch:
+    # Cambiado a las 16:00 UTC, que corresponde a las 10:00 AM en el centro de México
+    - cron: '0 16 * * *'
+  workflow_dispatch: # Mantiene el botón para ejecutarlo manualmente cuando quieras
 
 jobs:
   ejecutar-bot:
@@ -24,7 +25,7 @@ jobs:
       - name: Instalar dependencias necesarias
         run: |
           python -m pip install --upgrade pip
-          pip install pandas numpy requests
+          pip install pandas numpy requests scipy
 
       - name: Ejecutar el script del Bot
         run: python bot_actualizado.py
@@ -38,5 +39,5 @@ jobs:
           git pull origin main --rebase || true
           
           git add historial_evaluaciones_nba.csv
-          git diff --staged --quiet || git commit -m "📊 Actualización automática del historial CSV de la NBA [skip ci]"
+          git diff --staged --quiet || git commit -m "📊 Actualización automática del historial CSV y predicciones de la NBA [skip ci]"
           git push origin main
