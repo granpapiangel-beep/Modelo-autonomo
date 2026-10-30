@@ -17,41 +17,34 @@ ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
 
 
 # ==========================================
-# MÓDULO DE OPTIMIZACIÓN NO LINEAL (Corregido y realista)
+# MÓDULO DE OPTIMIZACIÓN NO LINEAL (Estabilizado)
 # ==========================================
 def funcion_costo_historico(pesos, df_hist):
-  """Función de pérdida para calibrar los pesos como factores de ajuste (cercanos a 1.0)."""
   error_total = 0.0
   validos = 0
-
   for _, row in df_hist.iterrows():
     try:
       resultado_real = 1 if row.get("Resultado_Real_Local", 1) == 1 else 0
-      # Usamos una base estándar para evaluar el error histórico de forma estable
-      pred_local_aprox = (pesos[0] * 82.0 + pesos[1] * 32.0) * pesos[2]
-      prob_aprox = 1 / (1 + np.exp(-(pred_local_aprox - 110) / 10))
-
+      pred_local_aprox = (pesos[0] * 55.0 + pesos[1] * 20.0) * pesos[2]
+      prob_aprox = 1 / (1 + np.exp(-(pred_local_aprox - 55) / 5))
       error_total += (prob_aprox - resultado_real) ** 2
       validos += 1
     except Exception:
       continue
-
   return error_total / max(validos, 1)
 
 
 def optimizar_pesos_modelo():
-  """Ejecuta la optimización no lineal con límites realistas (evita que se desborde)."""
   if not os.path.exists(ARCHIVO_HISTORIAL):
-    return [1.0, 1.0, 1.0]  # Pesos base neutros
-
+    return [1.0, 1.0, 1.0]
   try:
     df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
     if len(df_hist) < 5:
       return [1.0, 1.0, 1.0]
 
     pesos_iniciales = [1.0, 1.0, 1.0]
-    # LÍMITES REALISTAS: Los factores de ajuste deben variar solo un 10-15% hacia arriba o abajo
-    limites = [(0.9, 1.1), (0.9, 1.1), (0.95, 1.05)]
+    # Centramos los límites estrictamente alrededor de 1.0 para evitar desbordes
+    limites = [(0.95, 1.05), (0.95, 1.05), (0.98, 1.02)]
 
     resultado = minimize(
         funcion_costo_historico,
@@ -60,7 +53,6 @@ def optimizar_pesos_modelo():
         method="SLSQP",
         bounds=limites,
     )
-
     if resultado.success:
       logging.info(
           "⚙️ Optimización no lineal exitosa con factores estables:"
@@ -69,15 +61,13 @@ def optimizar_pesos_modelo():
       return resultado.x
     else:
       return [1.0, 1.0, 1.0]
-  except Exception as e:
-    logging.warning(f"Error en optimización: {e}")
+  except Exception:
     return [1.0, 1.0, 1.0]
 
 
 def obtener_cartelera_y_boxscore_avanzado():
   partidos = []
   url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
-
   try:
     response = requests.get(url, timeout=10)
     response.raise_for_status()
@@ -97,14 +87,15 @@ def obtener_cartelera_y_boxscore_avanzado():
       competitors = comp_data.get("competitors", [])
       local_team, visitante_team = None, None
 
+      # Promedios base reales por partido para un equipo de NBA (~112 pts)
       stats_loc = {
-          "PTS_TITULARES": 82.0,
+          "PTS_TITULARES": 80.0,
           "PTS_BANCA": 32.0,
-          "RITMO": 98.5,
+          "RITMO": 98.0,
           "FACTOR_FORMA": 1.0,
       }
       stats_vis = {
-          "PTS_TITULARES": 80.0,
+          "PTS_TITULARES": 78.0,
           "PTS_BANCA": 30.0,
           "RITMO": 98.0,
           "FACTOR_FORMA": 1.0,
@@ -114,7 +105,6 @@ def obtener_cartelera_y_boxscore_avanzado():
         team_info = comp.get("team", {})
         nombre_equipo = team_info.get("name", "")
         factor_forma = calcular_factor_forma_equipo(comp)
-
         if comp.get("homeAway") == "home":
           local_team = nombre_equipo
           stats_loc["FACTOR_FORMA"] = factor_forma
@@ -148,22 +138,19 @@ def obtener_cartelera_y_boxscore_avanzado():
         })
   except Exception as e:
     logging.error(f"Error en cartelera: {e}")
-
   return partidos
 
 
 def extraer_stats_titulares_y_banca(event_id):
-  loc_data = {"PTS_TITULARES": 82.0, "PTS_BANCA": 32.0, "RITMO": 98.5}
-  vis_data = {"PTS_TITULARES": 80.0, "PTS_BANCA": 30.0, "RITMO": 98.0}
+  loc_data = {"PTS_TITULARES": 80.0, "PTS_BANCA": 32.0, "RITMO": 98.0}
+  vis_data = {"PTS_TITULARES": 78.0, "PTS_BANCA": 30.0, "RITMO": 98.0}
   url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
   try:
     resp = requests.get(url_summary, timeout=5)
     if resp.status_code == 200:
-      sum_data = resp.json()
-      teams_box = sum_data.get("boxscore", {}).get("players", [])
+      teams_box = resp.json().get("boxscore", {}).get("players", [])
       if not teams_box:
         return loc_data, vis_data
-
       resultados_equipos = []
       for team_box in teams_box:
         athletes = team_box.get("statistics", [{}])[0].get("athletes", [])
@@ -181,9 +168,11 @@ def extraer_stats_titulares_y_banca(event_id):
             else:
               pts_banca += puntos
         resultados_equipos.append({
-            "PTS_TITULARES": pts_titulares if pts_titulares > 20 else 82.0,
+            "PTS_TITULARES": (
+                pts_titulares if pts_titulares > 20 else 80.0
+            ),
             "PTS_BANCA": pts_banca if pts_titulares > 20 else 32.0,
-            "RITMO": 98.5,
+            "RITMO": 98.0,
         })
       if len(resultados_equipos) >= 2:
         vis_data = resultados_equipos[0]
@@ -204,9 +193,9 @@ def calcular_factor_forma_equipo(comp_competitor):
         wins, losses = int(parts[0]), int(parts[1])
         total = wins + losses
         if total > 0 and (wins / total) >= 0.60:
-          factor = 1.03
+          factor = 1.02
         elif total > 0 and (wins / total) <= 0.40:
-          factor = 0.97
+          factor = 0.98
   except Exception:
     pass
   return factor
@@ -219,30 +208,28 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
   stats_vis = partido["stats_vis"]
   linea_apuesta = partido["linea"]
 
-  # Aplicación de los pesos calibrados de forma controlada y realista
+  # Corrección de escala matemática para reflejar puntos reales de la NBA
   poder_ofensivo_local = (
-      stats_loc["PTS_TITULARES"] * pesos_optimos[0]
-      + stats_loc["PTS_BANCA"] * pesos_optimos[1]
+      (stats_loc["PTS_TITULARES"] * pesos_optimos[0] + stats_loc["PTS_BANCA"] * pesos_optimos[1]) / 1.05
   ) * (stats_loc["FACTOR_FORMA"] * pesos_optimos[2])
 
   poder_ofensivo_visita = (
-      stats_vis["PTS_TITULARES"] * pesos_optimos[0]
-      + stats_vis["PTS_BANCA"] * pesos_optimos[1]
+      (stats_vis["PTS_TITULARES"] * pesos_optimos[0] + stats_vis["PTS_BANCA"] * pesos_optimos[1]) / 1.05
   ) * (stats_vis["FACTOR_FORMA"] * pesos_optimos[2])
 
   ritmo_combinado = (stats_loc["RITMO"] + stats_vis["RITMO"]) / 2
-  factor_ritmo = ritmo_combinado / 99.0
+  factor_ritmo = ritmo_combinado / 98.0
 
   ofensiva_local_final = poder_ofensivo_local * factor_ritmo
   ofensiva_visita_final = poder_ofensivo_visita * factor_ritmo
 
   n_sims = 2000
-  # Límites de puntos normales en la NBA por equipo (ej. 90 a 130 pts)
+  # Acotado estricto a rangos reales de anotación en la NBA (85 a 125 puntos por equipo)
   puntos_locales_sim = np.clip(
-      np.random.normal(ofensiva_local_final, 7.5, n_sims), 90, 130
+      np.random.normal(ofensiva_local_final, 9.0, n_sims), 85, 125
   )
   puntos_visitas_sim = np.clip(
-      np.random.normal(ofensiva_visita_final, 7.5, n_sims), 90, 130
+      np.random.normal(ofensiva_visita_final, 9.0, n_sims), 85, 125
   )
   total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
@@ -250,22 +237,22 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
   desv_est_puntos = np.std(total_puntos_sim)
   prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-  diff_poder = (ofensiva_local_final + 2.5) - ofensiva_visita_final
-  prob_local = 1 / (1 + np.exp(-diff_poder / 8))
+  diff_poder = (ofensiva_local_final + 2.0) - ofensiva_visita_final
+  prob_local = 1 / (1 + np.exp(-diff_poder / 7))
   prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
 
-  # Semaforización
-  if prob_ganador_pct >= 68.0:
+  # Semaforización equilibrada
+  if prob_ganador_pct >= 65.0:
     semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
-  elif prob_ganador_pct >= 54.0:
+  elif prob_ganador_pct >= 53.0:
     semaforo_ganador = "🟡 AMARILLO (Precaución / Partido Parejo)"
   else:
     semaforo_ganador = "🔴 ROJO (Volátil / No recomendado)"
 
   distancia_linea = abs(promedio_simulado - linea_apuesta)
-  if distancia_linea >= 5.0 and desv_est_puntos < 9.0:
+  if distancia_linea >= 4.0 and desv_est_puntos < 10.0:
     semaforo_puntos = "🟢 VERDE (Margen Sólido O/U)"
-  elif distancia_linea >= 2.5:
+  elif distancia_linea >= 1.8:
     semaforo_puntos = "🟡 AMARILLO (Margen Ajustado)"
   else:
     semaforo_puntos = "🔴 ROJO (Zona de Incertidumbre)"
@@ -292,7 +279,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
 
 if __name__ == "__main__":
-  logging.info("🤖 Iniciando motor analítico con pesos optimizados estables...")
+  logging.info("🤖 Iniciando motor analítico con escala real de puntos...")
   pesos_calibrados = optimizar_pesos_modelo()
   partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
@@ -302,16 +289,16 @@ if __name__ == "__main__":
         "local": "Celtics",
         "visitante": "Heat",
         "stats_loc": {
-            "PTS_TITULARES": 82.0,
+            "PTS_TITULARES": 80.0,
             "PTS_BANCA": 32.0,
-            "RITMO": 98.5,
-            "FACTOR_FORMA": 1.03,
+            "RITMO": 98.0,
+            "FACTOR_FORMA": 1.02,
         },
         "stats_vis": {
-            "PTS_TITULARES": 80.0,
+            "PTS_TITULARES": 78.0,
             "PTS_BANCA": 30.0,
             "RITMO": 98.0,
-            "FACTOR_FORMA": 0.97,
+            "FACTOR_FORMA": 0.98,
         },
         "linea": 221.5,
     }]
@@ -335,4 +322,4 @@ if __name__ == "__main__":
   else:
     df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-  logging.info("✨ ¡Proceso completado con proyecciones realistas de la NBA!")
+  logging.info("✨ ¡Proceso completado con proyecciones ajustadas y reales!")
