@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
 )
 
-# Estilo visual limpio, fondo blanco y contraste optimizado
+# Estilo visual: Fondo blanco y tarjetas en AZUL CELESTE MUY CLARO (#EBF3FA)
 st.markdown("""
     <style>
         .stApp {
@@ -26,12 +26,12 @@ st.markdown("""
             margin-bottom: 20px;
         }
         .card {
-            background-color: #F8F9FA;
+            background-color: #EBF3FA;
             padding: 20px;
             border-radius: 10px;
-            border: 1px solid #E0E0E0;
+            border: 1px solid #D0E3F5;
             margin-bottom: 15px;
-            color: #222222;
+            color: #111111;
         }
         /* Forzar visibilidad de textos en métricas */
         [data-testid="stMetricValue"] {
@@ -88,7 +88,7 @@ if os.path.exists(ARCHIVO_CSV):
   # ==========================================
   # SECCIÓN DE FILTRADO Y BUSCADOR INTERACTIVO
   # ==========================================
-  st.subheader("🔍 Buscador de Encuentros")
+  st.subheader("🔍 Buscador")
 
   col_opcion, col_busqueda = st.columns([1, 2])
 
@@ -134,7 +134,7 @@ if os.path.exists(ARCHIVO_CSV):
         f" de hoy ({ultima_fecha})."
     )
   else:
-    # Mostramos cada encuentro en tarjetas interactivas limpias
+    # Mostramos cada encuentro en tarjetas interactivas limpias con fondo azul celeste
     for _, row in df_a_mostrar.iterrows():
       local = row.get("Local", "Local")
       visita = row.get("Visitante", "Visitante")
@@ -160,23 +160,17 @@ if os.path.exists(ARCHIVO_CSV):
       if pd.isna(sem_puntos):
         sem_puntos = "Zona estándar"
 
-      # Tarjeta visual por partido con estilo y semáforos claros
+      # Tarjeta visual con fondo azul celeste suave
       with st.container():
         st.markdown(f"""
                     <div class="card">
                         <h4>🏀 <b>{local}</b> vs <b>{visita}</b></h4>
-                        <hr style="margin: 5px 0 10px 0; border-color: #DDD;">
+                        <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
                         <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> <code>{sem_ganador}</code></p>
                         <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> <code>{sem_puntos}</code></p>
-                        <p style="color: #0055AA; font-size: 0.9rem;">💡 <b>Consejo / Motivo del Modelo:</b> Análisis estocástico de Monte Carlo (2,000 iteraciones) cruzando eficiencia ofensiva, factor de forma e inercia defensiva del rival.</p>
+                        <p style="color: #004080; font-size: 0.9rem;">💡 <b>Consejo / Motivo del Modelo:</b> Análisis estocástico de Monte Carlo (2,000 iteraciones) cruzando eficiencia ofensiva, factor de forma e inercia defensiva del rival.</p>
                     </div>
                 """, unsafe_allow_html=True)
-
-  st.divider()
-
-  # Vista completa opcional para los profesores
-  with st.expander("📁 Ver historial completo de la base de datos"):
-    st.dataframe(df, use_container_width=True)
 
 else:
   st.warning(
