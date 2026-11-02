@@ -1,9 +1,7 @@
 import os
 import pandas as pd
 import streamlit as st
-
-# Importamos la función autónoma desde nuestro módulo player_analysis.py
-from player_analysis import obtener_jugador_autonomo
+from player_analysis import obtener_patron_titulares
 
 # Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
@@ -77,7 +75,7 @@ def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
 
 # Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Prediction Hub</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y optimización no lineal.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento de cuotas.</p>', unsafe_allow_html=True)
 
 ARCHIVO_CSV = "historial_evaluaciones_nba.csv"
 
@@ -156,22 +154,32 @@ if os.path.exists(ARCHIVO_CSV):
             badge_puntos_html = render_badge(sem_puntos)
             consejo_apuesta = generar_consejo_apuesta(prob, sem_ganador, sem_puntos, pred_ou)
             
-            # Consultamos los datos dinámicos mediante el módulo autónomo
-            nombre_j1, linea_j1, perfil_j1 = obtener_jugador_autonomo(local, prom_sim)
-            nombre_j2, linea_j2, perfil_j2 = obtener_jugador_autonomo(visita, prom_sim)
+            # Obtenemos los 5 titulares y sus patrones de cumplimiento
+            titulares_local = obtener_patron_titulares(local, prom_sim)
+            titulares_visita = obtener_patron_titulares(visita, prom_sim)
             
-            badge_loc = render_badge(perfil_j1)
-            badge_vis = render_badge(perfil_j2)
+            html_titulares_local = ""
+            for nombre, linea_prop, patron, sem in titulares_local:
+                badge_p = render_badge(f"{sem} ({patron})")
+                html_titulares_local += f"<li><b>{nombre}</b> (Línea Mínima: <b>{linea_prop} pts</b>) ➔ {badge_p}</li>"
+                
+            html_titulares_visita = ""
+            for nombre, linea_prop, patron, sem in titulares_visita:
+                badge_p = render_badge(f"{sem} ({patron})")
+                html_titulares_visita += f"<li><b>{nombre}</b> (Línea Mínima: <b>{linea_prop} pts</b>) ➔ {badge_p}</li>"
             
             tarjeta_html = f"""<div class="card">
 <h4>🏀 <b>{local}</b> vs <b>{visita}</b></h4>
 <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
 <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
 <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
-<p style="margin-top: 8px; margin-bottom: 4px;">👤 <b>Análisis de Consistencia Autónoma (Props de Jugadores):</b></p>
+<p style="margin-top: 8px; margin-bottom: 2px;">👤 <b>Titulares y Patrones de Cumplimiento ({local}):</b></p>
+<ul style="margin-top: 0px; margin-bottom: 6px; font-size: 0.9rem; color: #111111;">
+{html_titulares_local}
+</ul>
+<p style="margin-top: 6px; margin-bottom: 2px;">👤 <b>Titulares y Patrones de Cumplimiento ({visita}):</b></p>
 <ul style="margin-top: 0px; font-size: 0.9rem; color: #111111;">
-<li><b>{nombre_j1}</b> (Línea Mínima: <b>{linea_j1} pts</b>) ➔ {badge_loc}</li>
-<li><b>{nombre_j2}</b> (Línea Mínima: <b>{linea_j2} pts</b>) ➔ {badge_vis}</li>
+{html_titulares_visita}
 </ul>
 <p style="color: #003366; font-size: 0.95rem; margin-top: 10px;">💡 <b>Consejo de Apuesta:</b> {consejo_apuesta}</p>
 </div>"""
