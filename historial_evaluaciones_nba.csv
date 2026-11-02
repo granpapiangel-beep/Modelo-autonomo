@@ -64,3 +64,7 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-01,Pacers,Nets,,214.1,DEBAJO,213.4,,Pacers,78.7,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
 2026-11-01,Warriors,Clippers,,220.5,OVER,221.6,,Warriors,69.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
 2026-11-01,Lakers,Raptors,,224.5,DEBAJO,222.5,,Lakers,76.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado)
+2026-11-02,Magic,Celtics,,224.7,OVER,226.0,,Celtics,66.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
+2026-11-02,Pacers,Nets,,214.1,DEBAJO,213.4,,Pacers,78.6,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
+2026-11-02,Warriors,Clippers,,221.2,OVER,221.6,,Warriors,69.3,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre)
+2026-11-02,Lakers,Raptors,,219.2,OVER,222.6,,Lakers,75.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado)
