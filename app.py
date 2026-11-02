@@ -44,26 +44,54 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
-# Función para asignar colores suaves y elegantes a los focos/semáforos
+# Función para asignar colores suaves a los semáforos
 def render_badge(texto):
   texto_str = str(texto).upper()
-  # Colores por defecto (azul celeste)
   bg_color = "#D6E8FC"
   text_color = "#003366"
 
   if "VERDE" in texto_str:
-    bg_color = "#D1E7DD"  # Verde suave
+    bg_color = "#D1E7DD"
     text_color = "#0F5132"
   elif "AMARILLO" in texto_str:
-    bg_color = (
-        "#FFF3CD"  # Amarillo claro suave (como lo pediste, sutil y legible)
-    )
+    bg_color = "#FFF3CD"
     text_color = "#664D03"
   elif "ROJO" in texto_str:
-    bg_color = "#F8D7DA"  # Rojo suave
+    bg_color = "#F8D7DA"
     text_color = "#842029"
 
   return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
+
+
+# Función para generar un consejo de apuestas claro y directo
+def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
+  sem_g_str = str(sem_ganador).upper()
+  sem_p_str = str(sem_puntos).upper()
+
+  if "VERDE" in sem_g_str and "VERDE" in sem_p_str:
+    return (
+        "🔥 **Alta Confiabilidad:** Escenario ideal. Apuesta al ganador con"
+        f" confianza y entra directo al <b>{pred_ou}</b> en puntos. Margen"
+        " sólido."
+    )
+  elif "ROJO" in sem_g_str or "ROJO" in sem_p_str:
+    return (
+        "🚨 **Mucho Riesgo / Volátil:** Partido impredecible o con alta"
+        " incertidumbre estadística. <b>Evita meter dinero fuerte aquí</b> o"
+        " busca líneas alternativas."
+    )
+  elif "AMARILLO" in sem_g_str and prob_ganador < 58.0:
+    return (
+        "⚖️ **Partido Muy Parejo:** No hay un favorito claro en la duela."
+        " Las cuotas están cerradas; mejor busca un hándicap favorable o"
+        " abstente."
+    )
+  else:
+    return (
+        "⚠️ **Precaución Moderada:** Hay ligera tendencia, pero el margen es"
+        " ajustado. Si apuestas, hazlo con *stake* bajo o analiza el "
+        f"<b>{pred_ou}</b> con cautela."
+    )
 
 
 # Encabezado principal
@@ -82,7 +110,7 @@ ARCHIVO_CSV = "historial_evaluaciones_nba.csv"
 if os.path.exists(ARCHIVO_CSV):
   df = pd.read_csv(ARCHIVO_CSV)
 
-  # Filtrar estrictamente la cartelera del día más reciente (hoy en el CSV)
+  # Filtrar estrictamente la cartelera del día más reciente
   if "Fecha" in df.columns and len(df) > 0:
     ultima_fecha = df["Fecha"].dropna().iloc[-1]
     df_hoy = df[df["Fecha"] == ultima_fecha]
@@ -90,7 +118,7 @@ if os.path.exists(ARCHIVO_CSV):
     df_hoy = pd.DataFrame()
     ultima_fecha = "N/A"
 
-  # Métricas superiores estilizadas basadas en la cartelera actual
+  # Métricas superiores estilizadas
   col1, col2, col3, col4 = st.columns(4)
   with col1:
     st.metric("Partidos de Hoy", len(df_hoy))
@@ -109,7 +137,7 @@ if os.path.exists(ARCHIVO_CSV):
   st.divider()
 
   # ==========================================
-  # SECCIÓN DE FILTRADO Y BUSCADOR INTERACTIVO
+  # SECCIÓN DE FILTRADO Y BUSCADOR
   # ==========================================
   st.subheader("🔍 Buscador")
 
@@ -118,7 +146,6 @@ if os.path.exists(ARCHIVO_CSV):
   with col_opcion:
     ver_todos = st.checkbox("📅 Mostrar todos los encuentros de hoy", value=True)
 
-  # Extraemos la lista de equipos que juegan hoy
   equipos_hoy = sorted(
       list(
           set(
@@ -135,7 +162,6 @@ if os.path.exists(ARCHIVO_CSV):
         disabled=ver_todos,
     )
 
-  # Lógica de filtrado según lo que pida el usuario
   if ver_todos:
     df_a_mostrar = df_hoy
   else:
@@ -181,11 +207,15 @@ if os.path.exists(ARCHIVO_CSV):
       if pd.isna(sem_puntos):
         sem_puntos = "Zona estándar"
 
-      # Renderizamos los badges con sus colores dinámicos (amarillo suave, verde, etc.)
       badge_ganador_html = render_badge(sem_ganador)
       badge_puntos_html = render_badge(sem_puntos)
 
-      # Tarjeta visual con fondo azul celeste suave y etiquetas dinámicas
+      # Generamos el consejo directo de apuestas
+      consejo_apuesta = generar_consejo_apuesta(
+          prob, sem_ganador, sem_puntos, pred_ou
+      )
+
+      # Tarjeta visual con el nuevo consejo de apuestas
       with st.container():
         st.markdown(f"""
                     <div class="card">
@@ -193,7 +223,7 @@ if os.path.exists(ARCHIVO_CSV):
                         <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
                         <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
                         <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
-                        <p style="color: #004080; font-size: 0.9rem;">💡 <b>Consejo / Motivo del Modelo:</b> Análisis estocástico de Monte Carlo (2,000 iteraciones) cruzando eficiencia ofensiva, factor de forma e inercia defensiva del rival.</p>
+                        <p style="color: #003366; font-size: 0.95rem; margin-top: 10px;">💡 <b>Consejo de Apuesta:</b> {consejo_apuesta}</p>
                     </div>
                 """, unsafe_allow_html=True)
 
