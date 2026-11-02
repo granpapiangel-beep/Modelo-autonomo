@@ -63,32 +63,32 @@ def render_badge(texto):
   return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
 
 
-# Función para generar un consejo de apuestas claro y directo
+# Función para generar un consejo de apuesta claro y directo (usando HTML en lugar de Markdown)
 def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
   sem_g_str = str(sem_ganador).upper()
   sem_p_str = str(sem_puntos).upper()
 
   if "VERDE" in sem_g_str and "VERDE" in sem_p_str:
     return (
-        "🔥 **Alta Confiabilidad (Stake Alto):** Escenario ideal. Apuesta al"
+        "🔥 <b>Alta Confiabilidad (Stake Alto):</b> Escenario ideal. Apuesta al"
         f" ganador con confianza y entra directo al <b>{pred_ou}</b> en puntos."
         " Margen sólido."
     )
   elif "ROJO" in sem_g_str or "ROJO" in sem_p_str:
     return (
-        "🚨 **Mucho Riesgo / Volátil (Stake Bajo o Nulo):** Partido impredecible"
-        " o con alta incertidumbre estadística. <b>Evita meter dinero fuerte"
-        " aquí</b> o busca líneas alternativas."
+        "🚨 <b>Mucho Riesgo / Volátil (Stake Bajo o Nulo):</b> Partido"
+        " impredecible o con alta incertidumbre estadística. <b>Evita meter"
+        " dinero fuerte aquí</b> o busca líneas alternativas."
     )
   elif "AMARILLO" in sem_g_str and prob_ganador < 58.0:
     return (
-        "⚖️ **Partido Muy Parejo (Stake Mínimo):** No hay un favorito claro en"
-        " la duela. Las cuotas están cerradas; mejor busca un hándicap"
+        "⚖️ <b>Partido Muy Parejo (Stake Mínimo):</b> No hay un favorito claro"
+        " en la duela. Las cuotas están cerradas; mejor busca un hándicap"
         " favorable o abstente."
     )
   else:
     return (
-        "⚠️ **Precaución Moderada (Stake Medio):** Hay ligera tendencia, pero"
+        "⚠️ <b>Precaución Moderada (Stake Medio):</b> Hay ligera tendencia, pero"
         " el margen es ajustado. Si apuestas, hazlo con cautela sobre el "
         f"<b>{pred_ou}</b>."
     )
@@ -214,7 +214,7 @@ if os.path.exists(ARCHIVO_CSV):
           prob, sem_ganador, sem_puntos, pred_ou
       )
 
-      # Tarjeta visual limpia con consejo de apuestas directo
+      # Tarjeta visual limpia con consejo de apuestas en HTML puro
       with st.container():
         st.markdown(f"""
                     <div class="card">
