@@ -7,7 +7,7 @@ st.set_page_config(
     page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
 )
 
-# Estilo visual: Fondo blanco y tarjetas en AZUL CELESTE MUY CLARO (#EBF3FA)
+# Estilo visual: Fondo blanco, tarjetas azul celeste y métricas optimizadas
 st.markdown("""
     <style>
         .stApp {
@@ -42,6 +42,29 @@ st.markdown("""
         }
     </style>
 """, unsafe_allow_html=True)
+
+
+# Función para asignar colores suaves y elegantes a los focos/semáforos
+def render_badge(texto):
+  texto_str = str(texto).upper()
+  # Colores por defecto (azul celeste)
+  bg_color = "#D6E8FC"
+  text_color = "#003366"
+
+  if "VERDE" in texto_str:
+    bg_color = "#D1E7DD"  # Verde suave
+    text_color = "#0F5132"
+  elif "AMARILLO" in texto_str:
+    bg_color = (
+        "#FFF3CD"  # Amarillo claro suave (como lo pediste, sutil y legible)
+    )
+    text_color = "#664D03"
+  elif "ROJO" in texto_str:
+    bg_color = "#F8D7DA"  # Rojo suave
+    text_color = "#842029"
+
+  return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
+
 
 # Encabezado principal
 st.markdown(
@@ -122,7 +145,7 @@ if os.path.exists(ARCHIVO_CSV):
           | (df_hoy["Visitante"] == equipo_seleccionado)
       ]
     else:
-      df_a_mostrar = df_hoy  # Si no selecciona nada específico, muestra los de hoy
+      df_a_mostrar = df_hoy
 
   st.markdown(
       f"### 📊 Predicciones y Sugerencias Analíticas ({ultima_fecha})"
@@ -134,12 +157,10 @@ if os.path.exists(ARCHIVO_CSV):
         f" de hoy ({ultima_fecha})."
     )
   else:
-    # Mostramos cada encuentro en tarjetas interactivas limpias con fondo azul celeste
     for _, row in df_a_mostrar.iterrows():
       local = row.get("Local", "Local")
       visita = row.get("Visitante", "Visitante")
 
-      # Blindaje contra valores vacíos (nan)
       ganador = row.get("Pred_Ganador", "N/A")
       if pd.isna(ganador):
         ganador = row.get("Pred_Ganador_Local", "N/A")
@@ -160,14 +181,18 @@ if os.path.exists(ARCHIVO_CSV):
       if pd.isna(sem_puntos):
         sem_puntos = "Zona estándar"
 
-      # Tarjeta visual con fondo azul celeste suave
+      # Renderizamos los badges con sus colores dinámicos (amarillo suave, verde, etc.)
+      badge_ganador_html = render_badge(sem_ganador)
+      badge_puntos_html = render_badge(sem_puntos)
+
+      # Tarjeta visual con fondo azul celeste suave y etiquetas dinámicas
       with st.container():
         st.markdown(f"""
                     <div class="card">
                         <h4>🏀 <b>{local}</b> vs <b>{visita}</b></h4>
                         <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
-                        <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> <code>{sem_ganador}</code></p>
-                        <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> <code>{sem_puntos}</code></p>
+                        <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
+                        <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
                         <p style="color: #004080; font-size: 0.9rem;">💡 <b>Consejo / Motivo del Modelo:</b> Análisis estocástico de Monte Carlo (2,000 iteraciones) cruzando eficiencia ofensiva, factor de forma e inercia defensiva del rival.</p>
                     </div>
                 """, unsafe_allow_html=True)
