@@ -54,7 +54,7 @@ def render_badge(texto):
     bg_color = "#D1E7DD"
     text_color = "#0F5132"
   elif "AMARILLO" in texto_str:
-    bg_color = "#FFF3CD"
+    bg_color = "#FFF3CD"  # Amarillo claro suave
     text_color = "#664D03"
   elif "ROJO" in texto_str:
     bg_color = "#F8D7DA"
@@ -70,27 +70,27 @@ def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
 
   if "VERDE" in sem_g_str and "VERDE" in sem_p_str:
     return (
-        "🔥 **Alta Confiabilidad:** Escenario ideal. Apuesta al ganador con"
-        f" confianza y entra directo al <b>{pred_ou}</b> en puntos. Margen"
-        " sólido."
+        "🔥 **Alta Confiabilidad (Stake Alto):** Escenario ideal. Apuesta al"
+        f" ganador con confianza y entra directo al <b>{pred_ou}</b> en puntos."
+        " Margen sólido."
     )
   elif "ROJO" in sem_g_str or "ROJO" in sem_p_str:
     return (
-        "🚨 **Mucho Riesgo / Volátil:** Partido impredecible o con alta"
-        " incertidumbre estadística. <b>Evita meter dinero fuerte aquí</b> o"
-        " busca líneas alternativas."
+        "🚨 **Mucho Riesgo / Volátil (Stake Bajo o Nulo):** Partido impredecible"
+        " o con alta incertidumbre estadística. <b>Evita meter dinero fuerte"
+        " aquí</b> o busca líneas alternativas."
     )
   elif "AMARILLO" in sem_g_str and prob_ganador < 58.0:
     return (
-        "⚖️ **Partido Muy Parejo:** No hay un favorito claro en la duela."
-        " Las cuotas están cerradas; mejor busca un hándicap favorable o"
-        " abstente."
+        "⚖️ **Partido Muy Parejo (Stake Mínimo):** No hay un favorito claro en"
+        " la duela. Las cuotas están cerradas; mejor busca un hándicap"
+        " favorable o abstente."
     )
   else:
     return (
-        "⚠️ **Precaución Moderada:** Hay ligera tendencia, pero el margen es"
-        " ajustado. Si apuestas, hazlo con *stake* bajo o analiza el "
-        f"<b>{pred_ou}</b> con cautela."
+        "⚠️ **Precaución Moderada (Stake Medio):** Hay ligera tendencia, pero"
+        " el margen es ajustado. Si apuestas, hazlo con cautela sobre el "
+        f"<b>{pred_ou}</b>."
     )
 
 
@@ -210,12 +210,11 @@ if os.path.exists(ARCHIVO_CSV):
       badge_ganador_html = render_badge(sem_ganador)
       badge_puntos_html = render_badge(sem_puntos)
 
-      # Generamos el consejo directo de apuestas
       consejo_apuesta = generar_consejo_apuesta(
           prob, sem_ganador, sem_puntos, pred_ou
       )
 
-      # Tarjeta visual con el nuevo consejo de apuestas
+      # Tarjeta visual limpia con consejo de apuestas directo
       with st.container():
         st.markdown(f"""
                     <div class="card">
