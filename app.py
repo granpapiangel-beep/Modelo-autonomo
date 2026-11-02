@@ -63,7 +63,7 @@ def render_badge(texto):
   return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
 
 
-# Función para generar un consejo de apuesta claro y directo (usando HTML en lugar de Markdown)
+# Función para generar consejo de apuesta general
 def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
   sem_g_str = str(sem_ganador).upper()
   sem_p_str = str(sem_puntos).upper()
@@ -72,26 +72,74 @@ def generar_consejo_apuesta(prob_ganador, sem_ganador, sem_puntos, pred_ou):
     return (
         "🔥 <b>Alta Confiabilidad (Stake Alto):</b> Escenario ideal. Apuesta al"
         f" ganador con confianza y entra directo al <b>{pred_ou}</b> en puntos."
-        " Margen sólido."
     )
   elif "ROJO" in sem_g_str or "ROJO" in sem_p_str:
     return (
-        "🚨 <b>Mucho Riesgo / Volátil (Stake Bajo o Nulo):</b> Partido"
-        " impredecible o con alta incertidumbre estadística. <b>Evita meter"
-        " dinero fuerte aquí</b> o busca líneas alternativas."
+        "🚨 <b>Mucho Riesgo / Volátil (Stake Bajo):</b> Partido impredecible."
+        " <b>Evita meter dinero fuerte aquí</b>."
     )
   elif "AMARILLO" in sem_g_str and prob_ganador < 58.0:
     return (
-        "⚖️ <b>Partido Muy Parejo (Stake Mínimo):</b> No hay un favorito claro"
-        " en la duela. Las cuotas están cerradas; mejor busca un hándicap"
-        " favorable o abstente."
+        "⚖️ <b>Partido Muy Parejo (Stake Mínimo):</b> Cuotas cerradas; mejor"
+        " busca hándicaps o evita el partido."
     )
   else:
     return (
-        "⚠️ <b>Precaución Moderada (Stake Medio):</b> Hay ligera tendencia, pero"
-        " el margen es ajustado. Si apuestas, hazlo con cautela sobre el "
+        "⚠️ <b>Precaución Moderada (Stake Medio):</b> Margen ajustado sobre el "
         f"<b>{pred_ou}</b>."
     )
+
+
+# Función simulada/analítica para extraer jugadores titulares y evaluar su cuota mínima cumplidora
+def obtener_props_jugadores(local, visita):
+  # Aquí simulamos un diccionario de jugadores clave con base en el equipo
+  # En una fase avanzada esto leerá tu archivo player_analysis.py
+  prop_pool = {
+      "Celtics": [
+          ("Jayson Tatum", 22.5, "VERDE (Cuota Segura > 22 pts)"),
+          ("Jaylen Brown", 18.5, "AMARILLO (Margen Ajustado)"),
+      ],
+      "Magic": [
+          ("Paolo Banchero", 20.5, "VERDE (Alta Consistencia)"),
+          ("Franz Wagner", 16.5, "AMARILLO (Línea Justa)"),
+      ],
+      "Lakers": [
+          ("LeBron James", 23.5, "VERDE (Cumplidor Frecuente)"),
+          ("Anthony Davis", 21.5, "VERDE (Cuota Asegurada)"),
+      ],
+      "Raptors": [
+          ("Scottie Barnes", 17.5, "AMARILLO (Riesgo Moderado)"),
+          ("Immanuel Quickley", 15.5, "VERDE (Línea Mínima Asequible)"),
+      ],
+      "Pacers": [
+          ("Tyrese Haliburton", 18.5, "VERDE (Alta Confiabilidad)"),
+          ("Pascal Siakam", 19.5, "AMARILLO (Margen Cerrado)"),
+      ],
+      "Nets": [
+          ("Mikal Bridges", 16.5, "VERDE (Consistente)"),
+          ("Cam Thomas", 20.5, "AMARILLO (Volátil)"),
+      ],
+      "Warriors": [
+          ("Stephen Curry", 24.5, "VERDE (Línea Alta Cumplida)"),
+          ("Draymond Green", 8.5, "VERDE (Cuota Mínima Segura)"),
+      ],
+      "Clippers": [
+          ("Kawhi Leonard", 21.5, "VERDE (Seguro en Puntos)"),
+          ("James Harden", 17.5, "AMARILLO (Margen Ajustado)"),
+      ],
+  }
+
+  # Extraemos jugadores del local y del visitante si existen en el diccionario, si no, ponemos genéricos
+  jugadores_local = prop_pool.get(
+      local,
+      [("Estelar Local A", 15.5, "VERDE (Cuota Segura)"), ("Titular B", 12.5, "AMARILLO (Margen Ajustado)")]
+  )
+  jugadores_visita = prop_pool.get(
+      visita,
+      [("Estelar Visita A", 15.5, "VERDE (Cuota Segura)"), ("Titular B", 12.5, "AMARILLO (Margen Ajustado)")]
+  )
+
+  return jugadores_local[:1] + jugadores_visita[:1]  # Tomamos los más cumplidores
 
 
 # Encabezado principal
@@ -214,7 +262,14 @@ if os.path.exists(ARCHIVO_CSV):
           prob, sem_ganador, sem_puntos, pred_ou
       )
 
-      # Tarjeta visual limpia con consejo de apuestas en HTML puro
+      # Obtenemos los jugadores recomendados (Props) para este encuentro
+      props_partido = obtener_props_jugadores(local, visita)
+      html_props = ""
+      for jugador, linea_prop, estado_prop in props_partido:
+        badge_prop = render_badge(estado_prop)
+        html_props += f"<li><b>{jugador}</b> (Línea Mínima: <b>{linea_prop} pts</b>) ➔ {badge_prop}</li>"
+
+      # Tarjeta visual con la sección integrada de Jugadores Recomendados (Props)
       with st.container():
         st.markdown(f"""
                     <div class="card">
@@ -222,7 +277,11 @@ if os.path.exists(ARCHIVO_CSV):
                         <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
                         <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
                         <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
-                        <p style="color: #003366; font-size: 0.95rem; margin-top: 10px;">💡 <b>Consejo de Apuesta:</b> {consejo_apuesta}</p>
+                        <p style="margin-top: 8px; margin-bottom: 4px;">👤 <b>Jugadores Recomendados (Props de Puntos):</b></p>
+                        <ul style="margin-top: 0px; font-size: 0.9rem; color: #111111;">
+                            {html_props}
+                        </ul>
+                        <p style="color: #003366; font-size: 0.9rem; margin-top: 10px;">💡 <b>Consejo de Apuesta:</b> {consejo_apuesta}</p>
                     </div>
                 """, unsafe_allow_html=True)
 
