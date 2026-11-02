@@ -7,12 +7,12 @@ st.set_page_config(
     page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
 )
 
-# Estilo visual con FONDO BLANCO y tarjetas estilizadas
+# Estilo visual limpio, fondo blanco y contraste optimizado
 st.markdown("""
     <style>
         .stApp {
             background-color: #FFFFFF;
-            color: #111111;
+            color: #222222;
         }
         .main-title {
             font-size: 2.5rem;
@@ -22,7 +22,7 @@ st.markdown("""
         }
         .sub-title {
             font-size: 1.1rem;
-            color: #666666;
+            color: #555555;
             margin-bottom: 20px;
         }
         .card {
@@ -31,7 +31,14 @@ st.markdown("""
             border-radius: 10px;
             border: 1px solid #E0E0E0;
             margin-bottom: 15px;
-            color: #111111;
+            color: #222222;
+        }
+        /* Forzar visibilidad de textos en métricas */
+        [data-testid="stMetricValue"] {
+            color: #111111 !important;
+        }
+        [data-testid="stMetricLabel"] {
+            color: #444444 !important;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -52,103 +59,123 @@ ARCHIVO_CSV = "historial_evaluaciones_nba.csv"
 if os.path.exists(ARCHIVO_CSV):
   df = pd.read_csv(ARCHIVO_CSV)
 
-  # Métricas superiores estilizadas
+  # Filtrar estrictamente la cartelera del día más reciente (hoy en el CSV)
+  if "Fecha" in df.columns and len(df) > 0:
+    ultima_fecha = df["Fecha"].dropna().iloc[-1]
+    df_hoy = df[df["Fecha"] == ultima_fecha]
+  else:
+    df_hoy = pd.DataFrame()
+    ultima_fecha = "N/A"
+
+  # Métricas superiores estilizadas basadas en la cartelera actual
   col1, col2, col3, col4 = st.columns(4)
   with col1:
-    st.metric("Total de Partidos", len(df))
+    st.metric("Partidos de Hoy", len(df_hoy))
   with col2:
     conf_prom = (
-        df["Prob_Ganador_Pct"].dropna().mean()
-        if "Prob_Ganador_Pct" in df.columns
+        df_hoy["Prob_Ganador_Pct"].dropna().mean()
+        if "Prob_Ganador_Pct" in df_hoy.columns
         else 0
     )
-    st.metric("Confianza Promedio", f"{conf_prom:.1f}%")
+    st.metric("Confianza Promedio Hoy", f"{conf_prom:.1f}%")
   with col3:
-    ultima_fecha = (
-        df["Fecha"].iloc[-1] if "Fecha" in df.columns else "Desconocida"
-    )
-    st.metric("Última Actualización", ultima_fecha)
+    st.metric("Cartelera del Día", ultima_fecha)
   with col4:
     st.metric("Estado del Sistema", "🟢 Activo / Nube")
 
   st.divider()
 
   # ==========================================
-  # BARRA INTERACTIVA: Buscador
+  # SECCIÓN DE FILTRADO Y BUSCADOR INTERACTIVO
   # ==========================================
-  st.subheader("🔍 Buscador")
+  st.subheader("🔍 Buscador de Encuentros")
 
-  # Obtenemos la lista única de equipos disponibles en el CSV
-  equipos_locales = (
-      df["Local"].dropna().unique().tolist()
-      if "Local" in df.columns
-      else []
-  )
-  equipos_visitas = (
-      df["Visitante"].dropna().unique().tolist()
-      if "Visitante" in df.columns
-      else []
-  )
-  todos_los_equipos = sorted(list(set(equipos_locales + equipos_visitas)))
+  col_opcion, col_busqueda = st.columns([1, 2])
 
-  equipo_seleccionado = st.selectbox(
-      "¿Qué equipo o encuentro quieres consultar hoy?",
-      ["-- Muestra todos los partidos --"] + todos_los_equipos,
+  with col_opcion:
+    ver_todos = st.checkbox("📅 Mostrar todos los encuentros de hoy", value=True)
+
+  # Extraemos la lista de equipos que juegan hoy
+  equipos_hoy = sorted(
+      list(
+          set(
+              df_hoy["Local"].dropna().tolist()
+              + df_hoy["Visitante"].dropna().tolist()
+          )
+      )
   )
 
-  # Filtrado dinámico
-  df_filtrado = df.copy()
-  if equipo_seleccionado != "-- Muestra todos los partidos --":
-    df_filtrado = df[
-        (df["Local"] == equipo_seleccionado)
-        | (df["Visitante"] == equipo_seleccionado)
-    ]
+  with col_busqueda:
+    equipo_seleccionado = st.selectbox(
+        "O selecciona un equipo específico:",
+        ["-- Selecciona un equipo --"] + equipos_hoy,
+        disabled=ver_todos,
+    )
 
-  st.markdown("### 📊 Detalle y Motivos de las Predicciones")
+  # Lógica de filtrado según lo que pida el usuario
+  if ver_todos:
+    df_a_mostrar = df_hoy
+  else:
+    if equipo_seleccionado != "-- Selecciona un equipo --":
+      df_a_mostrar = df_hoy[
+          (df_hoy["Local"] == equipo_seleccionado)
+          | (df_hoy["Visitante"] == equipo_seleccionado)
+      ]
+    else:
+      df_a_mostrar = df_hoy  # Si no selecciona nada específico, muestra los de hoy
 
-  # Mostramos cada partido en tarjetas interactivas con su respectivo "Motivo analítico"
-  for _, row in df_filtrado.tail(10).iterrows():
-    fecha = row.get("Fecha", "N/A")
-    local = row.get("Local", "Local")
-    visita = row.get("Visitante", "Visitante")
+  st.markdown(
+      f"### 📊 Predicciones y Sugerencias Analíticas ({ultima_fecha})"
+  )
 
-    # Blindaje contra valores vacíos (nan)
-    ganador = row.get("Pred_Ganador", "N/A")
-    if pd.isna(ganador):
-      ganador = row.get("Pred_Ganador_Local", "N/A")
+  if len(df_a_mostrar) == 0:
+    st.info(
+        "No hay partidos registrados para los filtros seleccionados en la fecha"
+        f" de hoy ({ultima_fecha})."
+    )
+  else:
+    # Mostramos cada encuentro en tarjetas interactivas limpias
+    for _, row in df_a_mostrar.iterrows():
+      local = row.get("Local", "Local")
+      visita = row.get("Visitante", "Visitante")
 
-    prob = row.get("Prob_Ganador_Pct", 50.0)
-    if pd.isna(prob):
-      prob = 50.0
+      # Blindaje contra valores vacíos (nan)
+      ganador = row.get("Pred_Ganador", "N/A")
+      if pd.isna(ganador):
+        ganador = row.get("Pred_Ganador_Local", "N/A")
 
-    sem_ganador = row.get("Semaforo_Ganador", "Pendiente / Sin evaluar")
-    if pd.isna(sem_ganador):
-      sem_ganador = "Evaluación estándar"
+      prob = row.get("Prob_Ganador_Pct", 50.0)
+      if pd.isna(prob):
+        prob = 50.0
 
-    linea = row.get("Line_Apuesta", 225.5)
-    pred_ou = row.get("Pred_OU", "N/A")
-    prom_sim = row.get("Promedio_Simulado", 225.5)
+      sem_ganador = row.get("Semaforo_Ganador", "Pendiente")
+      if pd.isna(sem_ganador):
+        sem_ganador = "Evaluación estándar"
 
-    sem_puntos = row.get("Semaforo_Puntos", "Margen Normal")
-    if pd.isna(sem_puntos):
-      sem_puntos = "Zona estándar"
+      linea = row.get("Line_Apuesta", 225.5)
+      pred_ou = row.get("Pred_OU", "N/A")
+      prom_sim = row.get("Promedio_Simulado", 225.5)
 
-    # Tarjeta visual por partido
-    with st.container():
-      st.markdown(f"""
-                <div class="card">
-                    <h4>📅 {fecha} | 🏀 <b>{local}</b> vs <b>{visita}</b></h4>
-                    <hr style="margin: 5px 0 10px 0; border-color: #DDD;">
-                    <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) - <i>{sem_ganador}</i></p>
-                    <p><b>📈 Over/Under (Línea {linea}):</b> Predicción <b>{pred_ou}</b> (Simulado: {prom_sim} pts) - <i>{sem_puntos}</i></p>
-                    <p style="color: #0066CC; font-size: 0.9rem;">💡 <b>Motivo del Modelo:</b> Derivado del análisis matricial de Tiers, factor de forma reciente y cruce de eficiencia defensiva del rival mediante simulaciones estocásticas de Monte Carlo (2,000 iteraciones).</p>
-                </div>
-            """, unsafe_allow_html=True)
+      sem_puntos = row.get("Semaforo_Puntos", "Margen Normal")
+      if pd.isna(sem_puntos):
+        sem_puntos = "Zona estándar"
+
+      # Tarjeta visual por partido con estilo y semáforos claros
+      with st.container():
+        st.markdown(f"""
+                    <div class="card">
+                        <h4>🏀 <b>{local}</b> vs <b>{visita}</b></h4>
+                        <hr style="margin: 5px 0 10px 0; border-color: #DDD;">
+                        <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> <code>{sem_ganador}</code></p>
+                        <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> <code>{sem_puntos}</code></p>
+                        <p style="color: #0055AA; font-size: 0.9rem;">💡 <b>Consejo / Motivo del Modelo:</b> Análisis estocástico de Monte Carlo (2,000 iteraciones) cruzando eficiencia ofensiva, factor de forma e inercia defensiva del rival.</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
   st.divider()
 
-  # Vista clásica de tabla completa para Métodos Numéricos / Minería de Datos
-  with st.expander("📁 Ver base de datos completa en formato tabular"):
+  # Vista completa opcional para los profesores
+  with st.expander("📁 Ver historial completo de la base de datos"):
     st.dataframe(df, use_container_width=True)
 
 else:
