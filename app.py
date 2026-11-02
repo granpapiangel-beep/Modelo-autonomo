@@ -7,9 +7,13 @@ st.set_page_config(
     page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
 )
 
-# Estilo visual moderno y limpio
+# Estilo visual con FONDO BLANCO y tarjetas estilizadas
 st.markdown("""
     <style>
+        .stApp {
+            background-color: #FFFFFF;
+            color: #111111;
+        }
         .main-title {
             font-size: 2.5rem;
             font-weight: 700;
@@ -18,15 +22,16 @@ st.markdown("""
         }
         .sub-title {
             font-size: 1.1rem;
-            color: #A0A0A0;
+            color: #666666;
             margin-bottom: 20px;
         }
         .card {
-            background-color: #1E1E1E;
+            background-color: #F8F9FA;
             padding: 20px;
             border-radius: 10px;
-            border: 1px solid #333333;
+            border: 1px solid #E0E0E0;
             margin-bottom: 15px;
+            color: #111111;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -69,9 +74,9 @@ if os.path.exists(ARCHIVO_CSV):
   st.divider()
 
   # ==========================================
-  # BARRA INTERACTIVA: ¿Qué encuentro quieres ver?
+  # BARRA INTERACTIVA: Buscador
   # ==========================================
-  st.subheader("🔍 Buscador Interactivo de Partidos")
+  st.subheader("🔍 Buscador")
 
   # Obtenemos la lista única de equipos disponibles en el CSV
   equipos_locales = (
@@ -106,23 +111,37 @@ if os.path.exists(ARCHIVO_CSV):
     fecha = row.get("Fecha", "N/A")
     local = row.get("Local", "Local")
     visita = row.get("Visitante", "Visitante")
+
+    # Blindaje contra valores vacíos (nan)
     ganador = row.get("Pred_Ganador", "N/A")
+    if pd.isna(ganador):
+      ganador = row.get("Pred_Ganador_Local", "N/A")
+
     prob = row.get("Prob_Ganador_Pct", 50.0)
-    sem_ganador = row.get("Semaforo_Ganador", "N/A")
+    if pd.isna(prob):
+      prob = 50.0
+
+    sem_ganador = row.get("Semaforo_Ganador", "Pendiente / Sin evaluar")
+    if pd.isna(sem_ganador):
+      sem_ganador = "Evaluación estándar"
+
     linea = row.get("Line_Apuesta", 225.5)
     pred_ou = row.get("Pred_OU", "N/A")
     prom_sim = row.get("Promedio_Simulado", 225.5)
-    sem_puntos = row.get("Semaforo_Puntos", "N/A")
+
+    sem_puntos = row.get("Semaforo_Puntos", "Margen Normal")
+    if pd.isna(sem_puntos):
+      sem_puntos = "Zona estándar"
 
     # Tarjeta visual por partido
     with st.container():
       st.markdown(f"""
                 <div class="card">
                     <h4>📅 {fecha} | 🏀 <b>{local}</b> vs <b>{visita}</b></h4>
-                    <hr style="margin: 5px 0 10px 0; border-color: #444;">
+                    <hr style="margin: 5px 0 10px 0; border-color: #DDD;">
                     <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) - <i>{sem_ganador}</i></p>
                     <p><b>📈 Over/Under (Línea {linea}):</b> Predicción <b>{pred_ou}</b> (Simulado: {prom_sim} pts) - <i>{sem_puntos}</i></p>
-                    <p style="color: #88CCEE; font-size: 0.9rem;">💡 <b>Motivo del Modelo:</b> Derivado del análisis matricial de Tiers, factor de forma reciente y cruce de eficiencia defensiva del rival mediante simulaciones estocásticas de Monte Carlo (2,000 iteraciones).</p>
+                    <p style="color: #0066CC; font-size: 0.9rem;">💡 <b>Motivo del Modelo:</b> Derivado del análisis matricial de Tiers, factor de forma reciente y cruce de eficiencia defensiva del rival mediante simulaciones estocásticas de Monte Carlo (2,000 iteraciones).</p>
                 </div>
             """, unsafe_allow_html=True)
 
