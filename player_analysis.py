@@ -25,7 +25,7 @@ def obtener_patron_titulares(nombre_equipo, puntos_proyectados_partido):
         ],
         "Lakers": [
             ("Anthony Davis", 23.5, "85% (Dominante en la pintura)", "VERDE"),
-            ("LeBron James", 22.5, "80% (Controlador de ritmo)", "VERDE"),
+            ("LeBron James", 12.5, "75% (Cuota Ajustada / Rol Secundario)", "AMARILLO"),
             ("Austin Reaves", 16.5, "70% (Altos minutos / Confiable)", "VERDE"),
             ("D'Angelo Russell", 14.5, "55% (Depende de rachas de 3s)", "AMARILLO"),
             ("Rui Hachimura", 11.5, "60% (Cumplidor secundario)", "VERDE")
@@ -221,7 +221,6 @@ def obtener_patron_titulares(nombre_equipo, puntos_proyectados_partido):
         ]
     }
     
-    # Si el equipo está registrado, devuelve sus 5 titulares; si no, genera un respaldo proporcional
     if nombre_equipo in patrones_nba:
         return patrones_nba[nombre_equipo]
     else:
