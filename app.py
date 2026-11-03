@@ -79,7 +79,7 @@ def render_badge(texto):
 
 # Encabezado principal actualizado a NBA AI Stephy
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento de cuotas.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel analítico autónomo.</p>', unsafe_allow_html=True)
 
 # 🔔 Campanita de Notificaciones del Sistema y Estado de Lesiones
 st.markdown("""
