@@ -1,5 +1,5 @@
 # bot_actualizado.py
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 import logging
 import os
 import numpy as np
@@ -44,10 +44,6 @@ def normalizar_texto(texto):
 # 2. EXTRACCIÓN AUTOMÁTICA DE PUNTAJES DE JUGADORES (NOCTURNA)
 # ==========================================
 def actualizar_puntajes_jugadores_noche():
-    """
-    Consulta los boxscores de la jornada anterior en la API de ESPN,
-    extrae los puntos de los jugadores y actualiza automáticamente el CSV principal de titulares.
-    """
     if not os.path.exists(ARCHIVO_TITULARES):
         logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
         return
@@ -58,7 +54,10 @@ def actualizar_puntajes_jugadores_noche():
         logging.error(f"❌ Error al leer el CSV de titulares: {e}")
         return
 
-    ayer = datetime.now().date() - pd.Timedelta(days=1)
+    # Usar hora local de México (CST / UTC-6)
+    tz_mexico = timezone(timedelta(hours=-6))
+    ayer = datetime.now(tz_mexico).date() - pd.Timedelta(days=1)
+    
     meses = {
         1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 
         5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 
@@ -356,8 +355,12 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     else:
         semaforo_puntos = "🔴 ROJO (Zona de Incertidumbre)"
 
+    # Sincronización de fecha con hora local de México (CST)
+    tz_mexico = timezone(timedelta(hours=-6))
+    fecha_actual_mexico = datetime.now(tz_mexico).strftime("%Y-%m-%d")
+
     prediccion = {
-        "Fecha": datetime.now().strftime("%Y-%m-%d"),
+        "Fecha": fecha_actual_mexico,
         "Local": local,
         "Visitante": visitante,
         "Pred_Ganador": local if prob_local >= 0.5 else visitante,
@@ -378,12 +381,12 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando motor analítico ultra-optimizado con memoria dinámica y proxy de lesiones...")
+    logging.info("🤖 Iniciando motor analítico ultra-optimizado con memoria dinámica y zona horaria local...")
     
     # 1. Ejecutar actualización automática nocturna de puntajes de los jugadores en el CSV
     actualizar_puntajes_jugadores_noche()
 
-    # 2. Ejecutar optimización y simulaciones de partidos de hoy
+    # 2. Ejecutar optimización y simulaciones de partidos
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
@@ -416,4 +419,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado con éxito, base de jugadores y simulaciones actualizadas!")
+    logging.info("✨ ¡Proceso completado con éxito, base de jugadores y simulaciones sincronizadas!")
