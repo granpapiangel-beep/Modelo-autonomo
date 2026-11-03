@@ -79,7 +79,7 @@ def render_badge(texto):
 
 # Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Panel analítico autónomo.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento de cuotas.</p>', unsafe_allow_html=True)
 
 # 🔔 Campanita de Notificaciones del Sistema y Estado de Lesiones
 st.markdown("""
@@ -99,11 +99,15 @@ if os.path.exists(ARCHIVO_EVAL):
         # Obtenemos todas las fechas disponibles ordenadas de la más nueva a la más antigua
         fechas_disponibles = sorted(df["Fecha_Clean"].unique(), reverse=True)
         
-        # Selector manual en la barra lateral para que elijas exactamente qué cartelera ver
+        # Selector manual en la barra lateral (index=0 fuerza que inicie en la fecha más reciente)
         st.sidebar.markdown("### 🎛️ Panel de Control")
-        fecha_seleccionada = st.sidebar.selectbox("📅 Selecciona la fecha de la cartelera:", fechas_disponibles)
+        fecha_seleccionada = st.sidebar.selectbox(
+            "📅 Selecciona la fecha de la cartelera:", 
+            fechas_disponibles,
+            index=0
+        )
         
-        # Filtramos la app con la fecha que elegiste manualmente
+        # Filtramos la app con la fecha seleccionada
         df_hoy = df[df["Fecha_Clean"] == fecha_seleccionada]
         ultima_fecha = fecha_seleccionada
     else:
