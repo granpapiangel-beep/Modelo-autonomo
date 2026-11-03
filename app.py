@@ -7,7 +7,7 @@ from player_analysis import obtener_patron_titulares
 
 # Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
-    page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
+    page_title="NBA AI Stephy", page_icon="🏀", layout="wide"
 )
 
 # Estilo visual: Fondo blanco, tarjetas azul celeste y métricas optimizadas
@@ -77,8 +77,8 @@ def render_badge(texto):
         
     return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
 
-# Encabezado principal
-st.markdown('<p class="main-title">🏀 NBA AI Prediction Hub</p>', unsafe_allow_html=True)
+# Encabezado principal actualizado a NBA AI Stephy
+st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento de cuotas.</p>', unsafe_allow_html=True)
 
 # 🔔 Campanita de Notificaciones del Sistema y Estado de Lesiones
@@ -94,27 +94,25 @@ if os.path.exists(ARCHIVO_EVAL):
     df = pd.read_csv(ARCHIVO_EVAL)
     
     if "Fecha" in df.columns and len(df) > 0:
-        # Opción 1: Filtrado inteligente (Si hay partidos de hoy los muestra, sino carga la última cartelera válida)
-        fecha_hoy_str = datetime.now().strftime("%Y-%m-%d")
-        df_hoy = df[df["Fecha"] == fecha_hoy_str]
+        # Limpieza de fechas: Tomamos estrictamente la última fecha registrada en el historial sin mezclar días
+        df["Fecha_Clean"] = df["Fecha"].astype(str).str.strip()
+        fechas_unicas = sorted(df["Fecha_Clean"].unique(), reverse=True)
         
-        if len(df_hoy) > 0:
-            ultima_fecha = fecha_hoy_str
-        else:
-            ultima_fecha = df["Fecha"].dropna().iloc[-1]
-            df_hoy = df[df["Fecha"] == ultima_fecha]
+        # Seleccionamos por defecto la cartelera más reciente de la base de datos
+        ultima_fecha = fechas_unicas[0]
+        df_hoy = df[df["Fecha_Clean"] == ultima_fecha]
     else:
         df_hoy = pd.DataFrame()
         ultima_fecha = "N/A"
         
     col1, col2, col3, col4 = st.columns(4)
     with col1:
-        st.metric("Partidos de Hoy", len(df_hoy))
+        st.metric("Partidos en Cartelera", len(df_hoy))
     with col2:
         conf_prom = df_hoy["Prob_Ganador_Pct"].dropna().mean() if "Prob_Ganador_Pct" in df_hoy.columns else 0
         st.metric("Confianza Promedio", f"{conf_prom:.1f}%")
     with col3:
-        st.metric("Cartelera", ultima_fecha)
+        st.metric("Fecha Activa", ultima_fecha)
     with col4:
         st.metric("Estado del Bot", "🟢 Activo / 30 Eq")
         
