@@ -77,7 +77,7 @@ def render_badge(texto):
         
     return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
 
-# Encabezado principal actualizado a NBA AI Stephy
+# Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Panel analítico autónomo.</p>', unsafe_allow_html=True)
 
@@ -94,13 +94,18 @@ if os.path.exists(ARCHIVO_EVAL):
     df = pd.read_csv(ARCHIVO_EVAL)
     
     if "Fecha" in df.columns and len(df) > 0:
-        # Limpieza de fechas: Tomamos estrictamente la última fecha registrada en el historial sin mezclar días
         df["Fecha_Clean"] = df["Fecha"].astype(str).str.strip()
-        fechas_unicas = sorted(df["Fecha_Clean"].unique(), reverse=True)
         
-        # Seleccionamos por defecto la cartelera más reciente de la base de datos
-        ultima_fecha = fechas_unicas[0]
-        df_hoy = df[df["Fecha_Clean"] == ultima_fecha]
+        # Obtenemos todas las fechas disponibles ordenadas de la más nueva a la más antigua
+        fechas_disponibles = sorted(df["Fecha_Clean"].unique(), reverse=True)
+        
+        # Selector manual en la barra lateral para que elijas exactamente qué cartelera ver
+        st.sidebar.markdown("### 🎛️ Panel de Control")
+        fecha_seleccionada = st.sidebar.selectbox("📅 Selecciona la fecha de la cartelera:", fechas_disponibles)
+        
+        # Filtramos la app con la fecha que elegiste manualmente
+        df_hoy = df[df["Fecha_Clean"] == fecha_seleccionada]
+        ultima_fecha = fecha_seleccionada
     else:
         df_hoy = pd.DataFrame()
         ultima_fecha = "N/A"
