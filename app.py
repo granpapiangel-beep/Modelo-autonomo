@@ -1,37 +1,85 @@
 # app.py
+from datetime import datetime
 import os
 import pandas as pd
 import streamlit as st
 from player_analysis import obtener_patron_titulares
 
+# Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
     page_title="NBA AI Prediction Hub", page_icon="🏀", layout="wide"
 )
 
+# Estilo visual: Fondo blanco, tarjetas azul celeste y métricas optimizadas
 st.markdown("""
 <style>
-    .stApp { background-color: #FFFFFF; color: #222222; }
-    .main-title { font-size: 2.5rem; font-weight: 700; color: #FF4B4B; margin-bottom: 0px; }
-    .sub-title { font-size: 1.1rem; color: #555555; margin-bottom: 20px; }
-    .card { background-color: #EBF3FA; padding: 20px; border-radius: 10px; border: 1px solid #D0E3F5; margin-bottom: 15px; color: #111111; }
-    .notification-banner { background-color: #FFF3CD; border-left: 5px solid #FFC107; padding: 12px; border-radius: 4px; margin-bottom: 20px; font-size: 0.95rem; color: #856404; }
+    .stApp {
+        background-color: #FFFFFF;
+        color: #222222;
+    }
+    .main-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: #FF4B4B;
+        margin-bottom: 0px;
+    }
+    .sub-title {
+        font-size: 1.1rem;
+        color: #555555;
+        margin-bottom: 20px;
+    }
+    .card {
+        background-color: #EBF3FA;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #D0E3F5;
+        margin-bottom: 15px;
+        color: #111111;
+    }
+    .notification-banner { 
+        background-color: #FFF3CD; 
+        border-left: 5px solid #FFC107; 
+        padding: 12px; 
+        border-radius: 4px; 
+        margin-bottom: 20px; 
+        font-size: 0.95rem; 
+        color: #856404; 
+    }
+    /* Forzar colores oscuros y legibles en las métricas de Streamlit */
+    [data-testid="stMetricValue"] {
+        color: #0f172a !important;
+        font-weight: 700 !important;
+    }
+    [data-testid="stMetricLabel"] {
+        color: #334155 !important;
+        font-weight: 600 !important;
+    }
+    [data-testid="stMetricDelta"] {
+        color: #047857 !important;
+    }
 </style>
 """, unsafe_allow_html=True)
 
 def render_badge(texto):
     texto_str = str(texto).upper()
-    bg_color, text_color = "#D6E8FC", "#003366"
+    bg_color = "#D6E8FC"
+    text_color = "#003366"
+    
     if "VERDE" in texto_str or "CUMPLIDOR" in texto_str:
-        bg_color, text_color = "#D1E7DD", "#0F5132"
+        bg_color = "#D1E7DD"
+        text_color = "#0F5132"
     elif "AMARILLO" in texto_str or "MODERADO" in texto_str:
-        bg_color, text_color = "#FFF3CD", "#664D03"
+        bg_color = "#FFF3CD"
+        text_color = "#664D03"
     elif "ROJO" in texto_str or "VOLÁTIL" in texto_str:
-        bg_color, text_color = "#F8D7DA", "#842029"
+        bg_color = "#F8D7DA"
+        text_color = "#842029"
+        
     return f'<span style="background-color: {bg_color}; color: {text_color}; padding: 4px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem;">{texto}</span>'
 
-# Encabezado principal con Campanita de Alerta / Notificaciones del Bot
+# Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Prediction Hub</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel analítico autónomo con simulación de Monte Carlo y patrones de cumplimiento de cuotas.</p>', unsafe_allow_html=True)
 
 # 🔔 Campanita de Notificaciones del Sistema y Estado de Lesiones
 st.markdown("""
@@ -44,9 +92,17 @@ ARCHIVO_EVAL = "historial_evaluaciones_nba.csv"
 
 if os.path.exists(ARCHIVO_EVAL):
     df = pd.read_csv(ARCHIVO_EVAL)
+    
     if "Fecha" in df.columns and len(df) > 0:
-        ultima_fecha = df["Fecha"].dropna().iloc[-1]
-        df_hoy = df[df["Fecha"] == ultima_fecha]
+        # Opción 1: Filtrado inteligente (Si hay partidos de hoy los muestra, sino carga la última cartelera válida)
+        fecha_hoy_str = datetime.now().strftime("%Y-%m-%d")
+        df_hoy = df[df["Fecha"] == fecha_hoy_str]
+        
+        if len(df_hoy) > 0:
+            ultima_fecha = fecha_hoy_str
+        else:
+            ultima_fecha = df["Fecha"].dropna().iloc[-1]
+            df_hoy = df[df["Fecha"] == ultima_fecha]
     else:
         df_hoy = pd.DataFrame()
         ultima_fecha = "N/A"
@@ -60,56 +116,89 @@ if os.path.exists(ARCHIVO_EVAL):
     with col3:
         st.metric("Cartelera", ultima_fecha)
     with col4:
-        st.metric("Estado del Bot", "🟢 Activo / 30 Equipos")
+        st.metric("Estado del Bot", "🟢 Activo / 30 Eq")
         
     st.divider()
     
     st.subheader("🔍 Buscador de Encuentros y Patrones de Jugadores")
     col_opcion, col_busqueda = st.columns([1, 2])
+    
     with col_opcion:
         ver_todos = st.checkbox("📅 Mostrar todos los encuentros", value=True)
         
     equipos_hoy = sorted(list(set(df_hoy["Local"].dropna().tolist() + df_hoy["Visitante"].dropna().tolist())))
+    
     with col_busqueda:
-        equipo_seleccionado = st.selectbox("O filtra por un equipo específico:", ["-- Selecciona un equipo --"] + equipos_hoy, disabled=ver_todos)
+        equipo_seleccionado = st.selectbox("O selecciona un equipo específico:", ["-- Selecciona un equipo --"] + equipos_hoy, disabled=ver_todos)
         
-    df_a_mostrar = df_hoy if ver_todos else (df_hoy[(df_hoy["Local"] == equipo_seleccionado) | (df_hoy["Visitante"] == equipo_seleccionado)] if equipo_seleccionado != "-- Selecciona un equipo --" else df_hoy)
+    if ver_todos:
+        df_a_mostrar = df_hoy
+    else:
+        if equipo_seleccionado != "-- Selecciona un equipo --":
+            df_a_mostrar = df_hoy[(df_hoy["Local"] == equipo_seleccionado) | (df_hoy["Visitante"] == equipo_seleccionado)]
+        else:
+            df_a_mostrar = df_hoy
             
-    st.markdown(f"### 📊 Predicciones Analíticas ({ultima_fecha})")
+    st.markdown(f"### 📊 Predicciones y Sugerencias Analíticas ({ultima_fecha})")
     
     if len(df_a_mostrar) == 0:
-        st.info("No hay partidos registrados para los filtros seleccionados.")
+        st.info(f"No hay partidos registrados para la fecha seleccionada ({ultima_fecha}).")
     else:
         for _, row in df_a_mostrar.iterrows():
-            local, visita = row.get("Local", "Local"), row.get("Visitante", "Visitante")
-            ganador = row.get("Pred_Ganador", row.get("Pred_Ganador_Local", "N/A"))
+            local = row.get("Local", "Local")
+            visita = row.get("Visitante", "Visitante")
+            
+            ganador = row.get("Pred_Ganador", "N/A")
+            if pd.isna(ganador):
+                ganador = row.get("Pred_Ganador_Local", "N/A")
+                
             prob = row.get("Prob_Ganador_Pct", 50.0)
+            if pd.isna(prob):
+                prob = 50.0
+                
             sem_ganador = row.get("Semaforo_Ganador", "Pendiente")
+            if pd.isna(sem_ganador):
+                sem_ganador = "Evaluación estándar"
+                
             linea = row.get("Line_Apuesta", 225.5)
             pred_ou = row.get("Pred_OU", "N/A")
             prom_sim = row.get("Promedio_Simulado", 225.5)
-            sem_puntos = row.get("Semaforo_Puntos", "Margen Normal")
             
+            sem_puntos = row.get("Semaforo_Puntos", "Margen Normal")
+            if pd.isna(sem_puntos):
+                sem_puntos = "Zona estándar"
+                
             badge_ganador_html = render_badge(sem_ganador)
             badge_puntos_html = render_badge(sem_puntos)
             
-            # Llamado al motor de análisis de jugadores corregido
             titulares_local = obtener_patron_titulares(local)
             titulares_visita = obtener_patron_titulares(visita)
             
-            html_loc = "".join([f"<li><b>{n}</b> (Línea Mínima: <b>{lp}</b>) ➔ {render_badge(f'{s} ({pat})')}</li>" for n, lp, pat, s in titulares_local])
-            html_vis = "".join([f"<li><b>{n}</b> (Línea Mínima: <b>{lp}</b>) ➔ {render_badge(f'{s} ({pat})')}</li>" for n, lp, pat, s in titulares_visita])
-            
+            html_titulares_local = ""
+            for nombre, linea_prop, patron, sem in titulares_local:
+                badge_p = render_badge(f"{sem} ({patron})")
+                html_titulares_local += f"<li><b>{nombre}</b> (Línea Mínima: <b>{linea_prop}</b>) ➔ {badge_p}</li>"
+                
+            html_titulares_visita = ""
+            for nombre, linea_prop, patron, sem in titulares_visita:
+                badge_p = render_badge(f"{sem} ({patron})")
+                html_titulares_visita += f"<li><b>{nombre}</b> (Línea Mínima: <b>{linea_prop}</b>) ➔ {badge_p}</li>"
+                
             tarjeta_html = f"""<div class="card">
 <h4>🏀 <b>{local}</b> vs <b>{visita}</b></h4>
 <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
 <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
-<p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
-<p style="margin-top: 8px; margin-bottom: 2px;">👤 <b>Titulares y Consistencia ({local}):</b></p>
-<ul style="margin-top: 0px; margin-bottom: 6px; font-size: 0.9rem; color: #111111;">{html_loc}</ul>
-<p style="margin-top: 6px; margin-bottom: 2px;">👤 <b>Titulares y Consistencia ({visita}):</b></p>
-<ul style="margin-top: 0px; font-size: 0.9rem; color: #111111;">{html_vis}</ul>
+<p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
+<p style="margin-top: 8px; margin-bottom: 2px;">👤 <b>Titulares y Patrones ({local}):</b></p>
+<ul style="margin-top: 0px; margin-bottom: 6px; font-size: 0.9rem; color: #111111;">
+{html_titulares_local}
+</ul>
+<p style="margin-top: 6px; margin-bottom: 2px;">👤 <b>Titulares y Patrones ({visita}):</b></p>
+<ul style="margin-top: 0px; font-size: 0.9rem; color: #111111;">
+{html_titulares_visita}
+</ul>
 </div>"""
+            
             st.markdown(tarjeta_html, unsafe_allow_html=True)
 else:
     st.warning("⚠️ No se encontró el archivo 'historial_evaluaciones_nba.csv' en el repositorio.")
