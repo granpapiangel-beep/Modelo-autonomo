@@ -406,13 +406,19 @@ if __name__ == "__main__":
     ]
 
     df_new = pd.DataFrame(nuevos_registros)
+    
+    # Asegurarnos de limpiar el archivo histórico para que no mezcle días
     if os.path.exists(ARCHIVO_HISTORIAL):
         try:
             df_existing = pd.read_csv(ARCHIVO_HISTORIAL)
+            # Obtenemos la fecha de la ejecución actual
+            fecha_actual_ejecucion = df_new["Fecha"].iloc[0] if len(df_new) > 0 else ""
+            
+            if fecha_actual_ejecucion:
+                # Borramos cualquier registro previo de esta misma fecha para evitar duplicados o mezclas
+                df_existing = df_existing[df_existing["Fecha"] != fecha_actual_ejecucion]
+                
             df_final = pd.concat([df_existing, df_new], ignore_index=True)
-            df_final = df_final.drop_duplicates(
-                subset=["Fecha", "Local", "Visitante"], keep="last"
-            )
             df_final.to_csv(ARCHIVO_HISTORIAL, index=False)
         except Exception:
             df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
