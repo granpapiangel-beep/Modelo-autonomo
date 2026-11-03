@@ -5,7 +5,6 @@ import unicodedata
 import numpy as np
 
 def normalizar_texto(texto):
-    """Limpia acentos y convierte a minúsculas para una coincidencia exacta."""
     if not isinstance(texto, str):
         return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
@@ -13,30 +12,64 @@ def normalizar_texto(texto):
 
 def obtener_patron_titulares(nombre_equipo):
     """
-    Analiza rigurosamente el CSV de titulares, calcula promedios móviles,
-    desviación estándar y emite un semáforo analítico estricto.
+    Analiza rigurosamente el CSV de titulares aplicando un mapeo estricto
+    de nombres de franquicias para asegurar el reconocimiento de jugadores.
     """
     csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
     if not os.path.exists(csv_filename):
         return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
         
     try:
-        df_titulares = pd.read_csv(csv_filename)
+        # Usamos encoding latin1 para evitar errores de acentos en Windows/Linux
+        df_titulares = pd.read_csv(csv_filename, encoding='latin1')
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
+    mapeo_equipos = {
+        "boston celtics": "boston celtics", "celtics": "boston celtics",
+        "brooklyn nets": "brooklyn nets", "nets": "brooklyn nets",
+        "new york knicks": "new york knicks", "knicks": "new york knicks",
+        "philadelphia 76ers": "philadelphia 76ers", "76ers": "philadelphia 76ers", "sixers": "philadelphia 76ers",
+        "toronto raptors": "toronto raptors", "raptors": "toronto raptors",
+        "chicago bulls": "chicago bulls", "bulls": "chicago bulls",
+        "cleveland cavaliers": "cleveland cavaliers", "cavaliers": "cleveland cavaliers", "cavs": "cleveland cavaliers",
+        "detroit pistons": "detroit pistons", "pistons": "detroit pistons",
+        "indiana pacers": "indiana pacers", "pacers": "indiana pacers",
+        "milwaukee bucks": "milwaukee bucks", "bucks": "milwaukee bucks",
+        "atlanta hawks": "atlanta hawks", "hawks": "atlanta hawks",
+        "charlotte hornets": "charlotte hornets", "hornets": "charlotte hornets",
+        "miami heat": "miami heat", "heat": "miami heat",
+        "orlando magic": "orlando magic", "magic": "orlando magic",
+        "washington wizards": "washington wizards", "wizards": "washington wizards",
+        "denver nuggets": "denver nuggets", "nuggets": "denver nuggets",
+        "minnesota timberwolves": "minnesota timberwolves", "timberwolves": "minnesota timberwolves", "wolves": "minnesota timberwolves",
+        "oklahoma city thunder": "oklahoma city thunder", "thunder": "oklahoma city thunder",
+        "portland trail blazers": "portland trail blazers", "trail blazers": "portland trail blazers", "blazers": "portland trail blazers",
+        "utah jazz": "utah jazz", "jazz": "utah jazz",
+        "golden state warriors": "golden state warriors", "warriors": "golden state warriors",
+        "los angeles clippers": "los angeles clippers", "la clippers": "los angeles clippers", "clippers": "los angeles clippers",
+        "los angeles lakers": "los angeles lakers", "la lakers": "los angeles lakers", "lakers": "los angeles lakers",
+        "phoenix suns": "phoenix suns", "suns": "phoenix suns",
+        "sacramento kings": "sacramento kings", "kings": "sacramento kings",
+        "dallas mavericks": "dallas mavericks", "mavericks": "dallas mavericks", "mavs": "dallas mavericks",
+        "houston rockets": "houston rockets", "rockets": "houston rockets",
+        "memphis grizzlies": "memphis grizzlies", "grizzlies": "memphis grizzlies",
+        "new orleans pelicans": "new orleans pelicans", "pelicans": "new orleans pelicans",
+        "san antonio spurs": "san antonio spurs", "spurs": "san antonio spurs"
+    }
+    
+    eq_norm = normalizar_texto(nombre_equipo)
+    eq_busqueda = mapeo_equipos.get(eq_norm, eq_norm)
+    
     df_titulares['Equipo_Clean'] = df_titulares['Equipo'].apply(normalizar_texto)
-    equipo_busq = normalizar_texto(nombre_equipo)
-    
-    df_equipo = df_titulares[df_titulares['Equipo_Clean'] == equipo_busq]
+    df_equipo = df_titulares[df_titulares['Equipo_Clean'] == eq_busqueda]
     
     if df_equipo.empty:
-        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(equipo_busq, na=False)]
+        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_busqueda, na=False)]
         
     if df_equipo.empty:
-        return [(nombre_equipo, "15.5 pts", "Sin registros", "AMARILLO")]
+        return [(nombre_equipo, "15.5 pts", "Sin registros en base", "AMARILLO")]
         
-    # Identificar columnas de fechas dinámicamente
     columnas_fechas = [col for col in df_titulares.columns if col not in ['Equipo', 'Posicion', 'Jugador', 'Equipo_Clean']]
     
     resultado = []
@@ -59,15 +92,15 @@ def obtener_patron_titulares(nombre_equipo):
         desviacion = np.std(puntos_lista) if len(puntos_lista) > 1 else 1.0
         linea_prop = round(promedio - 2.0, 1)
         
-        # Criterios analíticos rigurosos de cumplimiento
+        # Criterios analíticos de cumplimiento y consistencia
         if promedio >= 22.0 and desviacion < 5.0:
-            patron = "Élite Consistente"
+            patron = "Élite Constante (Cumplidor)"
             semaforo = "VERDE"
         elif promedio >= 15.0 and desviacion < 7.0:
             patron = "Estable / Confiable"
             semaforo = "VERDE"
         elif desviacion >= 7.0 or (max(puntos_lista) - min(puntos_lista)) > 14:
-            patron = "Alto Riesgo / Volátil"
+            patron = "Alto Riesgo / Volátil e Irregular"
             semaforo = "ROJO"
         else:
             patron = "Bajo Perfil / Rango Estrecho"
