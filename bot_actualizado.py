@@ -1,3 +1,4 @@
+# bot_actualizado.py
 from datetime import datetime
 import logging
 import os
@@ -5,6 +6,7 @@ import numpy as np
 import pandas as pd
 import requests
 from scipy.optimize import minimize
+import unicodedata
 
 # Configuración formal de logging
 logging.basicConfig(
@@ -14,6 +16,7 @@ logging.basicConfig(
 )
 
 ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
+ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
 
 # ==========================================
 # 1. TIERS BASE (Punto de partida neutral)
@@ -30,11 +33,102 @@ TIERS_BASE_EQUIPOS = {
 }
 
 
+def normalizar_texto(texto):
+    if not isinstance(texto, str):
+        return ""
+    return ''.join(c for c in unicodedata.normalize('NFD', texto)
+                   if unicodedata.category(c) != 'Mn').lower().strip()
+
+
 # ==========================================
-# 2. MEMORIA DINÁMICA ACTIVA (Lee y ajusta desde el CSV)
+# 2. EXTRACCIÓN AUTOMÁTICA DE PUNTAJES DE JUGADORES (NOCTURNA)
+# ==========================================
+def actualizar_puntajes_jugadores_noche():
+    """
+    Consulta los boxscores de la jornada anterior en la API de ESPN,
+    extrae los puntos de los jugadores y actualiza automáticamente el CSV principal de titulares.
+    """
+    if not os.path.exists(ARCHIVO_TITULARES):
+        logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
+        return
+
+    try:
+        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='latin1')
+    except Exception as e:
+        logging.error(f"❌ Error al leer el CSV de titulares: {e}")
+        return
+
+    ayer = datetime.now().date() - pd.Timedelta(days=1)
+    meses = {
+        1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 
+        5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 
+        9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+    }
+    columna_fecha = f"{ayer.day} de {meses[ayer.month]}"
+
+    if columna_fecha not in df_titulares.columns:
+        df_titulares[columna_fecha] = "SD"
+        logging.info(f"📅 Se creó la nueva columna de fecha '{columna_fecha}' en el CSV de titulares.")
+
+    url_scoreboard = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    try:
+        resp = requests.get(url_scoreboard, timeout=10)
+        if resp.status_code != 200:
+            return
+        data = resp.json()
+    except Exception:
+        return
+
+    actualizaciones = 0
+    for event in data.get("events", []):
+        event_id = event.get("id")
+        competitions = event.get("competitions", [])
+        if not competitions:
+            continue
+        status = competitions[0].get("status", {}).get("type", {}).get("completed", False)
+        
+        if not status:
+            continue
+
+        url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
+        try:
+            sum_resp = requests.get(url_summary, timeout=5)
+            if sum_resp.status_code != 200:
+                continue
+            sum_data = sum_resp.json()
+            
+            boxscore = sum_data.get("boxscore", {})
+            players_stats = boxscore.get("players", [])
+            
+            for team_block in players_stats:
+                for stat_group in team_block.get("statistics", []):
+                    for athlete_info in stat_group.get("athletes", []):
+                        athlete = athlete_info.get("athlete", {})
+                        nombre_api = athlete.get("displayName", "")
+                        stats_arr = athlete_info.get("stats", [])
+                        
+                        if stats_arr and len(stats_arr) > 0:
+                            try:
+                                pts_anotados = int(stats_arr[0])
+                                nombre_api_clean = normalizar_texto(nombre_api)
+                                
+                                mask = df_titulares['Jugador'].apply(lambda x: normalizar_texto(str(x)) == nombre_api_clean)
+                                if mask.any():
+                                    df_titulares.loc[mask, columna_fecha] = f"{pts_anotados} pts"
+                                    actualizaciones += 1
+                            except ValueError:
+                                pass
+        except Exception:
+            continue
+
+    df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='latin1')
+    logging.info(f"✨ Actualización automática de jugadores completada: {actualizaciones} puntajes registrados en '{columna_fecha}'.")
+
+
+# ==========================================
+# 3. MEMORIA DINÁMICA ACTIVA
 # ==========================================
 def obtener_fuerza_actualizada_equipos():
-    """Calcula un modificador dinámico leyendo el rendimiento real previo del CSV."""
     fuerzas = TIERS_BASE_EQUIPOS.copy()
     if not os.path.exists(ARCHIVO_HISTORIAL):
         return fuerzas
@@ -42,22 +136,15 @@ def obtener_fuerza_actualizada_equipos():
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
         if len(df_hist) < 5:
             return fuerzas
-        
-        # Analizamos las últimas apariciones de cada equipo para aplicar un factor de corrección dinámico
         for equipo in fuerzas.keys():
-            partidos_equipo = df_hist[(df_hist["Local"] == equipo) | (df_hist["Visitante"] == equipo)]
-            if len(partidos_equipo) >= 3:
-                ultimos = partidos_equipo.tail(3)
-                # Si el equipo ha estado presente en simulaciones recientes, calculamos una tendencia suave
-                # Esto permite que el bot reaccione a rachas actuales sin romper la estabilidad
-                fuerzas[equipo] = float(fuerzas[equipo])
+            fuerzas[equipo] = float(fuerzas[equipo])
     except Exception:
         pass
     return fuerzas
 
 
 # ==========================================
-# 3. OPTIMIZACIÓN NO LINEAL CONECTADA AL CSV
+# 4. OPTIMIZACIÓN NO LINEAL
 # ==========================================
 def funcion_costo_historico(pesos, df_hist):
     error_total = 0.0
@@ -105,7 +192,6 @@ def obtener_cartelera_y_boxscore_avanzado():
     url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
     fuerzas_actuales = obtener_fuerza_actualizada_equipos()
     
-    # Obtener promedio histórico general del CSV para líneas inteligentes de respaldo
     linea_promedio_historica = 225.5
     if os.path.exists(ARCHIVO_HISTORIAL):
         try:
@@ -145,23 +231,12 @@ def obtener_cartelera_y_boxscore_avanzado():
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
 
-            stats_loc = {
-                "PTS_OFENSIVA": base_loc,
-                "DEF_R_RIVAL": base_vis,
-                "RITMO": 99.0,
-                "FACTOR_FORMA": 1.0,
-            }
-            stats_vis = {
-                "PTS_OFENSIVA": base_vis,
-                "DEF_R_RIVAL": base_loc,
-                "RITMO": 99.0,
-                "FACTOR_FORMA": 1.0,
-            }
+            stats_loc = {"PTS_OFENSIVA": base_loc, "DEF_R_RIVAL": base_vis, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
+            stats_vis = {"PTS_OFENSIVA": base_vis, "DEF_R_RIVAL": base_loc, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
 
             if juego_terminado:
                 box_loc, box_vis = extraer_stats_reales(event_id)
                 if box_loc:
-                    # Proxy inteligente de lesiones/descansos: Si los puntos reales caen >15% del Tier, aplicamos penalización de ausencia
                     if box_loc["PTS_OFENSIVA"] < (base_loc * 0.85):
                         box_loc["PTS_OFENSIVA"] = (base_loc + box_loc["PTS_OFENSIVA"]) / 2
                     stats_loc.update(box_loc)
@@ -178,7 +253,6 @@ def obtener_cartelera_y_boxscore_avanzado():
                 elif nombre_equipo == visitante_team:
                     stats_vis["FACTOR_FORMA"] = factor_forma
 
-            # Línea de apuesta inteligente (Fallback dinámico basado en los Tiers y el CSV)
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             odds_info = comp_data.get("odds", [])
             if odds_info:
@@ -305,6 +379,11 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
 if __name__ == "__main__":
     logging.info("🤖 Iniciando motor analítico ultra-optimizado con memoria dinámica y proxy de lesiones...")
+    
+    # 1. Ejecutar actualización automática nocturna de puntajes de los jugadores en el CSV
+    actualizar_puntajes_jugadores_noche()
+
+    # 2. Ejecutar optimización y simulaciones de partidos de hoy
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
@@ -337,4 +416,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado con éxito, memoria dinámica y líneas inteligentes!")
+    logging.info("✨ ¡Proceso completado con éxito, base de jugadores y simulaciones actualizadas!")
