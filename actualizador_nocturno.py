@@ -1,36 +1,51 @@
-# actualizador_nocturno.py
 import datetime
 import os
 import pandas as pd
-import requests
 
 def actualizar_historial_partidos():
-    archivo_csv = "partidos_historicos_nba.csv"
+    # Nombre exacto del archivo CSV principal de tu repositorio
+    archivo_csv = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
     
-    # Obtiene la fecha actual de ejecución (madrugada)
-    hoy = (datetime.date.today() - datetime.timedelta(days=1)).strftime("%Y-%m-%d")
-    print(f"Iniciando actualización nocturna para los encuentros del: {hoy}")
+    # Obtiene la fecha de ayer (o la fecha que corresponda al cierre de la jornada nocturna)
+    hoy_dt = datetime.date.today() - datetime.timedelta(days=1)
     
-    # Nota: Aquí puedes integrar llamadas a endpoints deportivos públicos o APIs de box scores.
-    # El script recopila el desempeño real de los titulares en la jornada:
-    nuevos_registros = [
-        {"Fecha": hoy, "Equipo": "Celtics", "Rival": "Knicks", "Jugador": "Jayson Tatum", "Minutos": 36, "Puntos_Reales": 28, "Tiros_Anotados": 10, "Tiros_Intentados": 19},
-        {"Fecha": hoy, "Equipo": "Lakers", "Rival": "Warriors", "Jugador": "Anthony Davis", "Minutos": 35, "Puntos_Reales": 25, "Tiros_Anotados": 9, "Tiros_Intentados": 16},
-        {"Fecha": hoy, "Equipo": "Warriors", "Rival": "Lakers", "Jugador": "Stephen Curry", "Minutos": 34, "Puntos_Reales": 30, "Tiros_Anotados": 11, "Tiros_Intentados": 21}
-    ]
+    # Mapeo de meses en español para que coincida con el formato de tus columnas
+    meses = {
+        1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 
+        5: "mayo", 6: "junio", 7: "julio", 8: "agosto", 
+        9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+    }
     
-    df_nuevo = pd.DataFrame(nuevos_registros)
+    dia = hoy_dt.day
+    mes_str = meses[hoy_dt.month]
     
-    if os.path.exists(archivo_csv):
-        df_existente = pd.read_csv(archivo_csv)
-        # Combina los datos nuevos evitando duplicados para la misma fecha y jugador
-        df_combinado = pd.concat([df_existente, df_nuevo]).drop_duplicates(subset=["Fecha", "Equipo", "Jugador"], keep="last")
-    else:
-        df_combinado = df_nuevo
+    # Construye el nombre de la columna (ej. "2 de noviembre" o puedes ajustarlo a "2 nov")
+    columna_fecha = f"{dia} de {mes_str}"
+    
+    print(f"Iniciando actualización nocturna para la columna de fecha: {columna_fecha}")
+    
+    if not os.path.exists(archivo_csv):
+        print(f"⚠️ Error: No se encontró el archivo {archivo_csv} en el repositorio.")
+        return
         
-    # Guarda el archivo CSV actualizado localmente
-    df_combinado.to_csv(archivo_csv, index=False)
-    print("¡Base de datos local actualizada con éxito!")
+    df = pd.read_csv(archivo_csv)
+    
+    # Si la columna del día actual todavía no existe en el CSV, la creamos inicializada en "SD" (Sin Datos)
+    if columna_fecha not in df.columns:
+        df[columna_fecha] = "SD"
+        print(f"Se ha creado la nueva columna '{columna_fecha}' en el registro.")
+    
+    # -------------------------------------------------------------
+    # ZONA DE ACTUALIZACIÓN DE PUNTOS REALES:
+    # Aquí es donde tu script nocturno puede consultar una API deportiva 
+    # o actualizar los puntos de los jugadores que jugaron anoche.
+    # Ejemplo:
+    # df.loc[df['Jugador'] == 'Tyrese Maxey', columna_fecha] = '31 pts'
+    # -------------------------------------------------------------
+
+    # Guarda los cambios de vuelta en el archivo CSV oficial
+    df.to_csv(archivo_csv, index=False)
+    print("¡Base de datos de puntajes diarios actualizada con éxito a las 3:00 AM!")
 
 if __name__ == "__main__":
     actualizar_historial_partidos()
