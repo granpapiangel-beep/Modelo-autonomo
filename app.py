@@ -1,5 +1,6 @@
 # app.py
 from datetime import datetime
+import json
 import os
 import pandas as pd
 import streamlit as st
@@ -81,10 +82,19 @@ def render_badge(texto):
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Panel analítico autónomo.</p>', unsafe_allow_html=True)
 
-# 🔔 Campanita de Notificaciones del Sistema y Estado de Lesiones
-st.markdown("""
+# 🔔 Centro de Alertas dinámico en vivo (Lee alertas_lesiones.json)
+mensaje_notificacion = "Sincronización nocturna completa. Monitoreo de ausencias y rotaciones activo en 30 plantillas."
+if os.path.exists("alertas_lesiones.json"):
+    try:
+        with open("alertas_lesiones.json", "r", encoding="utf-8") as f:
+            data_alerta = json.load(f)
+            mensaje_notificacion = data_alerta.get("mensaje", mensaje_notificacion)
+    except Exception:
+        pass
+
+st.markdown(f"""
 <div class="notification-banner">
-    🔔 <b>Centro de Alertas & Reporte de Lesiones:</b> Sincronización nocturna completa. Monitoreo de ausencias y rotaciones activo en 30 plantillas. Los umbrales de volatilidad han sido recalculados.
+    🔔 <b>Centro de Alertas & Reporte de Lesiones:</b> {mensaje_notificacion}
 </div>
 """, unsafe_allow_html=True)
 
@@ -95,11 +105,8 @@ if os.path.exists(ARCHIVO_EVAL):
     
     if "Fecha" in df.columns and len(df) > 0:
         df["Fecha_Clean"] = df["Fecha"].astype(str).str.strip()
-        
-        # Obtenemos todas las fechas disponibles ordenadas de la más nueva a la más antigua
         fechas_disponibles = sorted(df["Fecha_Clean"].unique(), reverse=True)
         
-        # Selector manual en la barra lateral (index=0 fuerza que inicie en la fecha más reciente)
         st.sidebar.markdown("### 🎛️ Panel de Control")
         fecha_seleccionada = st.sidebar.selectbox(
             "📅 Selecciona la fecha de la cartelera:", 
@@ -107,7 +114,6 @@ if os.path.exists(ARCHIVO_EVAL):
             index=0
         )
         
-        # Filtramos la app con la fecha seleccionada
         df_hoy = df[df["Fecha_Clean"] == fecha_seleccionada]
         ultima_fecha = fecha_seleccionada
     else:
