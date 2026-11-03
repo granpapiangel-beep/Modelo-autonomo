@@ -13,23 +13,23 @@ jobs:
       contents: write
     steps:
       - name: Clonar repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configurar entorno Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
       - name: Instalar dependencias necesarias
-        run: pip install pandas requests
+        run: pip install pandas requests numpy scipy
 
       - name: Ejecutar script de extracción y análisis
-        run: python actualizador_nocturno.py
+        run: python bot_actualizado.py
 
       - name: Guardar y commitear cambios en el repositorio
         run: |
           git config --global user.name "Bot Autónomo NBA"
           git config --global user.email "bot@users.noreply.github.com"
-          git add partidos_historicos_nba.csv
+          git add historial_evaluaciones_nba.csv "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
           git commit -m "Actualización automática de patrones y estadísticas nocturnas [skip ci]" || exit 0
           git push
