@@ -1,0 +1,29 @@
+import pandas as pd
+
+def organizar_y_actualizar_nba(archivo_entrada, archivo_salida):
+    """
+    Carga el archivo de estadísticas de la NBA, verifica la estructura de los 30 equipos
+    y organiza las plantillas de los jugadores por posición (PG, SG, SF, PF, C).
+    """
+    try:
+        # Cargamos el archivo con codificación segura
+        df = pd.read_csv(archivo_entrada, encoding='utf-8-sig')
+    except Exception:
+        df = pd.read_csv(archivo_entrada, encoding='latin1')
+        
+    print(f"=== ANÁLISIS DE DATOS ===")
+    print(f"Total de registros encontrados: {len(df)}")
+    print(f"Total de equipos únicos: {df['Equipo'].nunique()}")
+    
+    # Ordenar por Equipo y Posición para mantener una estructura limpia
+    orden_posiciones = {'PG': 1, 'SG': 2, 'SF': 3, 'PF': 4, 'C': 5}
+    if 'Posicion' in df.columns:
+        df['Pos_Rank'] = df['Posicion'].map(orden_posiciones)
+        df = df.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
+    
+    # Guardar el archivo limpio y organizado listo para tu aplicación
+    df.to_csv(archivo_salida, index=False, encoding='utf-8-sig')
+    print(f"\n¡Listo! Archivo organizado guardado exitosamente como: {archivo_salida}")
+
+# Ejecución de prueba con tu archivo corregido:
+organizar_y_actualizar_nba('Titulares_NBA_Oficiales_30_Equipos_Corregido.csv', 'Titulares_NBA_Organizados.csv')
