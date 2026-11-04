@@ -15,7 +15,7 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
-def rellenar_histografico_sd():
+def rellenar_histografico_sd_corregido():
     if not os.path.exists(ARCHIVO_TITULARES):
         logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
         return
@@ -26,20 +26,17 @@ def rellenar_histografico_sd():
         logging.error(f"❌ Error al leer el CSV de titulares: {e}")
         return
 
-    # Tomamos todas las columnas a partir de la cuarta (donde empiezan las fechas: '20 oct', etc.)
     columnas_fechas = df_titulares.columns[3:]
     
-    # Mapeo de abreviaturas de meses en tu CSV a número de mes
     meses_map = {
         'oct': 10, 'nov': 11, 'dic': 12, 'ene': 1, 'feb': 2, 
         'mar': 3, 'abr': 4, 'may': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'sep': 9
     }
 
-    logging.info("🔄 Iniciando barrido histórico adaptado a tus columnas...")
+    logging.info("🔄 Iniciando barrido histórico con extracción precisa de puntos...")
 
     for col_fecha in columnas_fechas:
         try:
-            # Ejemplo de col_fecha: "20 oct" o "3 nov"
             partes = col_fecha.strip().split()
             if len(partes) != 2:
                 continue
@@ -50,7 +47,6 @@ def rellenar_histografico_sd():
             if not mes:
                 continue
 
-            # Definimos el año correspondiente a la temporada actual (2025/2026)
             anio = 2025 if mes >= 10 else 2026
             fecha_str_api = f"{anio}{mes:02d}{dia:02d}"
 
@@ -77,37 +73,51 @@ def rellenar_histografico_sd():
 
                 sum_data = sum_resp.json()
                 boxscore = sum_data.get("boxscore", {})
-                players_stats = boxscore.get("players", [])
+                
+                # Recorremos la estructura limpia de boxscore de ESPN
+                for team_block in boxscore.get("players", []):
+                    statistics_list = team_block.get("statistics", [])
+                    if not statistics_list:
+                        continue
+                    
+                    # Buscamos la etiqueta de puntos ("points" o la posición índice correcta de anotación)
+                    # En ESPN, el primer bloque de estadísticas de jugadores suele contener los puntos en la primera posición.
+                    athletes_list = statistics_list[0].get("athletes", [])
+                    
+                    for athlete_info in athletes_list:
+                        athlete = athlete_info.get("athlete", {})
+                        nombre_api = athlete.get("displayName", "")
+                        stats_arr = athlete_info.get("stats", [])
 
-                for team_block in players_stats:
-                    for stat_group in team_block.get("statistics", []):
-                        for athlete_info in stat_group.get("athletes", []):
-                            athlete = athlete_info.get("athlete", {})
-                            nombre_api = athlete.get("displayName", "")
-                            stats_arr = athlete_info.get("stats", [])
+                        if stats_arr and len(stats_arr) > 0:
+                            try:
+                                # Verificamos que el jugador realmente haya tenido minutos (si el primer valor es string de minutos o guión, lo filtramos)
+                                pts_str = str(stats_arr[0]).strip()
+                                if '-' in pts_str or pts_str == '':
+                                    continue
+                                
+                                pts_anotados = int(pts_str)
+                                # Filtro de seguridad lógico para evitar datos absurdos de más de 65 puntos
+                                if pts_anotados > 65:
+                                    continue
 
-                            if stats_arr and len(stats_arr) > 0:
-                                try:
-                                    pts_anotados = int(stats_arr[0])
-                                    nombre_api_clean = normalizar_texto(nombre_api)
-                                    
-                                    mask = df_titulares['Jugador'].apply(lambda x: normalizar_texto(str(x)) == nombre_api_clean)
-                                    
-                                    # Si el jugador tiene "SD" en esa columna de fecha, rellenamos con sus puntos reales
-                                    if mask.any():
-                                        valor_actual = df_titulares.loc[mask, col_fecha].values[0]
-                                        if str(valor_actual).strip() == "SD":
-                                            df_titulares.loc[mask, col_fecha] = f"{pts_anotados} pts"
-                                except ValueError:
-                                    pass
+                                nombre_api_clean = normalizar_texto(nombre_api)
+                                
+                                mask = df_titulares['Jugador'].apply(lambda x: normalizar_texto(str(x)) == nombre_api_clean)
+                                
+                                if mask.any():
+                                    # Actualizamos si estaba en SD o si queremos corregir datos erróneos previos
+                                    df_titulares.loc[mask, col_fecha] = f"{pts_anotados} pts"
+                            except ValueError:
+                                pass
 
-            logging.info(f"✔️ Columna de fecha procesada: {col_fecha}")
+            logging.info(f"✔️ Columna corregida procesada: {col_fecha}")
 
         except Exception as e:
             logging.error(f"⚠️ Error procesando la columna {col_fecha}: {e}")
 
     df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
-    logging.info("✨ ¡Llenado histórico masivo completado con éxito!")
+    logging.info("✨ ¡Llenado y corrección histórica completados con éxito!")
 
 if __name__ == "__main__":
-    rellenar_histografico_sd()
+    rellenar_histografico_sd_corregido()
