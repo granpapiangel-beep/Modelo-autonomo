@@ -38,11 +38,11 @@ def normalizar_texto(texto):
     if not isinstance(texto, str):
         return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
-                   if unicodedata.category(c) != 'Mn').lower().strip()
+                    if unicodedata.category(c) != 'Mn').lower().strip()
 
 
 # ==========================================
-# 2. EXTRACCIÓN AUTOMÁTICA DE PUNTAJES (NOCTURNA)
+# 2. EXTRACCIÓN AUTOMÁTICA Y GESTIÓN INTELIGENTE DE PLANTILLAS
 # ==========================================
 def actualizar_puntajes_jugadores_noche():
     if not os.path.exists(ARCHIVO_TITULARES):
@@ -50,10 +50,13 @@ def actualizar_puntajes_jugadores_noche():
         return
 
     try:
-        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='latin1')
-    except Exception as e:
-        logging.error(f"❌ Error al leer el CSV de titulares: {e}")
-        return
+        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
+    except Exception:
+        try:
+            df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='latin1')
+        except Exception as e:
+            logging.error(f"❌ Error al leer el CSV de titulares: {e}")
+            return
 
     tz_mexico = timezone(timedelta(hours=-6))
     ayer = datetime.now(tz_mexico).date() - pd.Timedelta(days=1)
@@ -89,6 +92,14 @@ def actualizar_puntajes_jugadores_noche():
         if not status:
             continue
 
+        # Extraer nombres de equipos del encuentro para asignación segura ante lesiones
+        competitors = competitions[0].get("competitors", [])
+        equipos_partido = {}
+        for comp in competitors:
+            t_name = comp.get("team", {}).get("name", "")
+            t_display = comp.get("team", {}).get("displayName", "")
+            equipos_partido[t_name.lower()] = t_display
+
         url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
         try:
             sum_resp = requests.get(url_summary, timeout=5)
@@ -100,6 +111,9 @@ def actualizar_puntajes_jugadores_noche():
             players_stats = boxscore.get("players", [])
             
             for team_block in players_stats:
+                team_info = team_block.get("team", {})
+                nombre_equipo_api = team_info.get("name", "")
+                
                 for stat_group in team_block.get("statistics", []):
                     for athlete_info in stat_group.get("athletes", []):
                         athlete = athlete_info.get("athlete", {})
@@ -111,17 +125,37 @@ def actualizar_puntajes_jugadores_noche():
                                 pts_anotados = int(stats_arr[0])
                                 nombre_api_clean = normalizar_texto(nombre_api)
                                 
+                                # Búsqueda en el DataFrame por nombre de jugador
                                 mask = df_titulares['Jugador'].apply(lambda x: normalizar_texto(str(x)) == nombre_api_clean)
+                                
                                 if mask.any():
+                                    # CASO 1: El jugador ya existe en la plantilla, actualizamos sus puntos
                                     df_titulares.loc[mask, columna_fecha] = f"{pts_anotados} pts"
+                                    actualizaciones += 1
+                                else:
+                                    # CASO 2 (Gestión de Lesiones/Suplentes): El jugador no está registrado 
+                                    # (entró por lesión o rotación). Creamos su fila de forma limpia sin romper la tabla.
+                                    nueva_fila = {col: "SD" for col in df_titulares.columns}
+                                    nueva_fila['Equipo'] = nombre_equipo_api
+                                    nueva_fila['Posicion'] = "BENCH" # Posición de rotación/suplente
+                                    nueva_fila['Jugador'] = nombre_api
+                                    nueva_fila[columna_fecha] = f"{pts_anotados} pts"
+                                    
+                                    df_titulares = pd.concat([df_titulares, pd.DataFrame([nueva_fila])], ignore_index=True)
                                     actualizaciones += 1
                             except ValueError:
                                 pass
         except Exception:
             continue
 
-    df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='latin1')
-    logging.info(f"✨ Actualización automática de jugadores completada: {actualizaciones} puntajes registrados en '{columna_fecha}'.")
+    # Ordenamiento táctico automático al guardar para mantener la estructura impecable
+    orden_posiciones = {'PG': 1, 'SG': 2, 'SF': 3, 'PF': 4, 'C': 5, 'BENCH': 6}
+    if 'Posicion' in df_titulares.columns and 'Equipo' in df_titulares.columns:
+        df_titulares['Pos_Rank'] = df_titulares['Posicion'].map(orden_posiciones).fillna(99)
+        df_titulares = df_titulares.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
+
+    df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
+    logging.info(f"✨ Actualización inteligente y ordenamiento completados: {actualizaciones} puntajes procesados.")
 
 
 # ==========================================
@@ -404,7 +438,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 if __name__ == "__main__":
     logging.info("🤖 Iniciando motor analítico ultra-optimizado con memoria dinámica y zona horaria local...")
     
-    # 1. Actualización automática de jugadores en el CSV
+    # 1. Actualización inteligente de jugadores y ordenamiento en el CSV
     actualizar_puntajes_jugadores_noche()
 
     # 2. Ejecutar optimización y simulaciones de partidos
