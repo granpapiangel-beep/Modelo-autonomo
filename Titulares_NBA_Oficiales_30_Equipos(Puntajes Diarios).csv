@@ -2,71 +2,71 @@
 Atlanta Hawks,PG,CJ McCollum,SD,SD,9 pts,SD,6 pts,SD,24 pts,SD,14 pts,SD,19 pts,SD,13 pts,SD,SD
 Atlanta Hawks,SG,Nickeil Alexander-Walker,SD,SD,10 pts,SD,19 pts,17 pts,SD,17 pts,SD,18 pts,SD,21 pts,SD,16 pts,SD
 Atlanta Hawks,SF,Dyson Daniels,SD,SD,4 pts,SD,6 pts,8 pts,SD,2 pts,SD,7 pts,SD,18 pts,SD,18 pts,SD
-Atlanta Hawks,PF,Jalen Johnson,SD,SD,22 pts,SD,12 pts,SD,SD,25 pts,SD,23 pts,SD,22 pts,SD,23 pts,SD
+Atlanta Hawks,PF,Jalen Johnson,SD,SD,22 pts,5 pts,12 pts,15 pts,16 pts,25 pts,2 pts,23 pts,11 pts,22 pts,7 pts,23 pts,SD
 Atlanta Hawks,C,Onyeka Okongwu,SD,SD,18 pts,SD,17 pts,11 pts,SD,18 pts,SD,12 pts,SD,14 pts,SD,7 pts,SD
 Boston Celtics,PG,Derrick White,SD,SD,25 pts,SD,15 pts,SD,15 pts,11 pts,SD,19 pts,SD,15 pts,5 pts,SD,SD
-Boston Celtics,SG,Paul George,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Boston Celtics,SG,Paul George,SD,SD,16 pts,SD,18 pts,SD,6 pts,26 pts,20 pts,29 pts,12 pts,17 pts,17 pts,25 pts,SD
 Boston Celtics,SF,Jayson Tatum,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Boston Celtics,PF,Jordan Walsh,SD,SD,SD,SD,0 pts,SD,SD,0 pts,SD,0 pts,SD,SD,10 pts,SD,SD
-Boston Celtics,C,Mitchell Robinson,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,4 pts,SD,0 pts,SD
+Boston Celtics,C,Mitchell Robinson,SD,SD,2 pts,SD,17 pts,SD,8 pts,8 pts,SD,15 pts,0 pts,4 pts,18 pts,0 pts,SD
 Brooklyn Nets,PG,Egor Demin,SD,SD,14 pts,SD,9 pts,SD,3 pts,SD,SD,4 pts,SD,SD,SD,5 pts,SD
 Brooklyn Nets,SG,Nolan Traore,SD,SD,3 pts,SD,SD,SD,SD,4 pts,SD,SD,SD,SD,SD,SD,SD
-Brooklyn Nets,SF,Michael Porter Jr.,SD,SD,12 pts,SD,31 pts,SD,15 pts,18 pts,SD,32 pts,SD,SD,SD,17 pts,SD
+Brooklyn Nets,SF,Michael Porter Jr.,SD,16 pts,12 pts,10 pts,31 pts,4 pts,15 pts,18 pts,3 pts,32 pts,6 pts,16 pts,2 pts,17 pts,SD
 Brooklyn Nets,PF,Julius Randle,SD,SD,19 pts,SD,26 pts,SD,31 pts,24 pts,SD,33 pts,SD,SD,30 pts,SD,SD
-Brooklyn Nets,C,Day'Ron Sharpe,SD,SD,14 pts,SD,2 pts,SD,6 pts,17 pts,SD,2 pts,SD,SD,SD,1 pts,SD
-Charlotte Hornets,PG,Coby White,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Brooklyn Nets,C,Day'Ron Sharpe,SD,SD,14 pts,SD,2 pts,SD,6 pts,17 pts,SD,2 pts,SD,19 pts,SD,1 pts,SD
+Charlotte Hornets,PG,Coby White,SD,SD,25 pts,SD,15 pts,SD,15 pts,11 pts,SD,19 pts,SD,15 pts,5 pts,SD,SD
 Charlotte Hornets,SG,Kon Knueppel,SD,SD,11 pts,SD,SD,14 pts,20 pts,SD,19 pts,SD,5 pts,SD,5 pts,24 pts,SD
-Charlotte Hornets,SF,Brandon Miller,SD,SD,25 pts,SD,SD,4 pts,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Charlotte Hornets,SF,Brandon Miller,SD,SD,25 pts,SD,2 pts,4 pts,SD,0 pts,SD,SD,SD,SD,SD,SD,SD
 Charlotte Hornets,PF,Naz Reid,SD,SD,6 pts,SD,5 pts,SD,16 pts,18 pts,SD,5 pts,SD,SD,18 pts,SD,SD
 Charlotte Hornets,C,Moussa Diabate,SD,SD,13 pts,SD,SD,6 pts,12 pts,SD,8 pts,SD,10 pts,SD,11 pts,17 pts,SD
 Chicago Bulls,PG,Josh Giddey,SD,SD,19 pts,SD,SD,21 pts,SD,18 pts,SD,20 pts,SD,32 pts,SD,23 pts,SD
-Chicago Bulls,SG,Norman Powell,SD,SD,28 pts,SD,15 pts,SD,29 pts,SD,SD,SD,SD,SD,SD,SD,SD
+Chicago Bulls,SG,Norman Powell,SD,SD,28 pts,SD,15 pts,SD,29 pts,SD,SD,18 pts,SD,SD,5 pts,2 pts,SD
 Chicago Bulls,SF,Matas Buzelis,SD,SD,21 pts,SD,SD,3 pts,SD,16 pts,SD,27 pts,SD,13 pts,SD,14 pts,SD
-Chicago Bulls,PF,Caleb Wilson,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Chicago Bulls,PF,Caleb Wilson,SD,SD,8 pts,SD,SD,SD,9 pts,9 pts,SD,6 pts,SD,SD,SD,2 pts,SD
 Chicago Bulls,C,Nic Claxton,SD,SD,17 pts,SD,10 pts,SD,10 pts,6 pts,SD,18 pts,SD,SD,SD,19 pts,SD
 Cleveland Cavaliers,PG,James Harden,SD,SD,15 pts,SD,30 pts,SD,20 pts,SD,20 pts,SD,SD,24 pts,SD,SD,SD
-Cleveland Cavaliers,SG,Donovan Mitchell,SD,SD,31 pts,SD,35 pts,SD,24 pts,35 pts,SD,15 pts,SD,SD,SD,37 pts,SD
+Cleveland Cavaliers,SG,Donovan Mitchell,SD,16 pts,31 pts,26 pts,35 pts,14 pts,24 pts,35 pts,18 pts,15 pts,11 pts,SD,SD,37 pts,SD
 Cleveland Cavaliers,SF,Peyton Watson,SD,SD,SD,2 pts,SD,7 pts,SD,12 pts,SD,5 pts,SD,10 pts,SD,SD,SD
 Cleveland Cavaliers,PF,Evan Mobley,SD,SD,22 pts,SD,13 pts,SD,23 pts,15 pts,SD,19 pts,SD,29 pts,SD,14 pts,SD
-Cleveland Cavaliers,C,Jarrett Allen,SD,SD,4 pts,SD,22 pts,SD,8 pts,20 pts,SD,16 pts,SD,SD,SD,SD,SD
+Cleveland Cavaliers,C,Jarrett Allen,SD,SD,4 pts,SD,22 pts,17 pts,8 pts,20 pts,SD,16 pts,SD,14 pts,SD,17 pts,SD
 Dallas Mavericks,PG,Kyrie Irving,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Dallas Mavericks,SG,Max Christie,SD,SD,9 pts,SD,9 pts,SD,17 pts,14 pts,SD,10 pts,SD,SD,13 pts,SD,SD
+Dallas Mavericks,SG,Max Christie,SD,SD,9 pts,SD,9 pts,SD,17 pts,14 pts,4 pts,10 pts,SD,SD,13 pts,SD,SD
 Dallas Mavericks,SF,Cooper Flagg,SD,SD,10 pts,SD,18 pts,SD,22 pts,2 pts,SD,15 pts,SD,SD,16 pts,SD,SD
 Dallas Mavericks,PF,P.J. Washington,SD,SD,17 pts,SD,18 pts,SD,17 pts,15 pts,SD,9 pts,SD,SD,6 pts,SD,SD
 Dallas Mavericks,C,Daniel Gafford,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,7 pts,SD,SD
-Denver Nuggets,PG,Jamal Murray,SD,SD,SD,25 pts,SD,23 pts,SD,43 pts,SD,17 pts,SD,22 pts,SD,SD,SD
+Denver Nuggets,PG,Jamal Murray,SD,SD,7 pts,25 pts,13 pts,23 pts,0 pts,43 pts,SD,17 pts,SD,22 pts,SD,SD,SD
 Denver Nuggets,SG,Christian Braun,SD,SD,SD,6 pts,SD,20 pts,SD,7 pts,SD,17 pts,SD,5 pts,SD,SD,SD
-Denver Nuggets,SF,Cameron Johnson,SD,SD,SD,5 pts,SD,15 pts,SD,5 pts,SD,7 pts,SD,9 pts,SD,SD,SD
-Denver Nuggets,PF,Aaron Gordon,SD,SD,SD,50 pts,SD,17 pts,SD,9 pts,SD,9 pts,SD,14 pts,SD,SD,SD
+Denver Nuggets,SF,Cameron Johnson,SD,SD,11 pts,5 pts,17 pts,15 pts,16 pts,5 pts,2 pts,7 pts,11 pts,9 pts,7 pts,19 pts,SD
+Denver Nuggets,PF,Aaron Gordon,SD,SD,SD,50 pts,SD,17 pts,SD,9 pts,0 pts,9 pts,SD,14 pts,SD,SD,SD
 Denver Nuggets,C,Nikola Jokic,SD,SD,SD,21 pts,SD,14 pts,SD,25 pts,SD,21 pts,SD,21 pts,SD,SD,SD
 Detroit Pistons,PG,Cade Cunningham,SD,SD,23 pts,SD,21 pts,SD,25 pts,12 pts,SD,30 pts,SD,SD,21 pts,SD,SD
-Detroit Pistons,SG,Duncan Robinson,SD,SD,2 pts,SD,17 pts,SD,8 pts,8 pts,SD,15 pts,SD,SD,18 pts,SD,SD
-Detroit Pistons,SF,Ausar Thompson,SD,SD,11 pts,SD,19 pts,SD,21 pts,6 pts,SD,12 pts,SD,SD,15 pts,SD,SD
+Detroit Pistons,SG,Duncan Robinson,SD,SD,2 pts,SD,17 pts,SD,8 pts,8 pts,SD,15 pts,0 pts,4 pts,18 pts,0 pts,SD
+Detroit Pistons,SF,Ausar Thompson,SD,18 pts,11 pts,SD,19 pts,SD,21 pts,6 pts,SD,12 pts,SD,SD,15 pts,SD,SD
 Detroit Pistons,PF,John Collins,SD,SD,14 pts,SD,10 pts,SD,16 pts,SD,5 pts,SD,SD,14 pts,SD,SD,SD
 Detroit Pistons,C,Jalen Duren,SD,SD,15 pts,SD,6 pts,SD,24 pts,8 pts,SD,21 pts,SD,SD,33 pts,SD,SD
 Golden State Warriors,PG,Stephen Curry,SD,23 pts,SD,42 pts,35 pts,SD,SD,16 pts,19 pts,SD,27 pts,SD,24 pts,SD,SD
 Golden State Warriors,SG,Brandin Podziemski,SD,7 pts,SD,11 pts,8 pts,SD,SD,23 pts,12 pts,SD,9 pts,SD,16 pts,SD,SD
 Golden State Warriors,SF,Yaxel Lendeborg,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Golden State Warriors,PF,Gui Santos,SD,0 pts,SD,SD,3 pts,SD,SD,3 pts,0 pts,SD,2 pts,SD,5 pts,SD,SD
-Golden State Warriors,C,Draymond Green,SD,8 pts,SD,13 pts,12 pts,SD,SD,7 pts,7 pts,SD,7 pts,SD,8 pts,SD,SD
+Golden State Warriors,C,Draymond Green,SD,8 pts,11 pts,13 pts,12 pts,SD,20 pts,7 pts,7 pts,9 pts,7 pts,SD,8 pts,SD,SD
 Houston Rockets,PG,Fred VanVleet,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Houston Rockets,SG,Amen Thompson,SD,18 pts,SD,SD,10 pts,SD,SD,12 pts,SD,18 pts,SD,SD,17 pts,SD,SD
+Houston Rockets,SG,Amen Thompson,SD,18 pts,10 pts,SD,10 pts,SD,10 pts,12 pts,SD,18 pts,SD,SD,17 pts,SD,SD
 Houston Rockets,SF,Kevin Durant,SD,23 pts,SD,SD,37 pts,SD,SD,19 pts,SD,31 pts,SD,SD,26 pts,SD,SD
-Houston Rockets,PF,Jabari Smith Jr.,SD,16 pts,SD,SD,11 pts,SD,SD,11 pts,SD,25 pts,SD,SD,12 pts,SD,SD
+Houston Rockets,PF,Jabari Smith Jr.,SD,16 pts,10 pts,10 pts,11 pts,4 pts,4 pts,11 pts,3 pts,25 pts,6 pts,16 pts,12 pts,31 pts,SD
 Houston Rockets,C,Alperen Sengun,SD,39 pts,SD,SD,17 pts,SD,SD,21 pts,SD,18 pts,SD,SD,16 pts,SD,SD
 Indiana Pacers,PG,Tyrese Haliburton,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Indiana Pacers,SG,Andrew Nembhard,SD,SD,SD,4 pts,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Indiana Pacers,SG,Andrew Nembhard,SD,SD,8 pts,4 pts,2 pts,SD,0 pts,SD,SD,SD,SD,SD,SD,SD,SD
 Indiana Pacers,SF,Aaron Nesmith,SD,SD,SD,5 pts,SD,15 pts,18 pts,SD,SD,5 pts,SD,12 pts,31 pts,SD,SD
 Indiana Pacers,PF,Pascal Siakam,SD,SD,SD,32 pts,SD,13 pts,33 pts,SD,SD,27 pts,SD,18 pts,27 pts,SD,SD
 Indiana Pacers,C,Ivica Zubac,SD,SD,19 pts,SD,8 pts,SD,21 pts,SD,14 pts,SD,SD,14 pts,SD,SD,SD
 Los Angeles Clippers,PG,Darius Garland,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Los Angeles Clippers,SG,Kris Dunn,SD,SD,0 pts,SD,14 pts,SD,9 pts,SD,5 pts,SD,SD,6 pts,SD,SD,SD
-Los Angeles Clippers,SF,Derrick Jones Jr.,SD,SD,12 pts,SD,17 pts,SD,4 pts,SD,3 pts,SD,SD,16 pts,SD,SD,SD
+Los Angeles Clippers,SG,Kris Dunn,SD,SD,0 pts,SD,14 pts,9 pts,9 pts,7 pts,5 pts,9 pts,SD,6 pts,SD,17 pts,SD
+Los Angeles Clippers,SF,Derrick Jones Jr.,SD,16 pts,12 pts,10 pts,17 pts,4 pts,4 pts,2 pts,3 pts,18 pts,6 pts,16 pts,2 pts,31 pts,SD
 Los Angeles Clippers,PF,Rui Hachimura,SD,9 pts,SD,SD,23 pts,SD,18 pts,16 pts,SD,17 pts,SD,9 pts,SD,15 pts,SD
-Los Angeles Clippers,C,Isaiah Jackson,SD,SD,SD,0 pts,SD,3 pts,6 pts,SD,SD,6 pts,SD,9 pts,10 pts,SD,SD
+Los Angeles Clippers,C,Isaiah Jackson,SD,SD,SD,0 pts,5 pts,3 pts,6 pts,SD,SD,6 pts,SD,9 pts,10 pts,SD,SD
 Los Angeles Lakers,PG,Luka Doncic,SD,43 pts,SD,SD,49 pts,SD,SD,SD,SD,SD,SD,44 pts,SD,29 pts,SD
 Los Angeles Lakers,SG,Austin Reaves,SD,26 pts,SD,SD,25 pts,SD,51 pts,41 pts,SD,28 pts,SD,21 pts,SD,26 pts,SD
-Los Angeles Lakers,SF,Ziaire Williams,SD,SD,1 pts,SD,25 pts,SD,5 pts,SD,SD,SD,SD,SD,SD,13 pts,SD
+Los Angeles Lakers,SF,Ziaire Williams,SD,2 pts,1 pts,5 pts,25 pts,7 pts,5 pts,25 pts,3 pts,20 pts,7 pts,9 pts,12 pts,13 pts,SD
 Los Angeles Lakers,PF,Matisse Thybulle,SD,SD,2 pts,SD,10 pts,SD,5 pts,SD,SD,3 pts,SD,SD,SD,SD,SD
 Los Angeles Lakers,C,Walker Kessler,SD,SD,22 pts,SD,3 pts,SD,SD,25 pts,SD,18 pts,SD,4 pts,SD,SD,SD
 Memphis Grizzlies,PG,Ty Jerome,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
@@ -74,60 +74,60 @@ Memphis Grizzlies,SG,Cedric Coward,SD,SD,14 pts,SD,16 pts,27 pts,SD,9 pts,SD,14 
 Memphis Grizzlies,SF,Jaylen Wells,SD,SD,14 pts,SD,9 pts,5 pts,SD,10 pts,SD,9 pts,SD,16 pts,SD,7 pts,SD
 Memphis Grizzlies,PF,Cameron Boozer,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Memphis Grizzlies,C,Zach Edey,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Miami Heat,PG,Davion Mitchell,SD,SD,16 pts,SD,2 pts,SD,9 pts,SD,8 pts,SD,11 pts,SD,SD,8 pts,SD
-Miami Heat,SG,Klay Thompson,SD,SD,10 pts,SD,8 pts,SD,10 pts,8 pts,SD,5 pts,SD,SD,11 pts,SD,SD
-Miami Heat,SF,Andrew Wiggins,SD,SD,18 pts,SD,10 pts,SD,9 pts,SD,21 pts,SD,24 pts,SD,SD,15 pts,SD
+Miami Heat,PG,Davion Mitchell,SD,16 pts,16 pts,26 pts,2 pts,14 pts,9 pts,17 pts,8 pts,15 pts,11 pts,SD,SD,8 pts,SD
+Miami Heat,SG,Klay Thompson,SD,18 pts,10 pts,SD,8 pts,SD,10 pts,8 pts,SD,5 pts,SD,SD,11 pts,SD,SD
+Miami Heat,SF,Andrew Wiggins,SD,10 pts,18 pts,23 pts,10 pts,9 pts,9 pts,11 pts,21 pts,SD,24 pts,SD,SD,15 pts,SD
 Miami Heat,PF,Giannis Antetokounmpo,SD,SD,37 pts,SD,31 pts,SD,40 pts,SD,37 pts,SD,SD,SD,26 pts,SD,SD
 Miami Heat,C,Bam Adebayo,SD,SD,15 pts,SD,24 pts,SD,19 pts,SD,26 pts,SD,31 pts,SD,SD,17 pts,SD
 Milwaukee Bucks,PG,Brayden Burries,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Milwaukee Bucks,SG,Tyler Herro,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Milwaukee Bucks,SF,Jaime Jaquez Jr.,SD,SD,13 pts,SD,17 pts,SD,17 pts,SD,28 pts,SD,6 pts,SD,SD,31 pts,SD
+Milwaukee Bucks,SF,Jaime Jaquez Jr.,SD,16 pts,13 pts,10 pts,17 pts,4 pts,17 pts,2 pts,28 pts,18 pts,6 pts,16 pts,2 pts,31 pts,SD
 Milwaukee Bucks,PF,Kyle Kuzma,SD,SD,12 pts,SD,8 pts,SD,SD,SD,5 pts,SD,10 pts,SD,22 pts,SD,SD
 Milwaukee Bucks,C,Myles Turner,SD,SD,11 pts,SD,4 pts,SD,13 pts,SD,5 pts,SD,17 pts,SD,9 pts,SD,SD
-Minnesota Timberwolves,PG,LaMelo Ball,SD,SD,20 pts,SD,SD,27 pts,38 pts,SD,20 pts,SD,17 pts,SD,18 pts,SD,SD
+Minnesota Timberwolves,PG,LaMelo Ball,SD,SD,20 pts,SD,2 pts,27 pts,38 pts,SD,20 pts,3 pts,17 pts,8 pts,18 pts,8 pts,SD
 Minnesota Timberwolves,SG,Ayo Dosunmu,SD,SD,14 pts,SD,SD,15 pts,SD,21 pts,SD,9 pts,SD,22 pts,SD,SD,SD
 Minnesota Timberwolves,SF,Jaden McDaniels,SD,SD,18 pts,SD,10 pts,SD,11 pts,25 pts,SD,30 pts,SD,SD,14 pts,SD,SD
 Minnesota Timberwolves,PF,Jonathan Kuminga,SD,17 pts,SD,14 pts,16 pts,SD,SD,25 pts,9 pts,SD,24 pts,SD,17 pts,SD,SD
 Minnesota Timberwolves,C,Rudy Gobert,SD,SD,10 pts,SD,2 pts,SD,14 pts,8 pts,SD,9 pts,SD,SD,14 pts,SD,SD
-New Orleans Pelicans,PG,Dejounte Murray,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+New Orleans Pelicans,PG,Dejounte Murray,SD,SD,7 pts,25 pts,13 pts,23 pts,0 pts,2 pts,SD,17 pts,SD,10 pts,SD,SD,SD
 New Orleans Pelicans,SG,Jeremiah Fears,SD,SD,17 pts,SD,13 pts,SD,SD,2 pts,SD,21 pts,SD,13 pts,SD,16 pts,SD
-New Orleans Pelicans,SF,Trey Murphy III,SD,SD,13 pts,SD,24 pts,SD,SD,7 pts,SD,7 pts,SD,17 pts,SD,19 pts,SD
+New Orleans Pelicans,SF,Trey Murphy III,SD,31 pts,13 pts,21 pts,24 pts,SD,2 pts,7 pts,21 pts,7 pts,8 pts,17 pts,8 pts,19 pts,SD
 New Orleans Pelicans,PF,Zion Williamson,SD,SD,27 pts,SD,27 pts,SD,SD,SD,SD,11 pts,SD,29 pts,SD,20 pts,SD
 New Orleans Pelicans,C,Yves Missi,SD,SD,5 pts,SD,SD,SD,SD,11 pts,SD,10 pts,SD,6 pts,SD,7 pts,SD
 New York Knicks,PG,Jalen Brunson,SD,SD,23 pts,SD,31 pts,SD,37 pts,SD,36 pts,SD,SD,29 pts,SD,31 pts,SD
 New York Knicks,SG,Josh Hart,SD,SD,SD,SD,2 pts,SD,6 pts,SD,3 pts,SD,SD,0 pts,SD,14 pts,SD
-New York Knicks,SF,Mikal Bridges,SD,SD,16 pts,SD,12 pts,SD,20 pts,SD,24 pts,SD,SD,23 pts,SD,10 pts,SD
+New York Knicks,SF,Mikal Bridges,SD,SD,16 pts,SD,12 pts,18 pts,20 pts,SD,24 pts,SD,16 pts,23 pts,30 pts,10 pts,SD
 New York Knicks,PF,OG Anunoby,SD,SD,24 pts,SD,10 pts,SD,14 pts,SD,9 pts,SD,SD,26 pts,SD,21 pts,SD
 New York Knicks,C,Karl-Anthony Towns,SD,SD,19 pts,SD,26 pts,SD,15 pts,SD,8 pts,SD,SD,22 pts,SD,20 pts,SD
 Oklahoma City Thunder,PG,Shai Gilgeous-Alexander,SD,35 pts,SD,55 pts,SD,30 pts,SD,23 pts,31 pts,SD,31 pts,SD,SD,30 pts,SD
 Oklahoma City Thunder,SG,Jared McCain,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Oklahoma City Thunder,SF,Ajay Mitchell,SD,16 pts,SD,26 pts,SD,14 pts,SD,17 pts,18 pts,SD,20 pts,SD,SD,10 pts,SD
-Oklahoma City Thunder,PF,Kenrich Williams,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Oklahoma City Thunder,SF,Ajay Mitchell,SD,16 pts,16 pts,26 pts,2 pts,14 pts,9 pts,17 pts,18 pts,15 pts,20 pts,SD,SD,10 pts,SD
+Oklahoma City Thunder,PF,Kenrich Williams,SD,2 pts,6 pts,5 pts,2 pts,7 pts,5 pts,25 pts,3 pts,20 pts,7 pts,9 pts,12 pts,7 pts,SD
 Oklahoma City Thunder,C,Isaiah Hartenstein,SD,6 pts,SD,5 pts,SD,14 pts,SD,16 pts,4 pts,SD,17 pts,SD,SD,14 pts,SD
 Orlando Magic,PG,Jase Richardson,SD,SD,SD,SD,SD,3 pts,SD,0 pts,SD,0 pts,0 pts,SD,0 pts,SD,SD
 Orlando Magic,SG,Anthony Black,SD,SD,7 pts,SD,8 pts,19 pts,SD,14 pts,SD,10 pts,20 pts,SD,8 pts,SD,SD
 Orlando Magic,SF,Desmond Bane,SD,SD,23 pts,SD,15 pts,14 pts,SD,24 pts,SD,12 pts,9 pts,SD,5 pts,SD,SD
 Orlando Magic,PF,Franz Wagner,SD,SD,24 pts,SD,27 pts,17 pts,SD,22 pts,SD,22 pts,21 pts,SD,25 pts,SD,SD
-Orlando Magic,C,Wendell Carter Jr.,SD,SD,9 pts,SD,10 pts,8 pts,SD,10 pts,SD,8 pts,18 pts,SD,16 pts,SD,SD
+Orlando Magic,C,Wendell Carter Jr.,SD,16 pts,9 pts,10 pts,10 pts,8 pts,4 pts,10 pts,3 pts,8 pts,18 pts,16 pts,16 pts,31 pts,SD
 Philadelphia 76ers,PG,Tyrese Maxey,SD,SD,40 pts,SD,SD,28 pts,SD,43 pts,39 pts,SD,SD,26 pts,SD,26 pts,SD
 Philadelphia 76ers,SG,VJ Edgecombe,SD,SD,34 pts,SD,SD,15 pts,SD,26 pts,14 pts,SD,SD,17 pts,SD,16 pts,SD
-Philadelphia 76ers,SF,Jaylen Brown,SD,SD,25 pts,SD,23 pts,SD,41 pts,15 pts,SD,30 pts,SD,32 pts,12 pts,SD,SD
-Philadelphia 76ers,PF,LeBron James,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Philadelphia 76ers,SF,Jaylen Brown,SD,SD,25 pts,4 pts,23 pts,11 pts,41 pts,15 pts,2 pts,30 pts,SD,32 pts,12 pts,SD,SD
+Philadelphia 76ers,PF,LeBron James,SD,SD,2 pts,SD,0 pts,10 pts,13 pts,0 pts,8 pts,0 pts,8 pts,SD,8 pts,2 pts,SD
 Philadelphia 76ers,C,Joel Embiid,SD,SD,4 pts,SD,SD,20 pts,SD,SD,25 pts,SD,SD,20 pts,SD,SD,SD
 Phoenix Suns,PG,Devin Booker,SD,SD,31 pts,SD,18 pts,31 pts,SD,34 pts,SD,32 pts,SD,36 pts,SD,28 pts,SD
-Phoenix Suns,SG,Jalen Green,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Phoenix Suns,SG,Jalen Green,SD,8 pts,11 pts,13 pts,12 pts,SD,20 pts,7 pts,7 pts,9 pts,10 pts,SD,7 pts,SD,SD
 Phoenix Suns,SF,Dillon Brooks,SD,SD,22 pts,SD,21 pts,15 pts,SD,SD,SD,SD,SD,SD,SD,SD,SD
-Phoenix Suns,PF,Miles Bridges,SD,SD,18 pts,SD,SD,18 pts,22 pts,SD,17 pts,SD,16 pts,SD,30 pts,29 pts,SD
+Phoenix Suns,PF,Miles Bridges,SD,SD,18 pts,SD,12 pts,18 pts,22 pts,SD,17 pts,SD,16 pts,23 pts,30 pts,29 pts,SD
 Phoenix Suns,C,Khaman Maluach,SD,SD,SD,SD,1 pts,6 pts,SD,SD,SD,SD,SD,0 pts,SD,4 pts,SD
 Portland Trail Blazers,PG,Damian Lillard,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Portland Trail Blazers,SG,Scoot Henderson,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Portland Trail Blazers,SF,Toumani Camara,SD,SD,10 pts,SD,19 pts,SD,5 pts,4 pts,SD,17 pts,SD,14 pts,SD,SD,SD
 Portland Trail Blazers,PF,Deni Avdija,SD,SD,20 pts,SD,26 pts,SD,23 pts,25 pts,SD,19 pts,SD,23 pts,SD,SD,SD
 Portland Trail Blazers,C,Donovan Clingan,SD,SD,8 pts,SD,14 pts,SD,9 pts,16 pts,SD,5 pts,SD,5 pts,SD,SD,SD
-Sacramento Kings,PG,Darius Acuff Jr.,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Sacramento Kings,PG,Darius Acuff Jr.,SD,16 pts,10 pts,10 pts,17 pts,4 pts,4 pts,2 pts,3 pts,18 pts,6 pts,16 pts,2 pts,31 pts,SD
 Sacramento Kings,SG,Zach LaVine,SD,SD,30 pts,SD,31 pts,SD,32 pts,SD,23 pts,30 pts,SD,SD,31 pts,SD,SD
 Sacramento Kings,SF,De'Andre Hunter,SD,SD,SD,SD,SD,SD,16 pts,13 pts,SD,18 pts,SD,26 pts,SD,19 pts,SD
-Sacramento Kings,PF,Keegan Murray,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
+Sacramento Kings,PF,Keegan Murray,SD,SD,7 pts,25 pts,13 pts,23 pts,0 pts,2 pts,SD,17 pts,SD,10 pts,SD,SD,SD
 Sacramento Kings,C,Domantas Sabonis,SD,SD,SD,SD,12 pts,SD,10 pts,SD,10 pts,18 pts,SD,SD,24 pts,SD,SD
 San Antonio Spurs,PG,De’Aaron Fox,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 San Antonio Spurs,SG,Stephon Castle,SD,SD,22 pts,SD,16 pts,SD,13 pts,22 pts,SD,SD,21 pts,SD,SD,26 pts,SD
@@ -137,15 +137,15 @@ San Antonio Spurs,C,Victor Wembanyama,SD,SD,40 pts,SD,29 pts,SD,31 pts,24 pts,SD
 Toronto Raptors,PG,Immanuel Quickley,SD,SD,13 pts,SD,19 pts,SD,14 pts,15 pts,SD,15 pts,SD,4 pts,SD,9 pts,SD
 Toronto Raptors,SG,RJ Barrett,SD,SD,25 pts,SD,20 pts,SD,16 pts,25 pts,SD,10 pts,SD,20 pts,SD,27 pts,SD
 Toronto Raptors,SF,Ja'Kobe Walter,SD,SD,SD,SD,SD,SD,SD,3 pts,SD,2 pts,SD,3 pts,SD,0 pts,SD
-Toronto Raptors,PF,Scottie Barnes,SD,SD,22 pts,SD,17 pts,SD,33 pts,8 pts,SD,31 pts,SD,14 pts,SD,19 pts,SD
+Toronto Raptors,PF,Scottie Barnes,SD,SD,22 pts,SD,17 pts,SD,33 pts,8 pts,SD,31 pts,10 pts,14 pts,SD,19 pts,SD
 Toronto Raptors,C,Jakob Poeltl,SD,SD,14 pts,SD,6 pts,SD,4 pts,2 pts,SD,SD,SD,SD,SD,SD,SD
-Utah Jazz,PG,Keyonte George,SD,SD,16 pts,SD,18 pts,SD,SD,26 pts,SD,29 pts,SD,17 pts,SD,25 pts,SD
+Utah Jazz,PG,Keyonte George,SD,SD,16 pts,SD,18 pts,SD,6 pts,26 pts,20 pts,29 pts,12 pts,17 pts,17 pts,25 pts,SD
 Utah Jazz,SG,Darryn Peterson,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Utah Jazz,SF,Ace Bailey,SD,SD,2 pts,SD,0 pts,SD,SD,6 pts,SD,8 pts,SD,6 pts,SD,6 pts,SD
 Utah Jazz,PF,Lauri Markkanen,SD,SD,20 pts,SD,33 pts,SD,SD,51 pts,SD,32 pts,SD,33 pts,SD,29 pts,SD
 Utah Jazz,C,Jaxson Hayes,SD,4 pts,SD,SD,SD,SD,SD,SD,SD,2 pts,SD,2 pts,SD,15 pts,SD
-Washington Wizards,PG,Trae Young,SD,SD,22 pts,SD,25 pts,15 pts,SD,21 pts,SD,6 pts,SD,SD,SD,SD,SD
-Washington Wizards,SG,Kyshawn George,SD,SD,21 pts,SD,34 pts,SD,6 pts,SD,20 pts,SD,12 pts,SD,17 pts,SD,SD
+Washington Wizards,PG,Trae Young,SD,SD,22 pts,SD,25 pts,15 pts,SD,21 pts,0 pts,6 pts,SD,SD,SD,SD,SD
+Washington Wizards,SG,Kyshawn George,SD,SD,21 pts,SD,34 pts,SD,6 pts,26 pts,20 pts,29 pts,12 pts,17 pts,17 pts,25 pts,SD
 Washington Wizards,SF,AJ Dybantsa,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD,SD
 Washington Wizards,PF,Anthony Davis,SD,SD,22 pts,SD,27 pts,SD,25 pts,26 pts,SD,4 pts,SD,SD,SD,SD,SD
 Washington Wizards,C,Alex Sarr,SD,SD,10 pts,SD,14 pts,SD,23 pts,SD,31 pts,SD,14 pts,SD,10 pts,SD,SD
