@@ -2,7 +2,7 @@ name: Bot NBA Autónomo y Sincronización CSV
 
 on:
   schedule:
-    # Cambiado a las 16:00 UTC, que corresponde a las 10:00 AM en el centro de México
+    # Se ejecuta todos los días a las 16:00 UTC (10:00 AM en el centro de México)
     - cron: '0 16 * * *'
   workflow_dispatch: # Mantiene el botón para ejecutarlo manualmente cuando quieras
 
@@ -38,6 +38,8 @@ jobs:
           # Sincronizar con el repositorio remoto por si hubo cambios previos
           git pull origin main --rebase || true
           
-          git add historial_evaluaciones_nba.csv
-          git diff --staged --quiet || git commit -m "📊 Actualización automática del historial CSV y predicciones de la NBA [skip ci]"
+          # AQUI AGREGAMOS AMBOS ARCHIVOS CSV PARA QUE SE GUARDEN EN GITHUB:
+          git add historial_evaluaciones_nba.csv "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
+          
+          git diff --staged --quiet || git commit -m "📊 Actualización automática del historial CSV y titulares de la NBA [skip ci]"
           git push origin main
