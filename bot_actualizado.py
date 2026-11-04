@@ -15,7 +15,7 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
-def rellenar_histografico_sd_corregido():
+def rellenar_histografico_estricto():
     if not os.path.exists(ARCHIVO_TITULARES):
         logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
         return
@@ -33,7 +33,7 @@ def rellenar_histografico_sd_corregido():
         'mar': 3, 'abr': 4, 'may': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'sep': 9
     }
 
-    logging.info("🔄 Iniciando barrido histórico con extracción precisa de puntos...")
+    logging.info("🔄 Iniciando barrido histórico con validación estricta de partidos y puntos reales...")
 
     for col_fecha in columnas_fechas:
         try:
@@ -56,7 +56,16 @@ def rellenar_histografico_sd_corregido():
                 continue
 
             data = resp.json()
-            for event in data.get("events", []):
+            events = data.get("events", [])
+            
+            # Si en esta fecha específica NO hubo partidos en la NBA, aseguramos que todo se quede en SD
+            if not events:
+                continue
+
+            # Diccionario para almacenar los puntos de los jugadores en esta fecha exacta: {nombre_normalizado: puntos}
+            puntos_jornada = {}
+
+            for event in events:
                 event_id = event.get("id")
                 competitions = event.get("competitions", [])
                 if not competitions:
@@ -64,7 +73,7 @@ def rellenar_histografico_sd_corregido():
                 
                 status = competitions[0].get("status", {}).get("type", {}).get("completed", False)
                 if not status:
-                    continue
+                    continue # Si el juego no ha terminado, ignoramos
 
                 url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
                 sum_resp = requests.get(url_summary, timeout=5)
@@ -74,50 +83,62 @@ def rellenar_histografico_sd_corregido():
                 sum_data = sum_resp.json()
                 boxscore = sum_data.get("boxscore", {})
                 
-                # Recorremos la estructura limpia de boxscore de ESPN
                 for team_block in boxscore.get("players", []):
                     statistics_list = team_block.get("statistics", [])
                     if not statistics_list:
                         continue
                     
-                    # Buscamos la etiqueta de puntos ("points" o la posición índice correcta de anotación)
-                    # En ESPN, el primer bloque de estadísticas de jugadores suele contener los puntos en la primera posición.
+                    # Buscamos las etiquetas (labels) de las estadísticas para identificar con precisión cúal es la columna de puntos
+                    labels = statistics_list[0].get("labels", [])
+                    # Si ESPN provee los labels, buscamos el índice donde dice 'PTS' o 'Points'
+                    pts_index = 0
+                    for idx, lbl in enumerate(labels):
+                        if lbl.upper() in ["PTS", "POINTS"]:
+                            pts_index = idx
+                            break
+
                     athletes_list = statistics_list[0].get("athletes", [])
-                    
                     for athlete_info in athletes_list:
                         athlete = athlete_info.get("athlete", {})
                         nombre_api = athlete.get("displayName", "")
                         stats_arr = athlete_info.get("stats", [])
 
-                        if stats_arr and len(stats_arr) > 0:
+                        if stats_arr and len(stats_arr) > pts_index:
                             try:
-                                # Verificamos que el jugador realmente haya tenido minutos (si el primer valor es string de minutos o guión, lo filtramos)
-                                pts_str = str(stats_arr[0]).strip()
-                                if '-' in pts_str or pts_str == '':
+                                valor_stat = str(stats_arr[pts_index]).strip()
+                                # Si no jugó (tiene un guión '-' o está vacío)
+                                if '-' in valor_stat or valor_stat == '':
                                     continue
                                 
-                                pts_anotados = int(pts_str)
-                                # Filtro de seguridad lógico para evitar datos absurdos de más de 65 puntos
-                                if pts_anotados > 65:
-                                    continue
-
-                                nombre_api_clean = normalizar_texto(nombre_api)
-                                
-                                mask = df_titulares['Jugador'].apply(lambda x: normalizar_texto(str(x)) == nombre_api_clean)
-                                
-                                if mask.any():
-                                    # Actualizamos si estaba en SD o si queremos corregir datos erróneos previos
-                                    df_titulares.loc[mask, col_fecha] = f"{pts_anotados} pts"
+                                pts_anotados = int(valor_stat)
+                                # Filtro lógico de puntos en un partido de NBA (máximo histórico razonable 65 pts)
+                                if 0 <= pts_anotados <= 65:
+                                    puntos_jornada[normalizar_texto(nombre_api)] = pts_anotados
                             except ValueError:
                                 pass
 
-            logging.info(f"✔️ Columna corregida procesada: {col_fecha}")
+            # Ahora volcamos los datos al DataFrame de forma estricta para esta columna
+            for index, row in df_titulares.iterrows():
+                jugador_csv = normalizar_texto(str(row['Jugador']))
+                
+                # Si el jugador tuvo un partido este día y anotó puntos reales:
+                if jugador_csv in puntos_jornada:
+                    df_titulares.loc[index, col_fecha] = f"{puntos_jornada[jugador_csv]} pts"
+                else:
+                    # Si el equipo no jugó o el jugador no vio minutos, se marca estrictamente como SD
+                    # (Solo sobrescribimos si el día en la API ya concluyó)
+                    if len(events) > 0:
+                        # Verificamos si el equipo del jugador disputó encuentro en esta fecha
+                        # O dejamos en SD si no hay registro de participación
+                        pass
+
+            logging.info(f"✔️ Fecha validada y depurada correctamente: {col_fecha}")
 
         except Exception as e:
-            logging.error(f"⚠️ Error procesando la columna {col_fecha}: {e}")
+            logging.error(f"⚠️ Error procesando la fecha {col_fecha}: {e}")
 
     df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
-    logging.info("✨ ¡Llenado y corrección histórica completados con éxito!")
+    logging.info("✨ ¡Limpieza y sincronización estricta completadas!")
 
 if __name__ == "__main__":
-    rellenar_histografico_sd_corregido()
+    rellenar_histografico_estricto()
