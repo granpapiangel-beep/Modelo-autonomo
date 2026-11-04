@@ -2,6 +2,7 @@ import os
 import logging
 import pandas as pd
 import requests
+from datetime import datetime, timezone, timedelta
 import unicodedata
 
 # Configuración formal de logging
@@ -15,53 +16,44 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
-def rellenar_histografico_definitivo():
-    if not os.path.exists(ARCHIVO_TITULARES):
-        logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
-        return
-
-    try:
-        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
-    except Exception as e:
-        logging.error(f"❌ Error al leer el CSV de titulares: {e}")
-        return
-
-    columnas_fechas = df_titulares.columns[3:]
+def sincronizar_titulares_y_puntajes():
+    logging.info("🔄 Iniciando sincronización total de titulares y puntajes desde la API oficial...")
     
-    meses_map = {
-        'oct': 10, 'nov': 11, 'dic': 12, 'ene': 1, 'feb': 2, 
-        'mar': 3, 'abr': 4, 'may': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'sep': 9
+    # Rango de fechas que queremos mantener en el CSV (ej. desde el 20 de octubre en adelante hasta hoy)
+    tz_mexico = timezone(timedelta(hours=-6))
+    hoy = datetime.now(tz_mexico).date()
+    
+    # Generamos la lista de fechas dinámicamente desde el 20 de octubre hasta ayer
+    fecha_inicio = datetime(2025, 10, 20).date() # Ajusta al inicio de tu temporada
+    fechas_a_procesar = []
+    
+    current = fecha_inicio
+    meses_abreviados = {
+        1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr', 5: 'may', 6: 'jun',
+        7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct', 11: 'nov', 12: 'dic'
     }
+    
+    while current <= (hoy - timedelta(days=1)):
+        col_nombre = f"{current.day} {meses_abreviados[current.month]}"
+        fechas_a_procesar.append((current, col_nombre))
+        current += timedelta(days=1)
 
-    logging.info("🔄 Iniciando sincronización histórica definitiva con precisión de fechas...")
+    # Estructura maestra para acumular los datos: { (equipo, posicion, jugador): { '20 oct': '25 pts', ... } }
+    base_datos_jugadores = {}
+    equipos_mapa_jugadores = {} # Para asegurar que cada equipo conserve sus jugadores base
 
-    for col_fecha in columnas_fechas:
+    for fecha_dt, col_nombre in fechas_a_procesar:
+        fecha_str_api = fecha_dt.strftime("%Y%m%d")
+        url_scoreboard = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_str_api}"
+        
         try:
-            partes = col_fecha.strip().split()
-            if len(partes) != 2:
-                continue
-            dia = int(partes[0])
-            mes_str = partes[1].lower()
-            mes = meses_map.get(mes_str)
-
-            if not mes:
-                continue
-
-            anio = 2025 if mes >= 10 else 2026
-            fecha_str_api = f"{anio}{mes:02d}{dia:02d}"
-
-            url_scoreboard = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_str_api}"
             resp = requests.get(url_scoreboard, timeout=10)
             if resp.status_code != 200:
                 continue
-
             data = resp.json()
             events = data.get("events", [])
             if not events:
                 continue
-
-            # Diccionario universal de puntos para esta fecha exacta: {nombre_jugador_normalizado: puntos}
-            puntos_exactos_dia = {}
 
             for event in events:
                 event_id = event.get("id")
@@ -82,6 +74,9 @@ def rellenar_histografico_definitivo():
                 boxscore = sum_data.get("boxscore", {})
                 
                 for team_block in boxscore.get("players", []):
+                    team_info = team_block.get("team", {})
+                    nombre_equipo = team_info.get("displayName", "Equipo NBA")
+                    
                     statistics_list = team_block.get("statistics", [])
                     if not statistics_list:
                         continue
@@ -96,9 +91,12 @@ def rellenar_histografico_definitivo():
                     athletes_list = statistics_list[0].get("athletes", [])
                     for athlete_info in athletes_list:
                         athlete = athlete_info.get("athlete", {})
-                        nombre_api = normalizar_texto(athlete.get("displayName", ""))
+                        nombre_jugador = athlete.get("displayName", "")
+                        
+                        # Determinamos posición aproximada o estándar si viene en la API
+                        posicion = athlete.get("position", {}).get("abbreviation", "BENCH")
+                        
                         stats_arr = athlete_info.get("stats", [])
-
                         if stats_arr and len(stats_arr) > pts_index:
                             try:
                                 valor_stat = str(stats_arr[pts_index]).strip()
@@ -107,37 +105,37 @@ def rellenar_histografico_definitivo():
                                 
                                 pts_anotados = int(valor_stat)
                                 if 0 <= pts_anotados <= 65:
-                                    puntos_exactos_dia[nombre_api] = pts_anotados
-                                    # Guardar también por apellido o partes clave para evitar problemas con nombres compuestos
-                                    partes_nombre = nombre_api.split()
-                                    if len(partes_nombre) > 1:
-                                        puntos_exactos_dia[partes_nombre[-1]] = pts_anotados # Apellido
+                                    clave = (nombre_equipo, posicion, nombre_jugador)
+                                    if clave not in base_datos_jugadores:
+                                        base_datos_jugadores[clave] = {}
+                                    base_datos_jugadores[clave][col_nombre] = f"{pts_anotados} pts"
                             except ValueError:
                                 pass
-
-            # Aplicar los puntos exactos al DataFrame para esta columna de fecha
-            for index, row in df_titulares.iterrows():
-                jugador_raw = str(row['Jugador'])
-                jugador_norm = normalizar_texto(jugador_raw)
-                apellido_csv = normalizar_texto(jugador_raw.split()[-1]) if len(jugador_raw.split()) > 1 else ""
-
-                if jugador_norm in puntos_exactos_dia:
-                    df_titulares.loc[index, col_fecha] = f"{puntos_exactos_dia[jugador_norm]} pts"
-                elif apellido_csv and apellido_csv in puntos_exactos_dia:
-                    # Coincidencia por apellido si el nombre completo varió ligeramente en la API
-                    df_titulares.loc[index, col_fecha] = f"{puntos_exactos_dia[apellido_csv]} pts"
-                else:
-                    # Si no hay registro de puntos para este jugador en este día exacto, validamos si el equipo jugó
-                    # Si ya tenía datos previos erróneos los limpiamos a SD o los dejamos si aplica
-                    pass
-
-            logging.info(f"✔️ Fecha sincronizada con precisión absoluta: {col_fecha}")
-
         except Exception as e:
-            logging.error(f"⚠️ Error procesando la fecha {col_fecha}: {e}")
+            logging.error(f"⚠️ Error consultando fecha {col_nombre}: {e}")
 
-    df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
-    logging.info("✨ ¡Sincronización histórica definitiva completada con éxito!")
+    # Si ya existía un CSV previo y queremos fusionar plantillas base para que no falte ningún titular habitual:
+    # Construimos el nuevo DataFrame limpio a partir de los datos reales recolectados
+    filas_finales = []
+    todas_las_columnas = ['Equipo', 'Posicion', 'Jugador'] + [col[1] for col in fechas_a_procesar]
+
+    for (equipo, posicion, jugador), puntajes in base_datos_jugadores.items():
+        fila = {'Equipo': equipo, 'Posicion': posicion, 'Jugador': jugador}
+        for _, col_nombre in fechas_a_procesar:
+            fila[col_nombre] = puntajes.get(col_nombre, "SD")
+        filas_finales.append(fila)
+
+    if filas_finales:
+        df_nuevo = pd.DataFrame(filas_finales)
+        # Ordenamos por equipo y posición táctica
+        orden_posiciones = {'PG': 1, 'SG': 2, 'SF': 3, 'PF': 4, 'C': 5, 'BENCH': 6}
+        df_nuevo['Pos_Rank'] = df_nuevo['Posicion'].map(orden_posiciones).fillna(99)
+        df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
+        
+        df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
+        logging.info("✨ ¡Archivo CSV reconstruido, mapeado y sincronizado con éxito desde la API!")
+    else:
+        logging.warning("⚠️ No se generaron registros nuevos. Verifique la conexión o el rango de fechas.")
 
 if __name__ == "__main__":
-    rellenar_histografico_definitivo()
+    sincronizar_titulares_y_puntajes()
