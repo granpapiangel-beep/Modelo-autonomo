@@ -1,43 +1,12 @@
-import datetime
 import os
+import time
 import pandas as pd
 import requests
-import time
 
 
 def actualizar_historial_partidos():
   # Nombre exacto del archivo CSV principal de tu repositorio
   archivo_csv = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
-
-  # Obtiene la fecha de ayer (o la fecha que corresponda al cierre de la jornada nocturna)
-  hoy_dt = datetime.date.today() - datetime.timedelta(days=1)
-
-  # Mapeo de meses en español para que coincida con el formato de tus columnas
-  meses = {
-      1: "enero",
-      2: "febrero",
-      3: "marzo",
-      4: "abril",
-      5: "mayo",
-      6: "junio",
-      7: "julio",
-      8: "agosto",
-      9: "septiembre",
-      10: "octubre",
-      11: "noviembre",
-      12: "diciembre",
-  }
-
-  dia = hoy_dt.day
-  mes_str = meses[hoy_dt.month]
-
-  # Construye el nombre de la columna (ej. "2 de noviembre")
-  columna_fecha = f"{dia} de {mes_str}"
-
-  print(
-      f"Iniciando actualización nocturna para la columna de fecha:"
-      f" {columna_fecha}"
-  )
 
   if not os.path.exists(archivo_csv):
     print(f"⚠️ Error: No se encontró el archivo {archivo_csv} en el repositorio.")
@@ -45,39 +14,68 @@ def actualizar_historial_partidos():
 
   df = pd.read_csv(archivo_csv)
 
-  # Si la columna del día actual todavía no existe en el CSV, la creamos inicializada en "SD" (Sin Datos)
-  if columna_fecha not in df.columns:
-    df[columna_fecha] = "SD"
-    print(f"Se ha creado la nueva columna '{columna_fecha}' en el registro.")
-
-  # -------------------------------------------------------------
-  # ZONA DE ACTUALIZACIÓN DE PUNTOS REALES CON TU CLAVE DE RAPIDAPI:
-  # -------------------------------------------------------------
-  url = "https://nba-api-free-data.p.rapidapi.com/Team/SouthwestTeamList"  # Ejemplo de endpoint que muestra tu captura
+  # Configuración de acceso a RapidAPI
+  url = "https://nba-api-free-data.p.rapidapi.com/endpoint_estadisticas"  # Reemplaza con el endpoint de estadísticas/jugadores que necesites
   headers = {
       "X-RapidAPI-Key": "969c085cb7msh6926a29e619d670p18371cjsnc8c5c962373a",
       "X-RapidAPI-Host": "nba-api-free-data.p.rapidapi.com",
       "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
   }
 
-  try:
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-      print("¡Conexión exitosa con la API de la NBA!")
-      # Aquí puedes procesar la respuesta JSON de la API para mapearla a tu DataFrame
-      # data = response.json()
-    else:
-      print(f"⚠️ La API respondió con código de estado: {response.status_code}")
+  print("Iniciando revisión y llenado de celdas con 'SD'...")
 
-    time.sleep(2)  # Pausa preventiva anti-bloqueo
+  # Identificar las columnas de fechas (asumiendo que las primeras 3 son Equipo, Posicion, Jugador)
+  columnas_fechas = df.columns[3:]
 
-  except Exception as e:
-    print(f"⚠️ Error al conectar con RapidAPI: {e}")
+  actualizaciones_realizadas = 0
 
-  # Guarda los cambios de vuelta en el archivo CSV oficial
+  # Recorrer cada fila (jugador) del DataFrame
+  for index, row in df.iterrows():
+    jugador = row["Jugador"]
+    equipo = row["Equipo"]
+
+    # Revisar cada columna de fecha para este jugador
+    for fecha_col in columnas_fechas:
+      # Si la celda está vacía o dice "SD", procedemos a buscar el dato
+      if str(row[fecha_col]).strip() == "SD":
+        print(f"Buscando puntaje para {jugador} ({equipo}) en la fecha {fecha_col}...")
+
+        try:
+          # Parámetros de consulta para la API (puedes ajustarlos según lo que pida el endpoint)
+          params = {"player": jugador, "date": fecha_col}
+
+          response = requests.get(url, headers=headers, params=params)
+
+          if response.status_code == 200:
+            data = response.json()
+
+            # --- ZONA DE EXTRACCIÓN ---
+            # Aquí extraes el puntaje real de la respuesta JSON de la API.
+            # Ejemplo ficticio: puntaje_real = data['response'][0]['points']
+            puntaje_real = (
+                "25 pts"  # Reemplaza esto con el valor extraído del JSON
+            )
+
+            # Asignar el valor real al DataFrame
+            df.loc[index, fecha_col] = puntaje_real
+            actualizaciones_realizadas += 1
+          else:
+            print(
+                f"⚠️ Error en la API para {jugador}: Código"
+                f" {response.status_code}"
+            )
+
+          # Pausa obligatoria de 2 segundos para cuidar las peticiones y evitar bloqueos en la nube
+          time.sleep(2)
+
+        except Exception as e:
+          print(f"⚠️ Excepción al consultar la API para {jugador}: {e}")
+
+  # Guardar los cambios masivos de vuelta en el archivo CSV oficial
   df.to_csv(archivo_csv, index=False)
   print(
-      "¡Base de datos de puntajes diarios actualizada con éxito a las 3:00 AM!"
+      f"¡Proceso finalizado! Se actualizaron {actualizaciones_realizadas}"
+      " registros con éxito en el CSV."
   )
 
 
