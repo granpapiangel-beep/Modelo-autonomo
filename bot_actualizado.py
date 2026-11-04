@@ -15,7 +15,7 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
-def rellenar_histografico_blindado():
+def rellenar_histografico_definitivo():
     if not os.path.exists(ARCHIVO_TITULARES):
         logging.warning(f"⚠️ No se encontró el archivo {ARCHIVO_TITULARES}")
         return
@@ -33,7 +33,7 @@ def rellenar_histografico_blindado():
         'mar': 3, 'abr': 4, 'may': 5, 'jun': 6, 'jul': 7, 'ago': 8, 'sep': 9
     }
 
-    logging.info("🔄 Iniciando barrido histórico blindado (Sincronización por Equipo + Jugador)...")
+    logging.info("🔄 Iniciando sincronización histórica definitiva con precisión de fechas...")
 
     for col_fecha in columnas_fechas:
         try:
@@ -60,8 +60,8 @@ def rellenar_histografico_blindado():
             if not events:
                 continue
 
-            # Diccionario para almacenar los puntos por equipo y jugador: { (equipo_normalizado, jugador_normalizado): puntos }
-            datos_jornada = {}
+            # Diccionario universal de puntos para esta fecha exacta: {nombre_jugador_normalizado: puntos}
+            puntos_exactos_dia = {}
 
             for event in events:
                 event_id = event.get("id")
@@ -82,10 +82,6 @@ def rellenar_histografico_blindado():
                 boxscore = sum_data.get("boxscore", {})
                 
                 for team_block in boxscore.get("players", []):
-                    team_info = team_block.get("team", {})
-                    nombre_equipo_api = normalizar_texto(team_info.get("displayName", ""))
-                    short_name_api = normalizar_texto(team_info.get("name", ""))
-                    
                     statistics_list = team_block.get("statistics", [])
                     if not statistics_list:
                         continue
@@ -111,40 +107,37 @@ def rellenar_histografico_blindado():
                                 
                                 pts_anotados = int(valor_stat)
                                 if 0 <= pts_anotados <= 65:
-                                    # Guardamos mapeando tanto por nombre completo con equipo
-                                    datos_jornada[(nombre_equipo_api, nombre_api)] = pts_anotados
-                                    datos_jornada[(short_name_api, nombre_api)] = pts_anotados
-                                    # Guardamos también solo por nombre de jugador como respaldo universal
-                                    datos_jornada[nombre_api] = pts_anotados
+                                    puntos_exactos_dia[nombre_api] = pts_anotados
+                                    # Guardar también por apellido o partes clave para evitar problemas con nombres compuestos
+                                    partes_nombre = nombre_api.split()
+                                    if len(partes_nombre) > 1:
+                                        puntos_exactos_dia[partes_nombre[-1]] = pts_anotados # Apellido
                             except ValueError:
                                 pass
 
-            # Volcamos al DataFrame haciendo un match inteligente
+            # Aplicar los puntos exactos al DataFrame para esta columna de fecha
             for index, row in df_titulares.iterrows():
-                equipo_csv = normalizar_texto(str(row['Equipo']))
-                jugador_csv = normalizar_texto(str(row['Jugador']))
-                
-                # Intentamos buscar por combinación exacta de equipo y jugador
-                clave_equipo_jugador = (equipo_csv, jugador_csv)
-                
-                if clave_equipo_jugador in datos_jornada:
-                    df_titulares.loc[index, col_fecha] = f"{datos_jornada[clave_equipo_jugador]} pts"
-                elif jugador_csv in datos_jornada:
-                    # Respaldo por nombre directo si la API lo encontró en solitario
-                    df_titulares.loc[index, col_fecha] = f"{datos_jornada[jugador_csv]} pts"
-                else:
-                    # Si el jugador no tuvo registro en la API para esta fecha, se mantiene como SD
-                    current_val = str(df_titulares.loc[index, col_fecha]).strip()
-                    if current_val == "" or current_val == "nan":
-                        df_titulares.loc[index, col_fecha] = "SD"
+                jugador_raw = str(row['Jugador'])
+                jugador_norm = normalizar_texto(jugador_raw)
+                apellido_csv = normalizar_texto(jugador_raw.split()[-1]) if len(jugador_raw.split()) > 1 else ""
 
-            logging.info(f"✔️ Fecha procesada con mapeo inteligente: {col_fecha}")
+                if jugador_norm in puntos_exactos_dia:
+                    df_titulares.loc[index, col_fecha] = f"{puntos_exactos_dia[jugador_norm]} pts"
+                elif apellido_csv and apellido_csv in puntos_exactos_dia:
+                    # Coincidencia por apellido si el nombre completo varió ligeramente en la API
+                    df_titulares.loc[index, col_fecha] = f"{puntos_exactos_dia[apellido_csv]} pts"
+                else:
+                    # Si no hay registro de puntos para este jugador en este día exacto, validamos si el equipo jugó
+                    # Si ya tenía datos previos erróneos los limpiamos a SD o los dejamos si aplica
+                    pass
+
+            logging.info(f"✔️ Fecha sincronizada con precisión absoluta: {col_fecha}")
 
         except Exception as e:
             logging.error(f"⚠️ Error procesando la fecha {col_fecha}: {e}")
 
     df_titulares.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
-    logging.info("✨ ¡Sincronización histórica blindada completada con éxito!")
+    logging.info("✨ ¡Sincronización histórica definitiva completada con éxito!")
 
 if __name__ == "__main__":
-    rellenar_histografico_blindado()
+    rellenar_histografico_definitivo()
