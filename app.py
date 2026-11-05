@@ -1,21 +1,9 @@
 from datetime import datetime
 import json
 import os
+import numpy as np
 import pandas as pd
 import streamlit as st
-
-# Importación segura de los módulos del sistema
-try:
-    from player_analysis import obtener_patron_titulares
-except ImportError:
-    def obtener_patron_titulares(equipo):
-        return [("Jugador Estándar", "15.5 pts", "Estable", "VERDE")]
-
-try:
-    from context_factors import evaluar_factores_contextuales
-except ImportError:
-    def evaluar_factores_contextuales(local, visita):
-        return {"factor_local": 1.05, "factor_visita": 0.98, "estabilidad_dupla": "Base", "nota_analitica": "N/A"}
 
 # Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
@@ -70,6 +58,86 @@ st.markdown("""
     }
 </style>
 """, unsafe_allow_html=True)
+
+def normalizar_texto(texto):
+    if not isinstance(texto, str):
+        return ""
+    return ''.join(c for c in unicodedata.normalize('NFD', texto)
+                        if unicodedata.category(c) != 'Mn').lower().strip()
+
+import unicodedata
+
+# Función interna de análisis de jugadores integrada directamente para evitar errores de módulos externos
+def obtener_patron_titulares(nombre_equipo):
+    # Buscar archivos de titulares disponibles
+    csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
+    if not os.path.exists(csv_filename):
+        if os.path.exists("Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios) (1).csv"):
+            csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios) (1).csv"
+        else:
+            return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
+        
+    try:
+        df_titulares = pd.read_csv(csv_filename, encoding='utf-8-sig')
+    except Exception:
+        return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
+        
+    # Acceso directo por posición de columna para evitar KeyErrors absolutos
+    col_equipo = df_titulares.columns[0]
+    col_posicion = df_titulares.columns[1] if len(df_titulares.columns) > 1 else 'Posicion'
+    col_jugador = df_titulares.columns[2] if len(df_titulares.columns) > 2 else 'Jugador'
+    
+    eq_norm = ''.join(c for c in unicodedata.normalize('NFD', str(nombre_equipo)) if unicodedata.category(c) != 'Mn').lower().strip()
+    
+    df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(lambda x: ''.join(c for c in unicodedata.normalize('NFD', str(x)) if unicodedata.category(c) != 'Mn').lower().strip())
+    
+    df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_norm, na=False)]
+    
+    if df_equipo.empty and " " in eq_norm:
+        ultima_palabra = eq_norm.split()[-1]
+        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(ultima_palabra, na=False)]
+        
+    if df_equipo.empty:
+        return [(f"Plantilla ({nombre_equipo})", "15.5 pts", "Sin registros exactos en base", "AMARILLO")]
+        
+    columnas_fechas = df_titulares.columns[3:-1]
+    
+    resultado = []
+    for _, row in df_equipo.iterrows():
+        nombre_jugador = str(row.get(col_jugador, 'Jugador Desconocido')).replace("'", "").replace('"', "")
+        puntos_lista = []
+        for col in columnas_fechas:
+            val = str(row.get(col, ""))
+            if "pts" in val:
+                try:
+                    puntos_lista.append(float(val.replace("pts", "").strip()))
+                except ValueError:
+                    pass
+                    
+        if not puntos_lista:
+            resultado.append((nombre_jugador, "15.5 pts", "Sin datos recientes", "AMARILLO"))
+            continue
+            
+        promedio = np.mean(puntos_lista)
+        desviacion = np.std(puntos_lista) if len(puntos_lista) > 1 else 1.0
+        linea_prop = round(promedio - 2.0, 1)
+        
+        if promedio >= 22.0 and desviacion < 5.0:
+            patron = "Élite Constante (Cumplidor)"
+            semaforo = "VERDE"
+        elif promedio >= 15.0 and desviacion < 7.0:
+            patron = "Estable / Confiable"
+            semaforo = "VERDE"
+        elif desviacion >= 7.0 or (max(puntos_lista) - min(puntos_lista)) > 14:
+            patron = "Alto Riesgo / Volátil e Irregular"
+            semaforo = "ROJO"
+        else:
+            patron = "Bajo Perfil / Rango Estrecho"
+            semaforo = "AMARILLO"
+            
+        resultado.append((nombre_jugador, f"{linea_prop} pts", patron, semaforo))
+        
+    return resultado
 
 def render_badge(texto):
     texto_str = str(texto).upper()
@@ -200,9 +268,6 @@ if os.path.exists(ARCHIVO_EVAL):
             if pd.isna(sem_puntos):
                 sem_puntos = "Zona estándar"
                 
-            # Evaluación complementaria de factores contextuales
-            contexto = evaluar_factores_contextuales(local, visita)
-            
             badge_ganador_html = render_badge(sem_ganador)
             badge_puntos_html = render_badge(sem_puntos)
             
@@ -232,7 +297,6 @@ if os.path.exists(ARCHIVO_EVAL):
 <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
 <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
 <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
-<p style="font-size: 0.88rem; color: #444; margin-bottom: 8px;">🧠 <b>Contexto Analítico:</b> {contexto.get('nota_analitica', 'N/A')} (Estabilidad: <b>{contexto.get('estabilidad_dupla', 'N/A')}</b>)</p>
 <p style="margin-top: 8px; margin-bottom: 2px;">👤 <b>Titulares y Patrones ({local}):</b></p>
 <ul style="margin-top: 0px; margin-bottom: 6px; font-size: 0.9rem; color: #111111;">
 {html_titulares_local}
