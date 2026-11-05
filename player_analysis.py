@@ -11,7 +11,9 @@ def normalizar_texto(texto):
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
 def obtener_patron_titulares(nombre_equipo):
+    # Nombre exacto sincronizado con tu repositorio en GitHub
     csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
+    
     if not os.path.exists(csv_filename):
         return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
         
@@ -25,59 +27,26 @@ def obtener_patron_titulares(nombre_equipo):
     
     col_equipo = None
     for col in df_titulares.columns:
-        if col.lower() in ['equipo', 'team', 'nombre']:
+        if col.lower() in ['equipo', 'team', 'nombre', 'displayname']:
             col_equipo = col
             break
             
     if not col_equipo:
-        col_equipo = df_titulares.columns[0] # Usar la primera columna por defecto
+        col_equipo = df_titulares.columns[0]
     # ------------------------------------
-        
-    mapeo_equipos = {
-        "boston celtics": "boston celtics", "celtics": "boston celtics",
-        "brooklyn nets": "brooklyn nets", "nets": "brooklyn nets",
-        "new york knicks": "new york knicks", "knicks": "new york knicks",
-        "philadelphia 76ers": "philadelphia 76ers", "76ers": "philadelphia 76ers", "sixers": "philadelphia 76ers",
-        "toronto raptors": "toronto raptors", "raptors": "toronto raptors",
-        "chicago bulls": "chicago bulls", "bulls": "chicago bulls",
-        "cleveland cavaliers": "cleveland cavaliers", "cavaliers": "cleveland cavaliers", "cavs": "cleveland cavaliers",
-        "detroit pistons": "detroit pistons", "pistons": "detroit pistons",
-        "indiana pacers": "indiana pacers", "pacers": "indiana pacers",
-        "milwaukee bucks": "milwaukee bucks", "bucks": "milwaukee bucks",
-        "atlanta hawks": "atlanta hawks", "hawks": "atlanta hawks",
-        "charlotte hornets": "charlotte hornets", "hornets": "charlotte hornets",
-        "miami heat": "miami heat", "heat": "miami heat",
-        "orlando magic": "orlando magic", "magic": "orlando magic",
-        "washington wizards": "washington wizards", "wizards": "washington wizards",
-        "denver nuggets": "denver nuggets", "nuggets": "denver nuggets",
-        "minnesota timberwolves": "minnesota timberwolves", "timberwolves": "minnesota timberwolves", "wolves": "minnesota timberwolves",
-        "oklahoma city thunder": "oklahoma city thunder", "thunder": "oklahoma city thunder",
-        "portland trail blazers": "portland trail blazers", "trail blazers": "portland trail blazers", "blazers": "portland trail blazers",
-        "utah jazz": "utah jazz", "jazz": "utah jazz",
-        "golden state warriors": "golden state warriors", "warriors": "golden state warriors",
-        "los angeles clippers": "los angeles clippers", "la clippers": "los angeles clippers", "clippers": "los angeles clippers",
-        "los angeles lakers": "los angeles lakers", "la lakers": "los angeles lakers", "lakers": "los angeles lakers",
-        "phoenix suns": "phoenix suns", "suns": "phoenix suns",
-        "sacramento kings": "sacramento kings", "kings": "sacramento kings",
-        "dallas mavericks": "dallas mavericks", "mavericks": "dallas mavericks", "mavs": "dallas mavericks",
-        "houston rockets": "houston rockets", "rockets": "houston rockets",
-        "memphis grizzlies": "memphis grizzlies", "grizzlies": "memphis grizzlies",
-        "new orleans pelicans": "new orleans pelicans", "pelicans": "new orleans pelicans",
-        "san antonio spurs": "san antonio spurs", "spurs": "san antonio spurs"
-    }
     
     eq_norm = normalizar_texto(nombre_equipo)
-    eq_busqueda = mapeo_equipos.get(eq_norm, eq_norm)
-    
-    # Uso seguro de col_equipo en lugar de 'Equipo' estricto
     df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(normalizar_texto)
-    df_equipo = df_titulares[df_titulares['Equipo_Clean'] == eq_busqueda]
     
-    if df_equipo.empty:
-        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_busqueda, na=False)]
+    # Búsqueda flexible de coincidencias de equipos
+    df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_norm, na=False)]
+    
+    if df_equipo.empty and " " in eq_norm:
+        ultima_palabra = eq_norm.split()[-1]
+        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(ultima_palabra, na=False)]
         
     if df_equipo.empty:
-        return [(nombre_equipo, "15.5 pts", "Sin registros en base", "AMARILLO")]
+        return [(f"Plantilla ({nombre_equipo})", "15.5 pts", "Sin registros exactos en base", "AMARILLO")]
         
     columnas_fechas = [col for col in df_titulares.columns if col not in [col_equipo, 'Posicion', 'Jugador', 'Equipo_Clean']]
     
