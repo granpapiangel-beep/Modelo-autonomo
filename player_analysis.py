@@ -1,7 +1,8 @@
+from datetime import datetime
 import os
+import numpy as np
 import pandas as pd
 import unicodedata
-import numpy as np
 
 def normalizar_texto(texto):
     if not isinstance(texto, str):
@@ -15,7 +16,7 @@ def obtener_patron_titulares(nombre_equipo):
         return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
         
     try:
-        df_titulares = pd.read_csv(csv_filename, encoding='latin1')
+        df_titulares = pd.read_csv(csv_filename, encoding='utf-8-sig')
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
@@ -24,12 +25,12 @@ def obtener_patron_titulares(nombre_equipo):
     
     col_equipo = None
     for col in df_titulares.columns:
-        if col.lower() == 'equipo':
+        if col.lower() in ['equipo', 'team', 'nombre']:
             col_equipo = col
             break
             
     if not col_equipo:
-        col_equipo = df_titulares.columns[0] # Usar la primera columna por defecto si no encuentra el nombre
+        col_equipo = df_titulares.columns[0] # Usar la primera columna por defecto
     # ------------------------------------
         
     mapeo_equipos = {
@@ -68,6 +69,7 @@ def obtener_patron_titulares(nombre_equipo):
     eq_norm = normalizar_texto(nombre_equipo)
     eq_busqueda = mapeo_equipos.get(eq_norm, eq_norm)
     
+    # Uso seguro de col_equipo en lugar de 'Equipo' estricto
     df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(normalizar_texto)
     df_equipo = df_titulares[df_titulares['Equipo_Clean'] == eq_busqueda]
     
@@ -81,7 +83,7 @@ def obtener_patron_titulares(nombre_equipo):
     
     resultado = []
     for _, row in df_equipo.iterrows():
-        nombre_jugador = row['Jugador']
+        nombre_jugador = row.get('Jugador', 'Jugador Desconocido')
         puntos_lista = []
         for col in columnas_fechas:
             val = str(row[col])
