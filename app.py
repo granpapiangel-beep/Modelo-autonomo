@@ -4,13 +4,14 @@ import os
 import numpy as np
 import pandas as pd
 import streamlit as st
+import unicodedata
 
 # Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
     page_title="NBA AI Stephy", page_icon="🏀", layout="wide"
 )
 
-# Estilo visual: Fondo blanco, tarjetas azul celeste y métricas optimizadas
+# Estilo visual
 st.markdown("""
 <style>
     .stApp {
@@ -59,17 +60,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-def normalizar_texto(texto):
-    if not isinstance(texto, str):
-        return ""
-    return ''.join(c for c in unicodedata.normalize('NFD', texto)
-                        if unicodedata.category(c) != 'Mn').lower().strip()
-
-import unicodedata
-
-# Función interna de análisis de jugadores integrada directamente para evitar errores de módulos externos
+# Función de análisis integrada directamente en app.py (Independiente)
 def obtener_patron_titulares(nombre_equipo):
-    # Buscar archivos de titulares disponibles
     csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
     if not os.path.exists(csv_filename):
         if os.path.exists("Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios) (1).csv"):
@@ -82,23 +74,21 @@ def obtener_patron_titulares(nombre_equipo):
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
-    # Acceso directo por posición de columna para evitar KeyErrors absolutos
+    df_titulares.columns = [str(col).strip().replace("'", "").replace('"', "").replace('\ufeff', '') for col in df_titulares.columns]
+    
     col_equipo = df_titulares.columns[0]
-    col_posicion = df_titulares.columns[1] if len(df_titulares.columns) > 1 else 'Posicion'
     col_jugador = df_titulares.columns[2] if len(df_titulares.columns) > 2 else 'Jugador'
     
     eq_norm = ''.join(c for c in unicodedata.normalize('NFD', str(nombre_equipo)) if unicodedata.category(c) != 'Mn').lower().strip()
-    
     df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(lambda x: ''.join(c for c in unicodedata.normalize('NFD', str(x)) if unicodedata.category(c) != 'Mn').lower().strip())
     
     df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_norm, na=False)]
     
     if df_equipo.empty and " " in eq_norm:
-        ultima_palabra = eq_norm.split()[-1]
-        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(ultima_palabra, na=False)]
+        df_equipo = df_titulares[df_titulares['Equipo_Clean'].str.contains(eq_norm.split()[-1], na=False)]
         
     if df_equipo.empty:
-        return [(f"Plantilla ({nombre_equipo})", "15.5 pts", "Sin registros exactos en base", "AMARILLO")]
+        return [(f"Plantilla ({nombre_equipo})", "15.5 pts", "Sin registros exactos", "AMARILLO")]
         
     columnas_fechas = df_titulares.columns[3:-1]
     
@@ -160,7 +150,7 @@ def render_badge(texto):
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Panel analítico autónomo y unificado.</p>', unsafe_allow_html=True)
 
-# Centro de Alertas dinámico en vivo (Lee alertas_lesiones.json)
+# Centro de Alertas dinámico
 mensaje_notificacion = "Monitoreo activo en 30 plantillas. Reporte de última hora: Precaución con rotaciones en equipos en situación de B2B."
 if os.path.exists("alertas_lesiones.json"):
     try:
