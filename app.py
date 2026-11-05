@@ -4,12 +4,18 @@ import os
 import pandas as pd
 import streamlit as st
 
-# Importación segura de la función de análisis de jugadores
+# Importación segura de los módulos del sistema
 try:
     from player_analysis import obtener_patron_titulares
 except ImportError:
     def obtener_patron_titulares(equipo):
         return [("Jugador Estándar", "15.5 pts", "Estable", "VERDE")]
+
+try:
+    from context_factors import evaluar_factores_contextuales
+except ImportError:
+    def evaluar_factores_contextuales(local, visita):
+        return {"factor_local": 1.05, "factor_visita": 0.98, "estabilidad_dupla": "Base", "nota_analitica": "N/A"}
 
 # Configuración formal de la página (Modo Wide / Ancho completo)
 st.set_page_config(
@@ -84,7 +90,7 @@ def render_badge(texto):
 
 # Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Panel analítico autónomo.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel analítico autónomo y unificado.</p>', unsafe_allow_html=True)
 
 # Centro de Alertas dinámico en vivo (Lee alertas_lesiones.json)
 mensaje_notificacion = "Monitoreo activo en 30 plantillas. Reporte de última hora: Precaución con rotaciones en equipos en situación de B2B."
@@ -166,7 +172,6 @@ if os.path.exists(ARCHIVO_EVAL):
         st.info(f"No hay partidos registrados para la fecha seleccionada ({ultima_fecha}).")
     else:
         for _, row in df_a_mostrar.iterrows():
-            # Extracción segura con .get() para prevenir cualquier KeyError
             local = row.get("Local", "Local")
             visita = row.get("Visitante", "Visitante")
             
@@ -195,6 +200,9 @@ if os.path.exists(ARCHIVO_EVAL):
             if pd.isna(sem_puntos):
                 sem_puntos = "Zona estándar"
                 
+            # Evaluación complementaria de factores contextuales
+            contexto = evaluar_factores_contextuales(local, visita)
+            
             badge_ganador_html = render_badge(sem_ganador)
             badge_puntos_html = render_badge(sem_puntos)
             
@@ -224,6 +232,7 @@ if os.path.exists(ARCHIVO_EVAL):
 <hr style="margin: 5px 0 10px 0; border-color: #B0D0E8;">
 <p><b>🏆 Ganador Proyectado:</b> {ganador} (Confianza: <b>{prob}%</b>) &nbsp;|&nbsp; <b>Semáforo:</b> {badge_ganador_html}</p>
 <p><b>📈 Línea Over/Under ({linea}):</b> Sugerencia <b>{pred_ou}</b> (Puntos Proyectados: <b>{prom_sim}</b>) &nbsp;|&nbsp; <b>Foco Puntos:</b> {badge_puntos_html}</p>
+<p style="font-size: 0.88rem; color: #444; margin-bottom: 8px;">🧠 <b>Contexto Analítico:</b> {contexto.get('nota_analitica', 'N/A')} (Estabilidad: <b>{contexto.get('estabilidad_dupla', 'N/A')}</b>)</p>
 <p style="margin-top: 8px; margin-bottom: 2px;">👤 <b>Titulares y Patrones ({local}):</b></p>
 <ul style="margin-top: 0px; margin-bottom: 6px; font-size: 0.9rem; color: #111111;">
 {html_titulares_local}
