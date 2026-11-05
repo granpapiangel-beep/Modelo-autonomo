@@ -21,29 +21,13 @@ def obtener_patron_titulares(nombre_equipo):
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
-    # --- LIMPIEZA TOTAL Y ROBUSTA DE COLUMNAS ---
-    # Esto elimina comillas simples y dobles literales que trae el CSV en sus títulos
-    df_titulares.columns = [
-        str(col).strip().replace("'", "").replace('"', "").replace('\ufeff', '') 
-        for col in df_titulares.columns
-    ]
-    
-    col_equipo = None
-    for col in df_titulares.columns:
-        if col.lower() in ['equipo', 'team', 'nombre', 'displayname']:
-            col_equipo = col
-            break
-            
-    if not col_equipo and len(df_titulares.columns) > 0:
-        col_equipo = df_titulares.columns[0]
-    
-    if not col_equipo:
-        return [("Error de estructura en CSV", "15.5 pts", "Columna de equipo no encontrada", "ROJO")]
-    # ---------------------------------------------
+    # --- ACCESO DIRECTO POR POSICIÓN (IGNORA NOMBRES DE COLUMNAS) ---
+    # Columna 0 = Equipo, Columna 1 = Posición, Columna 2 = Jugador
+    col_equipo = df_titulares.columns[0]
+    col_posicion = df_titulares.columns[1] if len(df_titulares.columns) > 1 else 'Posicion'
+    col_jugador = df_titulares.columns[2] if len(df_titulares.columns) > 2 else 'Jugador'
     
     eq_norm = normalizar_texto(nombre_equipo)
-    
-    # USO SEGURO DE LA COLUMNA DETECTADA (Ya no usa 'Equipo' directo)
     df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(normalizar_texto)
     
     # Búsqueda flexible de coincidencias
@@ -56,11 +40,11 @@ def obtener_patron_titulares(nombre_equipo):
     if df_equipo.empty:
         return [(f"Plantilla ({nombre_equipo})", "15.5 pts", "Sin registros exactos en base", "AMARILLO")]
         
-    columnas_fechas = [col for col in df_titulares.columns if col not in [col_equipo, 'Posicion', 'Jugador', 'Equipo_Clean']]
+    columnas_fechas = df_titulares.columns[3:-1] # Todas las fechas a partir de la columna 3
     
     resultado = []
     for _, row in df_equipo.iterrows():
-        nombre_jugador = str(row.get('Jugador', 'Jugador Desconocido')).replace("'", "").replace('"', "")
+        nombre_jugador = str(row.get(col_jugador, 'Jugador Desconocido')).replace("'", "").replace('"', "")
         puntos_lista = []
         for col in columnas_fechas:
             val = str(row.get(col, ""))
