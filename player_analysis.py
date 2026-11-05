@@ -22,7 +22,7 @@ def obtener_patron_titulares(nombre_equipo):
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
     # --- LIMPIEZA TOTAL Y ROBUSTA DE COLUMNAS ---
-    # Elimina comillas simples, dobles, espacios y caracteres invisibles de los nombres de columnas
+    # Esto elimina comillas simples y dobles literales que trae el CSV en sus títulos
     df_titulares.columns = [
         str(col).strip().replace("'", "").replace('"', "").replace('\ufeff', '') 
         for col in df_titulares.columns
@@ -42,6 +42,8 @@ def obtener_patron_titulares(nombre_equipo):
     # ---------------------------------------------
     
     eq_norm = normalizar_texto(nombre_equipo)
+    
+    # USO SEGURO DE LA COLUMNA DETECTADA (Ya no usa 'Equipo' directo)
     df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(normalizar_texto)
     
     # Búsqueda flexible de coincidencias
