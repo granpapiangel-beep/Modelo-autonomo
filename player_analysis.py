@@ -10,21 +10,16 @@ def normalizar_texto(texto):
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
 def obtener_patron_titulares(nombre_equipo):
-    """
-    Analiza rigurosamente el CSV de titulares aplicando un mapeo estricto
-    de nombres de franquicias para asegurar el reconocimiento de jugadores.
-    """
     csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
     if not os.path.exists(csv_filename):
         return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
         
     try:
-        # Usamos encoding latin1 para evitar errores de acentos en Windows/Linux
         df_titulares = pd.read_csv(csv_filename, encoding='latin1')
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
-    # --- BLINDAJE CONTRA ESPACIOS O VARIACIONES EN ENCABEZADOS ---
+    # --- BLINDAJE TOTAL DE COLUMNAS ---
     df_titulares.columns = [str(col).strip() for col in df_titulares.columns]
     
     col_equipo = None
@@ -34,8 +29,8 @@ def obtener_patron_titulares(nombre_equipo):
             break
             
     if not col_equipo:
-        return [(nombre_equipo, "15.5 pts", "Columna Equipo no encontrada", "ROJO")]
-    # -------------------------------------------------------------
+        col_equipo = df_titulares.columns[0] # Usar la primera columna por defecto si no encuentra el nombre
+    # ------------------------------------
         
     mapeo_equipos = {
         "boston celtics": "boston celtics", "celtics": "boston celtics",
@@ -104,7 +99,6 @@ def obtener_patron_titulares(nombre_equipo):
         desviacion = np.std(puntos_lista) if len(puntos_lista) > 1 else 1.0
         linea_prop = round(promedio - 2.0, 1)
         
-        # Criterios analíticos de cumplimiento y consistencia
         if promedio >= 22.0 and desviacion < 5.0:
             patron = "Élite Constante (Cumplidor)"
             semaforo = "VERDE"
