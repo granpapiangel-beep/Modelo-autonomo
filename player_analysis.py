@@ -17,14 +17,16 @@ def obtener_patron_titulares(nombre_equipo):
         return [("Jugador predeterminado", "15.5 pts", "Sin datos CSV", "AMARILLO")]
         
     try:
-        # Leemos el CSV limpiando nombres de columnas automáticamente
         df_titulares = pd.read_csv(csv_filename, encoding='utf-8-sig')
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
         
-    # --- BLINDAJE Y LIMPIEZA TOTAL DE COLUMNAS ---
-    # Esto elimina espacios en blanco y caracteres invisibles (BOM) en los nombres de las columnas
-    df_titulares.columns = [str(col).strip().replace('\ufeff', '') for col in df_titulares.columns]
+    # --- LIMPIEZA TOTAL Y ROBUSTA DE COLUMNAS ---
+    # Elimina comillas simples, dobles, espacios y caracteres invisibles de los nombres de columnas
+    df_titulares.columns = [
+        str(col).strip().replace("'", "").replace('"', "").replace('\ufeff', '') 
+        for col in df_titulares.columns
+    ]
     
     col_equipo = None
     for col in df_titulares.columns:
@@ -32,7 +34,6 @@ def obtener_patron_titulares(nombre_equipo):
             col_equipo = col
             break
             
-    # Si de plano no encuentra ninguna columna con ese nombre, usa la primera columna del CSV
     if not col_equipo and len(df_titulares.columns) > 0:
         col_equipo = df_titulares.columns[0]
     
@@ -57,7 +58,7 @@ def obtener_patron_titulares(nombre_equipo):
     
     resultado = []
     for _, row in df_equipo.iterrows():
-        nombre_jugador = row.get('Jugador', 'Jugador Desconocido')
+        nombre_jugador = str(row.get('Jugador', 'Jugador Desconocido')).replace("'", "").replace('"', "")
         puntos_lista = []
         for col in columnas_fechas:
             val = str(row.get(col, ""))
