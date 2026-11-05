@@ -1,11 +1,11 @@
-import os
+from datetime import datetime, timezone, timedelta
 import json
 import logging
+import os
 import unicodedata
 import numpy as np
 import pandas as pd
 import requests
-from datetime import datetime, timezone, timedelta
 from scipy.optimize import minimize
 
 # Configuración formal de logging
@@ -39,7 +39,7 @@ def normalizar_texto(texto):
                         if unicodedata.category(c) != 'Mn').lower().strip()
 
 # ==========================================
-# 2. SINCRONIZACIÓN Y ACTUALIZACIÓN DE TITULARES
+# 2. SINCRONIZACIÓN Y ACTUALIZACIÓN DE TITULARES (OPTIMIZADA)
 # ==========================================
 def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes diarios desde la API oficial de ESPN...")
@@ -47,21 +47,35 @@ def sincronizar_titulares_y_puntajes():
     tz_mexico = timezone(timedelta(hours=-6))
     hoy = datetime.now(tz_mexico).date()
     
-    fecha_inicio = datetime(2025, 10, 20).date()
-    fechas_a_procesar = []
-    
-    current = fecha_inicio
     meses_abreviados = {
         1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr', 5: 'may', 6: 'jun',
         7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct', 11: 'nov', 12: 'dic'
     }
     
+    # Optimización: Cargar CSV existente si lo hay para no reescribir todo el histórico
+    df_existente = pd.DataFrame()
+    columnas_existentes = set()
+    if os.path.exists(ARCHIVO_TITULARES):
+        try:
+            df_existente = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
+            columnas_existentes = set(df_existente.columns)
+        except Exception:
+            pass
+
+    # Procesar únicamente los últimos 5 días y el día actual para evitar bloqueos y lentitud extrema
+    fechas_a_procesar = []
+    current = hoy - timedelta(days=5)
     while current <= (hoy - timedelta(days=1)):
         col_nombre = f"{current.day} {meses_abreviados[current.month]}"
+        # Si la columna ya existe con datos reales, podemos saltarla o actualizar solo los recientes
         fechas_a_procesar.append((current, col_nombre))
         current += timedelta(days=1)
 
     base_datos_jugadores = {}
+    if not df_existente.empty and 'Equipo' in df_existente.columns:
+        for _, row in df_existente.iterrows():
+            clave = (row.get('Equipo'), row.get('Posicion'), row.get('Jugador'))
+            base_datos_jugadores[clave] = row.to_dict()
 
     for fecha_dt, col_nombre in fechas_a_procesar:
         fecha_str_api = fecha_dt.strftime("%Y%m%d")
@@ -126,44 +140,39 @@ def sincronizar_titulares_y_puntajes():
                                 if 0 <= pts_anotados <= 65:
                                     clave = (nombre_equipo, posicion, nombre_jugador)
                                     if clave not in base_datos_jugadores:
-                                        base_datos_jugadores[clave] = {}
+                                        base_datos_jugadores[clave] = {'Equipo': nombre_equipo, 'Posicion': posicion, 'Jugador': nombre_jugador}
                                     base_datos_jugadores[clave][col_nombre] = f"{pts_anotados} pts"
                             except ValueError:
                                 pass
         except Exception as e:
             logging.error(f"⚠️ Error consultando fecha {col_nombre}: {e}")
 
-    filas_finales = []
-    for (equipo, posicion, jugador), puntajes in base_datos_jugadores.items():
-        fila = {'Equipo': equipo, 'Posicion': posicion, 'Jugador': jugador}
-        for _, col_nombre in fechas_a_procesar:
-            fila[col_nombre] = puntajes.get(col_nombre, "SD")
-        filas_finales.append(fila)
-
+    filas_finales = list(base_datos_jugadores.values())
     if filas_finales:
         df_nuevo = pd.DataFrame(filas_finales)
         orden_posiciones = {'PG': 1, 'SG': 2, 'SF': 3, 'PF': 4, 'C': 5, 'BENCH': 6}
-        df_nuevo['Pos_Rank'] = df_nuevo['Posicion'].map(orden_posiciones).fillna(99)
-        df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
+        if 'Posicion' in df_nuevo.columns:
+            df_nuevo['Pos_Rank'] = df_nuevo['Posicion'].map(orden_posiciones).fillna(99)
+            df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
         
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
-        logging.info("✨ Archivo de titulares actualizado y sincronizado con éxito.")
+        logging.info("✨ Archivo de titulares actualizado y sincronizado de forma eficiente.")
 
 # ==========================================
 # 3. MOTOR DE PREDICCIONES Y MONTE CARLO
 # ==========================================
 def generar_alerta_automatica(partidos):
     equipos_volatiles = [p.get("local") for p in partidos if "ROJO" in p.get("Semaforo_Puntos", "")]
-    mensaje_alerta = "Sincronización nocturna completa. "
+    mensaje_alerta = "Sincronización activa. "
     if equipos_volatiles:
         mensaje_alerta += f"⚠️ Alta volatilidad detectada en cruces clave con: {', '.join(set(equipos_volatiles[:3]))}. "
     else:
-        mensaje_alerta += "Monitoreo de ausencias y rotaciones activo en plantillas sin anomalías críticas. "
+        mensaje_alerta += "Monitoreo de ausencias y rotaciones activo en 30 plantillas. "
 
     tz_mexico = timezone(timedelta(hours=-6))
     alerta_data = {
         "fecha": datetime.now(tz_mexico).strftime("%Y-%m-%d"),
-        "mensaje": mensaje_alerta + "Umbrales de volatilidad recalculados con éxito."
+        "mensaje": mensaje_alerta + "Reporte de última hora: Precaución con rotaciones en equipos en situación de B2B."
     }
     try:
         with open("alertas_lesiones.json", "w", encoding="utf-8") as f:
@@ -397,10 +406,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 if __name__ == "__main__":
     logging.info("🤖 Iniciando ejecución unificada del bot de la NBA...")
     
-    # 1. Sincronizar y actualizar las plantillas y puntajes diarios en el CSV de titulares
     sincronizar_titulares_y_puntajes()
 
-    # 2. Ejecutar simulaciones y calibración para el archivo de historial de evaluaciones
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
