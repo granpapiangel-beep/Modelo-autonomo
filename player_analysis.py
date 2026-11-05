@@ -1,4 +1,3 @@
-# player_analysis.py
 import os
 import pandas as pd
 import unicodedata
@@ -8,7 +7,7 @@ def normalizar_texto(texto):
     if not isinstance(texto, str):
         return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto)
-                   if unicodedata.category(c) != 'Mn').lower().strip()
+                        if unicodedata.category(c) != 'Mn').lower().strip()
 
 def obtener_patron_titulares(nombre_equipo):
     """
@@ -24,6 +23,19 @@ def obtener_patron_titulares(nombre_equipo):
         df_titulares = pd.read_csv(csv_filename, encoding='latin1')
     except Exception:
         return [("Error leyendo CSV", "15.5 pts", "Error crítico", "ROJO")]
+        
+    # --- BLINDAJE CONTRA ESPACIOS O VARIACIONES EN ENCABEZADOS ---
+    df_titulares.columns = [str(col).strip() for col in df_titulares.columns]
+    
+    col_equipo = None
+    for col in df_titulares.columns:
+        if col.lower() == 'equipo':
+            col_equipo = col
+            break
+            
+    if not col_equipo:
+        return [(nombre_equipo, "15.5 pts", "Columna Equipo no encontrada", "ROJO")]
+    # -------------------------------------------------------------
         
     mapeo_equipos = {
         "boston celtics": "boston celtics", "celtics": "boston celtics",
@@ -61,7 +73,7 @@ def obtener_patron_titulares(nombre_equipo):
     eq_norm = normalizar_texto(nombre_equipo)
     eq_busqueda = mapeo_equipos.get(eq_norm, eq_norm)
     
-    df_titulares['Equipo_Clean'] = df_titulares['Equipo'].apply(normalizar_texto)
+    df_titulares['Equipo_Clean'] = df_titulares[col_equipo].apply(normalizar_texto)
     df_equipo = df_titulares[df_titulares['Equipo_Clean'] == eq_busqueda]
     
     if df_equipo.empty:
@@ -70,7 +82,7 @@ def obtener_patron_titulares(nombre_equipo):
     if df_equipo.empty:
         return [(nombre_equipo, "15.5 pts", "Sin registros en base", "AMARILLO")]
         
-    columnas_fechas = [col for col in df_titulares.columns if col not in ['Equipo', 'Posicion', 'Jugador', 'Equipo_Clean']]
+    columnas_fechas = [col for col in df_titulares.columns if col not in [col_equipo, 'Posicion', 'Jugador', 'Equipo_Clean']]
     
     resultado = []
     for _, row in df_equipo.iterrows():
