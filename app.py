@@ -14,7 +14,7 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 🎨 CSS Moderno - Estilo Cancha / Premium Analytics
+# 🎨 CSS Moderno - Estilo Cancha / Premium Analytics y Sidebar Oscuro
 st.markdown("""
 <style>
     /* Fondo principal y textos */
@@ -24,7 +24,46 @@ st.markdown("""
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
     
-    /* Títulos */
+    /* 🌑 FORZAR SIDEBAR OSCURO (Contraste) */
+    section[data-testid="stSidebar"] {
+        background-color: #111827 !important;
+        border-right: 1px solid #1F2937 !important;
+    }
+    /* Letras del Sidebar */
+    section[data-testid="stSidebar"] label p,
+    section[data-testid="stSidebar"] .stMarkdown p,
+    section[data-testid="stSidebar"] h3 {
+        color: #F8FAFC !important;
+    }
+    /* Estilo para los Selectores (Cajas desplegables) en el sidebar */
+    div[data-baseweb="select"] > div {
+        background-color: #1E293B !important;
+        border: 1px solid #334155 !important;
+        color: #F8FAFC !important;
+    }
+    div[data-baseweb="select"] span {
+        color: #F8FAFC !important;
+    }
+
+    /* Animación del Radar IA para el hueco de la barra lateral */
+    @keyframes radar-pulse {
+        0% { transform: scale(0.1); opacity: 1; }
+        100% { transform: scale(1.5); opacity: 0; }
+    }
+    .radar-container {
+        position: relative; width: 100px; height: 100px; margin: 30px auto;
+    }
+    .radar-ring1 {
+        position: absolute; width: 100%; height: 100%; border: 3px solid #FF4B4B; border-radius: 50%; opacity: 1; animation: radar-pulse 2s linear infinite;
+    }
+    .radar-ring2 {
+        position: absolute; width: 100%; height: 100%; border: 3px solid #FF8C00; border-radius: 50%; opacity: 0; animation: radar-pulse 2s linear infinite; animation-delay: 1s;
+    }
+    .radar-core {
+        position: absolute; top: 43px; left: 43px; width: 14px; height: 14px; background-color: #34D399; border-radius: 50%; box-shadow: 0 0 15px #34D399;
+    }
+
+    /* Títulos Principales */
     .main-title {
         font-size: 3rem;
         font-weight: 800;
@@ -123,6 +162,10 @@ st.markdown("""
         border-left: 3px solid #475569;
         font-size: 0.95rem;
     }
+    .player-item:hover {
+        border-left: 3px solid #FF8C00;
+        background-color: #1E293B;
+    }
     .player-name {
         font-weight: 600;
         color: #E2E8F0;
@@ -134,7 +177,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# 🛠️ Funciones Core (Ocultas al usuario)
+# 🛠️ Funciones Core
 def normalizar_texto(texto):
     if not isinstance(texto, str): return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
@@ -182,7 +225,6 @@ def obtener_patron_titulares(nombre_equipo):
         desviacion = np.std(puntos_lista) if len(puntos_lista) > 1 else 1.0
         linea_prop = round(promedio - 2.0, 1)
         
-        # Lógica para semáforos
         if promedio >= 22.0 and desviacion < 5.0: patron, semaforo = "Estrella Constante", "VERDE"
         elif promedio >= 14.0 and desviacion < 7.0: patron, semaforo = "Estable / Confiable", "VERDE"
         elif desviacion >= 7.0 or (max(puntos_lista) - min(puntos_lista)) > 15: patron, semaforo = "Alto Riesgo (Volátil)", "ROJO"
@@ -190,11 +232,10 @@ def obtener_patron_titulares(nombre_equipo):
             
         jugador_data = (nombre_jugador, linea_prop, patron, semaforo, promedio)
         
-        # 🧠 Separación inteligente: Promedio alto = Titular/Rotación principal. Promedio bajo = Banca
+        # Separación inteligente
         if promedio >= 11.5: titulares.append(jugador_data)
         else: banca.append(jugador_data)
         
-    # Ordenar de mayor a menor promedio
     titulares.sort(key=lambda x: x[4], reverse=True)
     banca.sort(key=lambda x: x[4], reverse=True)
     
@@ -207,27 +248,17 @@ def generar_html_jugadores(lista_jugadores):
         badge = render_badge(f"{j[3]} ({j[2]})")
         html += f"""
         <li class='player-item'>
-            <div><span class='player-name'>{j[0]}</span> <br> <span class='player-stat'>Línea base proyectada: <b>{j[1]} pts</b></span></div>
+            <div><span class='player-name'>{j[0]}</span> <br> <span class='player-stat'>Línea base proyectada: <b style="color:#F8FAFC;">{j[1]} pts</b></span></div>
             <div>{badge}</div>
         </li>"""
     html += "</ul>"
     return html
 
 # ==========================================
-# 🚀 INTERFAZ VISUAL
+# 🚀 INTERFAZ VISUAL & SIDEBAR
 # ==========================================
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Motor analítico de proyecciones y volatilidad en tiempo real.</p>', unsafe_allow_html=True)
-
-# Banner dinámico
-mensaje_noti = "Monitoreo activo en 30 plantillas. Reporte de última hora: Evaluando escenarios B2B."
-if os.path.exists("alertas_lesiones.json"):
-    try:
-        with open("alertas_lesiones.json", "r", encoding="utf-8") as f:
-            mensaje_noti = json.load(f).get("mensaje", mensaje_noti)
-    except: pass
-
-st.markdown(f'<div class="notification-banner">🚨 <b>Alerta del Sistema:</b> {mensaje_noti}</div>', unsafe_allow_html=True)
 
 ARCHIVO_EVAL = "historial_evaluaciones_nba.csv"
 if os.path.exists(ARCHIVO_EVAL):
@@ -247,8 +278,32 @@ if os.path.exists(ARCHIVO_EVAL):
             equipos_hoy = sorted(list(set(df_hoy.get("Local", pd.Series()).dropna().tolist() + df_hoy.get("Visitante", pd.Series()).dropna().tolist())))
             equipo_seleccionado = st.selectbox("🎯 Filtrar por Franquicia:", ["-- Selecciona --"] + equipos_hoy, disabled=ver_todos)
             
+            st.markdown("---")
+            st.markdown("### 📡 Monitor IA Stephy")
+            
+            # Animación del Radar CSS
+            st.markdown("""
+            <div class="radar-container">
+                <div class="radar-ring1"></div>
+                <div class="radar-ring2"></div>
+                <div class="radar-core"></div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.info("⚡ Escaneando fluctuaciones de líneas y ausencias en tiempo real...")
+            st.caption("v 2.0 | Base de datos sincronizada")
+            
         ultima_fecha = fecha_seleccionada
     else: df_hoy = pd.DataFrame(); ultima_fecha = "N/A"
+    
+    # Banner dinámico
+    mensaje_noti = "Monitoreo activo en 30 plantillas. Reporte de última hora: Evaluando escenarios B2B."
+    if os.path.exists("alertas_lesiones.json"):
+        try:
+            with open("alertas_lesiones.json", "r", encoding="utf-8") as f:
+                mensaje_noti = json.load(f).get("mensaje", mensaje_noti)
+        except: pass
+    st.markdown(f'<div class="notification-banner">🚨 <b>Alerta del Sistema:</b> {mensaje_noti}</div>', unsafe_allow_html=True)
     
     # Métricas Dashboard
     c1, c2, c3, c4 = st.columns(4)
