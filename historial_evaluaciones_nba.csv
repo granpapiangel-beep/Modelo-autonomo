@@ -122,10 +122,10 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-06,Pelicans,Timberwolves,,222.2,OVER,224.6,,Timberwolves,63.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-06,Lakers,Trail Blazers,,217.2,OVER,221.0,,Lakers,82.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-06,Kings,Spurs,,218.7,OVER,219.9,,Kings,63.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Pacers,Nuggets,,229.5,DEBAJO,227.5,,Nuggets,59.3,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Hawks,Nets,,226.5,DEBAJO,213.7,,Hawks,80.4,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-07,Cavaliers,Knicks,,224.5,OVER,232.6,,Cavaliers,69.0,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-07,Thunder,Wizards,,222.5,OVER,222.6,,Thunder,94.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Warriors,Magic,,222.5,OVER,223.9,,Warriors,69.7,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Suns,Rockets,,223.5,DEBAJO,222.5,,Suns,60.5,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Trail Blazers,Spurs,,226.5,DEBAJO,216.5,,Spurs,53.4,🔴 ROJO (Volátil),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-07,Pacers,Nuggets,,229.5,DEBAJO,227.9,,Nuggets,58.9,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-07,Hawks,Nets,,226.5,DEBAJO,213.8,,Hawks,80.6,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-07,Cavaliers,Knicks,,223.5,OVER,232.4,,Cavaliers,69.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-07,Thunder,Wizards,,222.5,OVER,223.7,,Thunder,94.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-07,Warriors,Magic,,219.5,OVER,223.6,,Warriors,70.0,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
+2026-11-07,Suns,Rockets,,223.5,DEBAJO,222.6,,Suns,60.9,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-07,Trail Blazers,Spurs,,229.5,DEBAJO,215.7,,Spurs,53.1,🔴 ROJO (Volátil),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
