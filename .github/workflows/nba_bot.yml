@@ -2,9 +2,11 @@ name: Bot NBA Autónomo y Sincronización CSV
 
 on:
   schedule:
-    # Se ejecuta todos los días a las 22:00 UTC (4:00 PM en el Centro de México) para atrapar el Injury Report
+    # 1er Reporte (Mañana): 11:30 AM en el Centro de México (Para partidos tempranos y parleys)
+    - cron: '30 17 * * *'
+    # 2do Reporte (Tarde): 4:00 PM en el Centro de México (Injury Report oficial de la NBA)
     - cron: '0 22 * * *'
-  workflow_dispatch: # Mantiene el botón para ejecutarlo manualmente
+  workflow_dispatch: # Mantiene el botón para ejecutarlo manualmente cuando quieras
 
 jobs:
   ejecutar-bot:
@@ -27,10 +29,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install pandas numpy requests scipy streamlit
 
-      - name: Ejecutar el script del Bot (con actualización de Lesiones 4PM)
+      - name: Ejecutar el script del Bot (Doble ventana de análisis)
         run: python bot_actualizado.py
 
-      - name: Sincronizar y subir cambios del CSV al repositorio
+      - name: Sincronizar y subir cambios al repositorio
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -39,5 +41,5 @@ jobs:
           
           git add historial_evaluaciones_nba.csv "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv" alertas_lesiones.json
           
-          git diff --staged --quiet || git commit -m "📊 Actualización automática (4:00 PM) - Reporte de lesiones y proyecciones [skip ci]"
+          git diff --staged --quiet || git commit -m "📊 Sincronización automática (Doble Ventana) - Proyecciones y Lesiones [skip ci]"
           git push origin main
