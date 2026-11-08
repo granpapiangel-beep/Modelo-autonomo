@@ -1,6 +1,105 @@
 {
     "fecha": "2026-11-08",
-    "ultima_actualizacion": "13:29 UTC-6",
-    "mensaje_general": "Monitoreo activo. Sin novedades críticas.",
-    "alertas_criticas": []
+    "ultima_actualizacion": "14:10 UTC-6",
+    "mensaje_general": "🏥 Reporte médico autónomo procesado desde ESPN.",
+    "alertas_criticas": [
+        {
+            "jugador": "Norman Powell",
+            "equipo": "Bulls",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-13.5 pts"
+        },
+        {
+            "jugador": "Zach Collins",
+            "equipo": "Bulls",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-1.0 pts"
+        },
+        {
+            "jugador": "Adem Bona",
+            "equipo": "76ers",
+            "estatus": "OUT",
+            "motivo": "2026-11-10",
+            "impacto_simulador": "-1.5 pts"
+        },
+        {
+            "jugador": "Jalen Duren",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "2026-11-24",
+            "impacto_simulador": "-9.1 pts"
+        },
+        {
+            "jugador": "Isaiah Joe",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "2026-11-09",
+            "impacto_simulador": "-5.1 pts"
+        },
+        {
+            "jugador": "Luka Doncic",
+            "equipo": "Lakers",
+            "estatus": "OUT",
+            "motivo": "2026-11-09",
+            "impacto_simulador": "-28.1 pts"
+        },
+        {
+            "jugador": "Anthony Edwards",
+            "equipo": "Timberwolves",
+            "estatus": "OUT",
+            "motivo": "2026-12-21",
+            "impacto_simulador": "-23.3 pts"
+        },
+        {
+            "jugador": "Jaren Jackson Jr.",
+            "equipo": "Jazz",
+            "estatus": "OUT",
+            "motivo": "2026-12-14",
+            "impacto_simulador": "-11.4 pts"
+        },
+        {
+            "jugador": "Sergio de Larrea",
+            "equipo": "Mavericks",
+            "estatus": "OUT",
+            "motivo": "2026-11-12",
+            "impacto_simulador": "-3.7 pts"
+        },
+        {
+            "jugador": "Mikel Brown Jr.",
+            "equipo": "Nets",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-9.0 pts"
+        },
+        {
+            "jugador": "Egor Demin",
+            "equipo": "Nets",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-5.4 pts"
+        },
+        {
+            "jugador": "Isaiah Jackson",
+            "equipo": "Clippers",
+            "estatus": "OUT",
+            "motivo": "2026-11-10",
+            "impacto_simulador": "-6.0 pts"
+        },
+        {
+            "jugador": "Yves Missi",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "2026-11-09",
+            "impacto_simulador": "-6.6 pts"
+        },
+        {
+            "jugador": "Keegan Murray",
+            "equipo": "Kings",
+            "estatus": "OUT",
+            "motivo": "2026-11-08",
+            "impacto_simulador": "-4.9 pts"
+        }
+    ]
 }
