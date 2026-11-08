@@ -1,20 +1,6 @@
 {
   "fecha": "2026-11-08",
-  "ultima_actualizacion": "16:05 UTC-6",
-  "alertas_criticas": [
-    {
-      "jugador": "Luka Doncic",
-      "equipo": "Mavericks",
-      "estatus": "OUT",
-      "motivo": "Tobillo derecho",
-      "impacto_simulador": "-6.5 pts al equipo"
-    },
-    {
-      "jugador": "Anthony Davis",
-      "equipo": "Lakers",
-      "estatus": "QUESTIONABLE",
-      "motivo": "Enfermedad (Gripe)",
-      "impacto_simulador": "-4.2 pts al equipo"
-    }
-  ]
+  "ultima_actualizacion": "Pendiente",
+  "mensaje_general": "🏥 Sistema iniciado. Esperando el corte de las 4:00 PM para procesar el reporte oficial.",
+  "alertas_criticas": []
 }
