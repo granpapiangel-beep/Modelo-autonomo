@@ -27,7 +27,7 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
 def sincronizar_titulares_y_puntajes():
-    logging.info("🔄 Sincronizando plantillas (Modo Histórico: 20 días)...")
+    logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
     tz_mexico = timezone(timedelta(hours=-6))
     hoy = datetime.now(tz_mexico).date()
     meses_abreviados = { 1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr', 5: 'may', 6: 'jun', 7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct', 11: 'nov', 12: 'dic' }
@@ -109,54 +109,46 @@ def sincronizar_titulares_y_puntajes():
             df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
-def calcular_impacto_lesiones(nombre_equipo):
-    """ Calcula cuántos puntos restar al equipo basándose en jugadores OUT en el JSON """
-    if not os.path.exists(ARCHIVO_LESIONES) or not os.path.exists(ARCHIVO_TITULARES):
-        return 0.0
-    
+def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
+    """ Consulta autónoma a la API de ESPN para detectar si hay jugadores OUT en este juego """
     penizacion_total = 0.0
+    alertas_equipo = []
+    
+    url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
     try:
-        with open(ARCHIVO_LESIONES, "r", encoding="utf-8") as f:
-            datos_lesiones = json.load(f)
+        resp = requests.get(url_summary, timeout=8)
+        if resp.status_code == 200:
+            data = resp.json()
+            # ESPN incluye el reporte de lesiones (injuries) en el JSON del resumen o rosters previos al juego
+            injuries = data.get("injuries", [])
+            df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig') if os.path.exists(ARCHIVO_TITULARES) else pd.DataFrame()
             
-        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
-        eq_norm = normalizar_texto(nombre_equipo)
-        
-        for alerta in datos_lesiones.get("alertas_criticas", []):
-            if str(alerta.get("estatus", "")).upper() == "OUT":
-                eq_alerta = normalizar_texto(alerta.get("equipo", ""))
-                jug_alerta = normalizar_texto(alerta.get("jugador", ""))
-                
-                if eq_norm in eq_alerta or eq_alerta in eq_norm:
-                    # Buscar al jugador en el CSV para obtener su promedio real
-                    for _, row in df_titulares.iterrows():
-                        if jug_alerta in normalizar_texto(str(row.get("Jugador", ""))):
-                            puntos_lista = [float(str(row.get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(row.get(col, ""))]
-                            if puntos_lista:
-                                promedio_jugador = np.mean(puntos_lista)
-                                # El equipo absorbe un porcentaje gracias a la banca, el impacto neto es ~75% de sus puntos
-                                impacto = promedio_jugador * 0.75
-                                penizacion_total += impacto
+            for team_inj in injuries:
+                team_name = team_inj.get("team", {}).get("displayName", "")
+                if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
+                    for inj in team_inj.get("injuries", []):
+                        status = inj.get("status", "").upper()
+                        if "OUT" in status or "QUESTIONABLE" in status:
+                            jugador = inj.get("athlete", {}).get("displayName", "")
+                            motivo = inj.get("details", {}).get("returnDate", "Lesión / Descanso")
+                            
+                            # Buscar su promedio en el CSV para restar sus puntos
+                            if not df_titulares.empty:
+                                fila_jug = df_titulares[df_titulares['Jugador'].str.contains(jugador, case=False, na=False)]
+                                if not fila_jug.empty:
+                                    puntos_lista = [float(str(fila_jug.iloc[0].get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(fila_jug.iloc[0].get(col, ""))]
+                                    if puntos_lista:
+                                        prom = np.mean(puntos_lista)
+                                         impacto_neto = prom * 0.70 # El impacto real restado al equipo
+                                        penizacion_total += impacto_neto
+                                        alertas_equipo.append({
+                                            "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
+                                            "motivo": motivo, "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
+                                        })
     except Exception as e:
-        logging.error(f"Error calculando impacto de lesiones: {e}")
+        logging.error(f"Error consultando lesiones en ESPN: {e}")
         
-    return penizacion_total
-
-def generar_estructura_lesiones():
-    tz_mexico = timezone(timedelta(hours=-6))
-    ahora = datetime.now(tz_mexico)
-    
-    datos_lesiones = {
-        "fecha": ahora.strftime("%Y-%m-%d"),
-        "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
-        "mensaje_general": "Monitoreo activo. Sin novedades críticas.",
-        "alertas_criticas": []
-    }
-    
-    try:
-        with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
-            json.dump(datos_lesiones, f, ensure_ascii=False, indent=4)
-    except Exception: pass
+    return penizacion_total, alertas_equipo
 
 def obtener_fuerza_actualizada_equipos():
     fuerzas = TIERS_BASE_EQUIPOS.copy()
@@ -189,32 +181,6 @@ def optimizar_pesos_modelo():
     except: pass
     return [1.0, 1.0, 1.0]
 
-def extraer_stats_reales(event_id):
-    url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
-    try:
-        resp = requests.get(url_summary, timeout=5)
-        if resp.status_code == 200:
-            teams_box = resp.json().get("boxscore", {}).get("teams", [])
-            if len(teams_box) >= 2:
-                return {"PTS_OFENSIVA": float(teams_box[1].get("statistics", [{}])[0].get("displayValue", 110))}, {"PTS_OFENSIVA": float(teams_box[0].get("statistics", [{}])[0].get("displayValue", 110))}
-    except: pass
-    return None, None
-
-def calcular_factor_forma_equipo(comp_competitor):
-    factor = 1.0
-    try:
-        records = comp_competitor.get("records", [])
-        for rec in records:
-            summary = rec.get("summary", "")
-            if "-" in summary:
-                wins, losses = int(summary.split("-")[0]), int(summary.split("-")[1])
-                total = wins + losses
-                if total >= 5:
-                    if (wins / total) >= 0.60: factor = 1.02
-                    elif (wins / total) <= 0.40: factor = 0.98
-    except: pass
-    return factor
-
 def obtener_cartelera_y_boxscore_avanzado():
     partidos = []
     fecha_hoy_api = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y%m%d")
@@ -229,6 +195,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                 linea_promedio_historica = float(df_h["Line_Apuesta"].tail(10).mean())
         except: pass
 
+    todas_las_alertas = []
     try:
         response = requests.get(url, timeout=10)
         events = response.json().get("events", [])
@@ -239,7 +206,6 @@ def obtener_cartelera_y_boxscore_avanzado():
             if not competitions: continue
 
             comp_data = competitions[0]
-            juego_terminado = comp_data.get("status", {}).get("type", {}).get("completed", False)
             local_team, visitante_team = None, None
 
             for comp in comp_data.get("competitors", []):
@@ -249,29 +215,17 @@ def obtener_cartelera_y_boxscore_avanzado():
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
 
-            # APLICAR IMPACTO DE LESIONES DIRECTO AL PODER OFENSIVO
-            penalizacion_loc = calcular_impacto_lesiones(local_team)
-            penalizacion_vis = calcular_impacto_lesiones(visitante_team)
+            # RASTREO AUTÓNOMO DE LESIONES DESDE ESPN
+            pen_loc, alert_loc = detectar_lesiones_y_calcular_impacto(event_id, local_team)
+            pen_vis, alert_vis = detectar_lesiones_y_calcular_impacto(event_id, visitante_team)
             
-            base_loc = max(85.0, base_loc - penalizacion_loc)
-            base_vis = max(85.0, base_vis - penalizacion_vis)
+            todas_las_alertas.extend(alert_loc + alert_vis)
 
-            if PLAYOFFS_MODE:
-                base_loc *= 0.96  
-                base_vis *= 0.96
+            base_loc = max(85.0, base_loc - pen_loc)
+            base_vis = max(85.0, base_vis - pen_vis)
 
-            stats_loc = {"PTS_OFENSIVA": base_loc, "DEF_R_RIVAL": base_vis, "RITMO": 96.0 if PLAYOFFS_MODE else 99.0, "FACTOR_FORMA": 1.0}
-            stats_vis = {"PTS_OFENSIVA": base_vis, "DEF_R_RIVAL": base_loc, "RITMO": 96.0 if PLAYOFFS_MODE else 99.0, "FACTOR_FORMA": 1.0}
-
-            if juego_terminado:
-                box_loc, box_vis = extraer_stats_reales(event_id)
-                if box_loc: stats_loc.update(box_loc)
-                if box_vis: stats_vis.update(box_vis)
-
-            for comp in comp_data.get("competitors", []):
-                factor_forma = calcular_factor_forma_equipo(comp)
-                if comp.get("team", {}).get("name", "") == local_team: stats_loc["FACTOR_FORMA"] = factor_forma
-                else: stats_vis["FACTOR_FORMA"] = factor_forma
+            stats_loc = {"PTS_OFENSIVA": base_loc, "DEF_R_RIVAL": base_vis, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
+            stats_vis = {"PTS_OFENSIVA": base_vis, "DEF_R_RIVAL": base_loc, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             odds_info = comp_data.get("odds", [])
@@ -290,8 +244,22 @@ def obtener_cartelera_y_boxscore_avanzado():
                     "stats_vis": stats_vis,
                     "linea": linea_apuesta,
                 })
+                
+        # GUARDAR LAS ALERTAS DETECTADAS AUTÓNOMAMENTE EN EL JSON PARA QUE EL DASHBOARD LAS MUESTRE
+        tz_mexico = timezone(timedelta(hours=-6))
+        ahora = datetime.now(tz_mexico)
+        datos_json = {
+            "fecha": ahora.strftime("%Y-%m-%d"),
+            "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
+            "mensaje_general": "🏥 Reporte médico autónomo procesado desde ESPN.",
+            "alertas_criticas": todas_las_alertas
+        }
+        with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
+            json.dump(datos_json, f, ensure_ascii=False, indent=4)
+
     except Exception as e:
         logging.error(f"Error en cartelera: {e}")
+        
     return partidos
 
 def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
@@ -308,8 +276,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
 
     n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 7.5 if PLAYOFFS_MODE else 8.0, n_sims), 85, 130)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 7.5 if PLAYOFFS_MODE else 8.0, n_sims), 85, 130)
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 8.0, n_sims), 85, 130)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 8.0, n_sims), 85, 130)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
@@ -324,19 +292,15 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     else: semaforo_ganador = "🔴 ROJO (Volátil)"
 
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 7.0: 
-        semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
-    elif distancia_linea >= 4.0:
-        semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
-    else:
-        semaforo_puntos = "🔴 SIN VALOR (Línea idéntica a Vegas)"
+    if distancia_linea >= 7.0: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
+    elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
+    else: semaforo_puntos = "🔴 SIN VALOR (Línea idéntica a Vegas)"
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
 
     return {
         "Fecha": fecha_actual_mexico,
-        "Local": local,
-        "Visitante": visitante,
+        "Local": local, "Visitante": visitante,
         "Pred_Ganador": local if prob_local >= 0.5 else visitante,
         "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
         "Semaforo_Ganador": semaforo_ganador,
@@ -348,11 +312,9 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución unificada del bot de la NBA...")
+    logging.info("🤖 Iniciando ejecución autónoma con rastreo de lesiones...")
     
     sincronizar_titulares_y_puntajes()
-    generar_estructura_lesiones()
-    
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
@@ -379,4 +341,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado con éxito! Las lesiones ya impactan directamente las simulaciones.")
+    logging.info("✨ ¡Proceso completado! Las lesiones detectadas modificaron las simulaciones.")
