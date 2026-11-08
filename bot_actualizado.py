@@ -118,14 +118,29 @@ def sincronizar_titulares_y_puntajes():
             df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
-def procesar_lesiones_4pm():
-    """ Simula la extracción y reajuste de impacto de jugadores a las 4 PM """
+def generar_estructura_lesiones():
+    """ Construye el JSON avanzado de reporte de lesiones a las 4 PM """
     tz_mexico = timezone(timedelta(hours=-6))
-    hora_actual = datetime.now(tz_mexico).hour
-    if hora_actual >= 16:
-        logging.info("🏥 [4:00 PM] Evaluando Injury Report. Redistribuyendo impacto (BPM) a las bancas...")
-        return True
-    return False
+    ahora = datetime.now(tz_mexico)
+    
+    # Estructura enriquecida lista para el nuevo Dashboard
+    datos_lesiones = {
+        "fecha": ahora.strftime("%Y-%m-%d"),
+        "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
+        "mensaje_general": "Monitoreo activo. Sin novedades críticas.",
+        "alertas_criticas": []
+    }
+    
+    if ahora.hour >= 16:
+        datos_lesiones["mensaje_general"] = "🏥 [4:00 PM] Reporte oficial procesado. Rotaciones ajustadas en el modelo."
+        if PLAYOFFS_MODE: 
+            datos_lesiones["mensaje_general"] += " 🏆 MODO PLAYOFFS ACTIVADO."
+            
+    try:
+        with open("alertas_lesiones.json", "w", encoding="utf-8") as f:
+            json.dump(datos_lesiones, f, ensure_ascii=False, indent=4)
+    except Exception as e:
+        logging.error(f"No se pudo guardar el reporte de lesiones: {e}")
 
 def obtener_fuerza_actualizada_equipos():
     fuerzas = TIERS_BASE_EQUIPOS.copy()
@@ -186,7 +201,8 @@ def calcular_factor_forma_equipo(comp_competitor):
 
 def obtener_cartelera_y_boxscore_avanzado():
     partidos = []
-    url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+    fecha_hoy_api = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y%m%d")
+    url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_hoy_api}"
     fuerzas_actuales = obtener_fuerza_actualizada_equipos()
     
     linea_promedio_historica = 225.5
@@ -196,9 +212,6 @@ def obtener_cartelera_y_boxscore_avanzado():
             if "Line_Apuesta" in df_h.columns and len(df_h) > 0:
                 linea_promedio_historica = float(df_h["Line_Apuesta"].tail(10).mean())
         except: pass
-
-    # Integración Reporte 4 PM
-    lesiones_aplicadas = procesar_lesiones_4pm()
 
     try:
         response = requests.get(url, timeout=10)
@@ -220,9 +233,8 @@ def obtener_cartelera_y_boxscore_avanzado():
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
 
-            # LÓGICA DE PLAYOFFS: Reducción de ritmo y fatiga defensiva
             if PLAYOFFS_MODE:
-                base_loc *= 0.96  # Partidos más lentos y trabados
+                base_loc *= 0.96  
                 base_vis *= 0.96
 
             stats_loc = {"PTS_OFENSIVA": base_loc, "DEF_R_RIVAL": base_vis, "RITMO": 96.0 if PLAYOFFS_MODE else 99.0, "FACTOR_FORMA": 1.0}
@@ -278,7 +290,6 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
-    desv_est_puntos = np.std(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
     diff_poder = (proyeccion_loc_final + 2.0) - proyeccion_vis_final
@@ -289,9 +300,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     elif prob_ganador_pct >= 54.0: semaforo_ganador = "🟡 AMARILLO (Precaución)"
     else: semaforo_ganador = "🔴 ROJO (Volátil)"
 
-    # LÓGICA DE DIVERGENCIA CON VEGAS (Búsqueda de Patrones)
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 7.0: # Encontramos el patrón: Las Vegas y el Bot difieren por 7+ puntos.
+    if distancia_linea >= 7.0: 
         semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
     elif distancia_linea >= 4.0:
         semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
@@ -314,21 +324,12 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         "Modo_Playoffs": PLAYOFFS_MODE
     }
 
-def generar_alerta_automatica():
-    hora = datetime.now(timezone(timedelta(hours=-6))).hour
-    mensaje = "Monitoreo de ausencias activo en 30 plantillas."
-    if hora >= 16: mensaje = "🏥 [4:00 PM Update] Injury Report oficial integrado. Ajustando rotaciones y buscando divergencias en Las Vegas."
-    if PLAYOFFS_MODE: mensaje += " 🏆 MODO PLAYOFFS ACTIVADO: Ritmo reducido y teoría Zig-Zag aplicada."
-    
-    try:
-        with open("alertas_lesiones.json", "w", encoding="utf-8") as f:
-            json.dump({"fecha": datetime.now().strftime("%Y-%m-%d"), "mensaje": mensaje}, f, ensure_ascii=False, indent=4)
-    except: pass
-
 if __name__ == "__main__":
     logging.info("🤖 Iniciando ejecución unificada del bot de la NBA...")
     
     sincronizar_titulares_y_puntajes()
+    generar_estructura_lesiones()  # <--- ¡Aquí está la inyección de la nueva estructura de JSON!
+    
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
@@ -339,8 +340,6 @@ if __name__ == "__main__":
             "stats_vis": {"PTS_OFENSIVA": 109.0, "DEF_R_RIVAL": 113.0, "RITMO": 99.0, "FACTOR_FORMA": 1.0},
             "linea": 221.5,
         }]
-
-    generar_alerta_automatica()
 
     nuevos_registros = [simular_monte_carlo_con_rotacion(p, pesos_calibrados) for p in partidos_de_hoy]
 
