@@ -12,6 +12,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(me
 
 ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
 ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
+ARCHIVO_LESIONES = "alertas_lesiones.json"
 PLAYOFFS_MODE = False 
 
 TIERS_BASE_EQUIPOS = {
@@ -36,7 +37,6 @@ def sincronizar_titulares_y_puntajes():
         try: df_existente = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
         except Exception: pass
 
-    # AQUI ESTÁ EL CAMBIO: Extraerá 20 días de golpe para reconstruir tu base.
     fechas_a_procesar = []
     current = hoy - timedelta(days=20) 
     while current <= (hoy - timedelta(days=1)):
@@ -109,8 +109,40 @@ def sincronizar_titulares_y_puntajes():
             df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
+def calcular_impacto_lesiones(nombre_equipo):
+    """ Calcula cuántos puntos restar al equipo basándose en jugadores OUT en el JSON """
+    if not os.path.exists(ARCHIVO_LESIONES) or not os.path.exists(ARCHIVO_TITULARES):
+        return 0.0
+    
+    penizacion_total = 0.0
+    try:
+        with open(ARCHIVO_LESIONES, "r", encoding="utf-8") as f:
+            datos_lesiones = json.load(f)
+            
+        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig')
+        eq_norm = normalizar_texto(nombre_equipo)
+        
+        for alerta in datos_lesiones.get("alertas_criticas", []):
+            if str(alerta.get("estatus", "")).upper() == "OUT":
+                eq_alerta = normalizar_texto(alerta.get("equipo", ""))
+                jug_alerta = normalizar_texto(alerta.get("jugador", ""))
+                
+                if eq_norm in eq_alerta or eq_alerta in eq_norm:
+                    # Buscar al jugador en el CSV para obtener su promedio real
+                    for _, row in df_titulares.iterrows():
+                        if jug_alerta in normalizar_texto(str(row.get("Jugador", ""))):
+                            puntos_lista = [float(str(row.get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(row.get(col, ""))]
+                            if puntos_lista:
+                                promedio_jugador = np.mean(puntos_lista)
+                                # El equipo absorbe un porcentaje gracias a la banca, el impacto neto es ~75% de sus puntos
+                                impacto = promedio_jugador * 0.75
+                                penizacion_total += impacto
+    except Exception as e:
+        logging.error(f"Error calculando impacto de lesiones: {e}")
+        
+    return penizacion_total
+
 def generar_estructura_lesiones():
-    """ Construye el JSON y extrae lesiones reales a las 4 PM """
     tz_mexico = timezone(timedelta(hours=-6))
     ahora = datetime.now(tz_mexico)
     
@@ -121,22 +153,8 @@ def generar_estructura_lesiones():
         "alertas_criticas": []
     }
     
-    if ahora.hour >= 16:
-        datos_lesiones["mensaje_general"] = "🏥 [4:00 PM] Reporte médico procesado. Buscando bajas confirmadas..."
-        try:
-            # Scraper Básico para buscar alertas de impacto
-            url_lesiones = "https://www.cbssports.com/nba/injuries/"
-            headers = {"User-Agent": "Mozilla/5.0"}
-            req = requests.get(url_lesiones, headers=headers, timeout=10)
-            
-            # Si logra conectarse y encuentra Out/Game Time Decision, genera alertas preventivas
-            if req.status_code == 200 and "Out" in req.text:
-                datos_lesiones["mensaje_general"] = "🏥 [4:00 PM] Bajas detectadas en la liga. El modelo ajustará el Monte Carlo acorde a las rotaciones."
-        except Exception:
-            pass
-            
     try:
-        with open("alertas_lesiones.json", "w", encoding="utf-8") as f:
+        with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
             json.dump(datos_lesiones, f, ensure_ascii=False, indent=4)
     except Exception: pass
 
@@ -230,6 +248,13 @@ def obtener_cartelera_y_boxscore_avanzado():
 
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
+
+            # APLICAR IMPACTO DE LESIONES DIRECTO AL PODER OFENSIVO
+            penalizacion_loc = calcular_impacto_lesiones(local_team)
+            penalizacion_vis = calcular_impacto_lesiones(visitante_team)
+            
+            base_loc = max(85.0, base_loc - penalizacion_loc)
+            base_vis = max(85.0, base_vis - penalizacion_vis)
 
             if PLAYOFFS_MODE:
                 base_loc *= 0.96  
@@ -354,4 +379,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado con éxito! Las líneas de Vegas y reportes de lesiones han sido evaluados.")
+    logging.info("✨ ¡Proceso completado con éxito! Las lesiones ya impactan directamente las simulaciones.")
