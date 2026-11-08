@@ -129,10 +129,10 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-07,Warriors,Magic,,219.5,OVER,223.8,,Warriors,69.9,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
 2026-11-07,Suns,Rockets,,224.5,DEBAJO,222.6,,Suns,60.8,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-07,Trail Blazers,Spurs,,229.5,DEBAJO,216.4,,Spurs,53.1,🔴 ROJO (Volátil),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Pacers,Nuggets,,225.2,OVER,229.0,,Nuggets,63.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Hawks,Nets,,212.6,OVER,214.0,,Hawks,80.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Cavaliers,Knicks,,229.3,OVER,233.0,,Cavaliers,69.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Thunder,Wizards,,221.7,OVER,223.3,,Thunder,94.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Warriors,Magic,,222.2,OVER,223.5,,Warriors,69.9,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Suns,Rockets,,221.2,OVER,224.6,,Suns,69.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Trail Blazers,Spurs,,212.6,OVER,216.6,,Spurs,53.1,🔴 ROJO (Volátil),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-08,Bulls,76ers,,237.5,DEBAJO,223.8,,76ers,75.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-08,Pistons,Lakers,,221.5,DEBAJO,220.6,,Lakers,71.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-08,Timberwolves,Jazz,,222.5,DEBAJO,220.6,,Timberwolves,86.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-08,Mavericks,Nets,,222.5,DEBAJO,220.9,,Mavericks,92.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-08,Bucks,Celtics,,220.5,OVER,228.4,,Celtics,56.6,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-08,Clippers,Pelicans,,226.5,DEBAJO,219.3,,Clippers,54.7,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-08,Kings,Heat,,237.5,DEBAJO,220.3,,Kings,61.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
