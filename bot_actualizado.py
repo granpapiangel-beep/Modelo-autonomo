@@ -110,7 +110,6 @@ def sincronizar_titulares_y_puntajes():
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
 def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
-    """ Consulta autónoma a la API de ESPN para detectar si hay jugadores OUT en este juego """
     penizacion_total = 0.0
     alertas_equipo = []
     
@@ -119,7 +118,6 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
         resp = requests.get(url_summary, timeout=8)
         if resp.status_code == 200:
             data = resp.json()
-            # ESPN incluye el reporte de lesiones (injuries) en el JSON del resumen o rosters previos al juego
             injuries = data.get("injuries", [])
             df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig') if os.path.exists(ARCHIVO_TITULARES) else pd.DataFrame()
             
@@ -132,14 +130,13 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                             jugador = inj.get("athlete", {}).get("displayName", "")
                             motivo = inj.get("details", {}).get("returnDate", "Lesión / Descanso")
                             
-                            # Buscar su promedio en el CSV para restar sus puntos
                             if not df_titulares.empty:
                                 fila_jug = df_titulares[df_titulares['Jugador'].str.contains(jugador, case=False, na=False)]
                                 if not fila_jug.empty:
                                     puntos_lista = [float(str(fila_jug.iloc[0].get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(fila_jug.iloc[0].get(col, ""))]
                                     if puntos_lista:
                                         prom = np.mean(puntos_lista)
-                                         impacto_neto = prom * 0.70 # El impacto real restado al equipo
+                                        impacto_neto = prom * 0.70
                                         penizacion_total += impacto_neto
                                         alertas_equipo.append({
                                             "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
@@ -215,7 +212,6 @@ def obtener_cartelera_y_boxscore_avanzado():
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
 
-            # RASTREO AUTÓNOMO DE LESIONES DESDE ESPN
             pen_loc, alert_loc = detectar_lesiones_y_calcular_impacto(event_id, local_team)
             pen_vis, alert_vis = detectar_lesiones_y_calcular_impacto(event_id, visitante_team)
             
@@ -245,7 +241,6 @@ def obtener_cartelera_y_boxscore_avanzado():
                     "linea": linea_apuesta,
                 })
                 
-        # GUARDAR LAS ALERTAS DETECTADAS AUTÓNOMAMENTE EN EL JSON PARA QUE EL DASHBOARD LAS MUESTRE
         tz_mexico = timezone(timedelta(hours=-6))
         ahora = datetime.now(tz_mexico)
         datos_json = {
