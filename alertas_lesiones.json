@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-09",
-    "ultima_actualizacion": "11:46 UTC-6",
+    "ultima_actualizacion": "16:44 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado desde ESPN.",
     "alertas_criticas": [
         {
@@ -11,11 +11,25 @@
             "impacto_simulador": "-2.5 pts"
         },
         {
-            "jugador": "Jock Landale",
-            "equipo": "Hawks",
+            "jugador": "Austin Reaves",
+            "equipo": "Lakers",
             "estatus": "OUT",
-            "motivo": "2026-11-09",
-            "impacto_simulador": "-4.4 pts"
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-17.7 pts"
+        },
+        {
+            "jugador": "Quentin Grimes",
+            "equipo": "Lakers",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-5.6 pts"
+        },
+        {
+            "jugador": "Moussa Diabate",
+            "equipo": "Hornets",
+            "estatus": "OUT",
+            "motivo": "2026-11-12",
+            "impacto_simulador": "-6.2 pts"
         },
         {
             "jugador": "Kon Knueppel",
@@ -53,18 +67,18 @@
             "impacto_simulador": "-5.5 pts"
         },
         {
+            "jugador": "Isaiah Joe",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "2026-11-17",
+            "impacto_simulador": "-5.1 pts"
+        },
+        {
             "jugador": "Jalen Duren",
             "equipo": "Pistons",
             "estatus": "OUT",
             "motivo": "2026-11-24",
             "impacto_simulador": "-9.1 pts"
-        },
-        {
-            "jugador": "Isaiah Joe",
-            "equipo": "Pistons",
-            "estatus": "OUT",
-            "motivo": "2026-11-09",
-            "impacto_simulador": "-5.1 pts"
         },
         {
             "jugador": "Reece Beekman",
@@ -151,11 +165,39 @@
             "impacto_simulador": "-5.5 pts"
         },
         {
+            "jugador": "Devin Vassell",
+            "equipo": "Spurs",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-8.3 pts"
+        },
+        {
             "jugador": "Will Richard",
             "equipo": "Warriors",
             "estatus": "OUT",
             "motivo": "2026-11-11",
             "impacto_simulador": "-3.6 pts"
+        },
+        {
+            "jugador": "Zion Williamson",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-14.7 pts"
+        },
+        {
+            "jugador": "Trendon Watford",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-5.0 pts"
+        },
+        {
+            "jugador": "Trey Murphy III",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-10.9 pts"
         },
         {
             "jugador": "Yves Missi",
