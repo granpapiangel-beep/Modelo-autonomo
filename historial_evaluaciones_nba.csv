@@ -136,3 +136,11 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-08,Bucks,Celtics,,221.5,OVER,229.1,,Bucks,54.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
 2026-11-08,Clippers,Pelicans,,226.5,DEBAJO,207.1,,Clippers,62.8,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
 2026-11-08,Kings,Heat,,237.5,DEBAJO,222.7,,Kings,62.4,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Hawks,Lakers,,237.5,DEBAJO,215.4,,Lakers,80.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Hornets,Cavaliers,,214.5,DEBAJO,194.9,,Cavaliers,94.9,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Pistons,Wizards,,217.5,DEBAJO,192.7,,Wizards,75.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Raptors,Grizzlies,,228.5,DEBAJO,192.4,,Grizzlies,58.0,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Mavericks,Pacers,,225.5,DEBAJO,206.2,,Mavericks,97.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Rockets,Nuggets,,219.5,DEBAJO,218.5,,Nuggets,86.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Suns,Spurs,,227.5,DEBAJO,215.6,,Suns,54.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-09,Warriors,Pelicans,,232.5,DEBAJO,212.0,,Warriors,78.2,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
