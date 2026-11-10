@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 from scipy.optimize import minimize
 
+# Configuración de logs para monitoreo
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", handlers=[logging.StreamHandler()])
 
 ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
@@ -15,11 +16,15 @@ ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
 ARCHIVO_LESIONES = "alertas_lesiones.json"
 PLAYOFFS_MODE = False 
 
+# Tiers ajustados a la realidad actual (Spurs y Rockets mejorados)
 TIERS_BASE_EQUIPOS = {
-    "Celtics": 113.0, "Thunder": 116.0, "Cavaliers": 115.0, "Nuggets": 114.0, "Mavericks": 114.0, "Bucks": 112.0, "76ers": 113.0, "Timberwolves": 112.0,
-    "Knicks": 112.0, "Suns": 111.0, "Lakers": 111.0, "Warriors": 110.5, "Kings": 110.0, "Magic": 109.5, "Pacers": 109.0, "Heat": 109.0,
-    "Grizzlies": 109.0, "Clippers": 108.5, "Pelicans": 108.0, "Hawks": 107.5, "Rockets": 108.0, "Bulls": 107.0, "Raptors": 106.0, "Spurs": 106.5,
-    "Jazz": 105.0, "Hornets": 104.5, "Blazers": 104.0, "Trail Blazers": 104.0, "Wizards": 103.5, "Pistons": 104.0, "Nets": 103.0
+    "Celtics": 113.0, "Thunder": 116.0, "Cavaliers": 115.0, "Nuggets": 114.0, "Mavericks": 114.0, 
+    "Spurs": 112.5, "Bucks": 112.0, "76ers": 113.0, "Timberwolves": 112.0, "Knicks": 112.0, 
+    "Rockets": 111.5, "Suns": 111.0, "Lakers": 111.0, "Warriors": 110.5, "Kings": 110.0, 
+    "Magic": 109.5, "Pacers": 109.0, "Heat": 109.0, "Grizzlies": 109.0, "Clippers": 108.5, 
+    "Pelicans": 108.0, "Hawks": 107.5, "Bulls": 107.0, "Raptors": 106.0, "Jazz": 105.0, 
+    "Hornets": 104.5, "Blazers": 104.0, "Trail Blazers": 104.0, "Wizards": 103.5, 
+    "Pistons": 104.0, "Nets": 103.0
 }
 
 def normalizar_texto(texto):
@@ -92,7 +97,7 @@ def sincronizar_titulares_y_puntajes():
                                 valor_stat = str(stats_arr[pts_index]).strip()
                                 if '-' in valor_stat or valor_stat == '': continue
                                 pts_anotados = int(valor_stat)
-                                if 0 <= pts_anotados <= 65:
+                                if 0 <= pts_anotados <= 70: # Subimos el límite por actuaciones históricas
                                     clave = (nombre_equipo, posicion, nombre_jugador)
                                     if clave not in base_datos_jugadores:
                                         base_datos_jugadores[clave] = {'Equipo': nombre_equipo, 'Posicion': posicion, 'Jugador': nombre_jugador}
@@ -127,11 +132,11 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                     for inj in team_inj.get("injuries", []):
                         status = inj.get("status", "").upper()
                         
-                        # NUEVA LÓGICA DE MULTIPLICADORES
+                        # Lógica calibrada: 25% impacto real si está fuera, casi nulo si es duda
                         if "OUT" in status:
-                            multiplicador = 0.25 # Pierden el 25% de sus puntos
+                            multiplicador = 0.25 
                         elif "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status:
-                            multiplicador = 0.05 # Si es duda, el castigo es mínimo
+                            multiplicador = 0.05 
                         else:
                             continue
                             
@@ -151,7 +156,7 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                                         "motivo": motivo, "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
                                     })
     except Exception as e:
-        logging.error(f"Error consultando lesiones en ESPN: {e}")
+        logging.error(f"Error consultando lesiones en ESPN para {nombre_equipo}: {e}")
         
     return penizacion_total, alertas_equipo
 
@@ -197,7 +202,7 @@ def obtener_cartelera_y_boxscore_avanzado():
         try:
             df_h = pd.read_csv(ARCHIVO_HISTORIAL)
             if "Line_Apuesta" in df_h.columns and len(df_h) > 0:
-                linea_promedio_historica = float(df_h["Line_Apuesta"].tail(10).mean())
+                linea_promedio_historica = float(df_h["Line_Apuesta"].tail(15).mean())
         except: pass
 
     todas_las_alertas = []
@@ -225,11 +230,11 @@ def obtener_cartelera_y_boxscore_avanzado():
             
             todas_las_alertas.extend(alert_loc + alert_vis)
 
-            # NUEVA LÓGICA DE DEFENSAS Y PISOS DE PUNTAJE
+            # Tope seguro: Ningún equipo bajará de 98 puntos base por muchas lesiones que tenga
             base_loc_ofensiva = max(98.0, base_loc - pen_loc)
             base_vis_ofensiva = max(98.0, base_vis - pen_vis)
 
-            # La defensa rival usa la BASE ORIGINAL del oponente, no la base castigada por lesiones
+            # Cruzamos la defensa contra la base de talento original, no la disminuida
             stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
             stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
 
@@ -256,14 +261,14 @@ def obtener_cartelera_y_boxscore_avanzado():
         datos_json = {
             "fecha": ahora.strftime("%Y-%m-%d"),
             "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
-            "mensaje_general": "🏥 Reporte médico autónomo procesado desde ESPN.",
+            "mensaje_general": "🏥 Reporte médico autónomo (Ultra Conservador) procesado.",
             "alertas_criticas": todas_las_alertas
         }
         with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
             json.dump(datos_json, f, ensure_ascii=False, indent=4)
 
     except Exception as e:
-        logging.error(f"Error en cartelera: {e}")
+        logging.error(f"Error procesando cartelera: {e}")
         
     return partidos
 
@@ -277,29 +282,39 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
 
+    # Cálculo más realista de proyecciones finales
     proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
     proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
 
+    # Monte Carlo robusto
     n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 8.0, n_sims), 85, 130)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 8.0, n_sims), 85, 130)
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 8.0, n_sims), 85, 140)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 8.0, n_sims), 85, 140)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-    diff_poder = (proyeccion_loc_final + 2.0) - proyeccion_vis_final
-    prob_local = 1 / (1 + np.exp(-diff_poder / 6.0))
+    # Probabilidad conservadora (Divisor 9.0 para frenar favoritos inflados)
+    diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final # Ligera ventaja de localía (2.5)
+    prob_local = 1 / (1 + np.exp(-diff_poder / 9.0))
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
 
-    if prob_ganador_pct >= 62.0: semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
-    elif prob_ganador_pct >= 54.0: semaforo_ganador = "🟡 AMARILLO (Precaución)"
-    else: semaforo_ganador = "🔴 ROJO (Volátil)"
+    # Semáforos MUY exigentes para proteger bankroll
+    if prob_ganador_pct >= 72.0: 
+        semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
+    elif prob_ganador_pct >= 60.0: 
+        semaforo_ganador = "🟡 AMARILLO (Precaución - Variabilidad alta)"
+    else: 
+        semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
 
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 7.0: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
-    elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
-    else: semaforo_puntos = "🔴 SIN VALOR (Línea idéntica a Vegas)"
+    if distancia_linea >= 8.5: 
+        semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
+    elif distancia_linea >= 4.5: 
+        semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
+    else: 
+        semaforo_puntos = "🔴 SIN VALOR (Línea idéntica a Vegas)"
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
 
@@ -317,13 +332,14 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución autónoma con rastreo de lesiones...")
+    logging.info("🤖 Iniciando ejecución autónoma (Modo Conservador y Bankroll Seguro)...")
     
     sincronizar_titulares_y_puntajes()
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
     if not partidos_de_hoy:
+        # Partido de prueba robusto por si la API falla
         partidos_de_hoy = [{
             "event_id": "000000", "local": "Celtics", "visitante": "Heat",
             "stats_loc": {"PTS_OFENSIVA": 113.0, "DEF_R_RIVAL": 109.0, "RITMO": 99.0, "FACTOR_FORMA": 1.0},
@@ -346,4 +362,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado! Las lesiones detectadas modificaron las simulaciones de forma precisa.")
+    logging.info("✨ ¡Proceso completado! Modelo ajustado para alta precisión.")
