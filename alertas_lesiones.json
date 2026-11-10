@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-09",
-    "ultima_actualizacion": "22:36 UTC-6",
+    "ultima_actualizacion": "22:42 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
@@ -209,9 +209,9 @@
         {
             "jugador": "Devin Vassell",
             "equipo": "Spurs",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-3.0 pts"
+            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Gary Payton II",
