@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-09",
-    "ultima_actualizacion": "16:44 UTC-6",
+    "ultima_actualizacion": "22:21 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado desde ESPN.",
     "alertas_criticas": [
         {
@@ -8,77 +8,84 @@
             "equipo": "Hawks",
             "estatus": "OUT",
             "motivo": "2026-11-13",
-            "impacto_simulador": "-2.5 pts"
+            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "Austin Reaves",
             "equipo": "Lakers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-17.7 pts"
+            "impacto_simulador": "-1.3 pts"
         },
         {
             "jugador": "Quentin Grimes",
             "equipo": "Lakers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-5.6 pts"
+            "impacto_simulador": "-0.4 pts"
+        },
+        {
+            "jugador": "Brandon Miller",
+            "equipo": "Hornets",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-12",
+            "impacto_simulador": "-1.0 pts"
         },
         {
             "jugador": "Moussa Diabate",
             "equipo": "Hornets",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-12",
-            "impacto_simulador": "-6.2 pts"
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Kon Knueppel",
             "equipo": "Hornets",
             "estatus": "OUT",
             "motivo": "2026-12-12",
-            "impacto_simulador": "-2.1 pts"
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Dennis Schroder",
             "equipo": "Hornets",
             "estatus": "OUT",
             "motivo": "2026-11-25",
-            "impacto_simulador": "-7.2 pts"
-        },
-        {
-            "jugador": "Brandon Miller",
-            "equipo": "Hornets",
-            "estatus": "OUT",
-            "motivo": "2026-11-12",
-            "impacto_simulador": "-14.4 pts"
+            "impacto_simulador": "-2.6 pts"
         },
         {
             "jugador": "Sam Merrill",
             "equipo": "Cavaliers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-5.4 pts"
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Jaylon Tyson",
             "equipo": "Cavaliers",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-5.5 pts"
+            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Isaiah Joe",
             "equipo": "Pistons",
             "estatus": "OUT",
             "motivo": "2026-11-17",
-            "impacto_simulador": "-5.1 pts"
+            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Jalen Duren",
             "equipo": "Pistons",
             "estatus": "OUT",
             "motivo": "2026-11-24",
-            "impacto_simulador": "-9.1 pts"
+            "impacto_simulador": "-3.2 pts"
+        },
+        {
+            "jugador": "Bilal Coulibaly",
+            "equipo": "Wizards",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Reece Beekman",
@@ -92,119 +99,161 @@
             "equipo": "Wizards",
             "estatus": "OUT",
             "motivo": "2027-02-25",
-            "impacto_simulador": "-5.1 pts"
+            "impacto_simulador": "-1.8 pts"
+        },
+        {
+            "jugador": "Immanuel Quickley",
+            "equipo": "Raptors",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-0.9 pts"
+        },
+        {
+            "jugador": "Collin Murray-Boyles",
+            "equipo": "Raptors",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Scottie Barnes",
+            "equipo": "Raptors",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Kawhi Leonard",
             "equipo": "Raptors",
             "estatus": "OUT",
             "motivo": "2026-11-23",
-            "impacto_simulador": "-13.6 pts"
+            "impacto_simulador": "-4.9 pts"
+        },
+        {
+            "jugador": "Isaiah Stewart",
+            "equipo": "Grizzlies",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-0.6 pts"
+        },
+        {
+            "jugador": "Quinten Post",
+            "equipo": "Grizzlies",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-0.3 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
             "equipo": "Grizzlies",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-4.5 pts"
+            "impacto_simulador": "-1.6 pts"
         },
         {
-            "jugador": "Isaiah Stewart",
-            "equipo": "Grizzlies",
-            "estatus": "OUT",
-            "motivo": "2026-11-11",
-            "impacto_simulador": "-8.3 pts"
+            "jugador": "Morez Johnson Jr.",
+            "equipo": "Mavericks",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-12",
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Sergio de Larrea",
             "equipo": "Mavericks",
             "estatus": "OUT",
             "motivo": "2026-11-12",
-            "impacto_simulador": "-3.7 pts"
+            "impacto_simulador": "-1.3 pts"
         },
         {
             "jugador": "Tyrese Haliburton",
             "equipo": "Pacers",
             "estatus": "OUT",
             "motivo": "2026-11-13",
-            "impacto_simulador": "-15.2 pts"
+            "impacto_simulador": "-5.4 pts"
         },
         {
             "jugador": "Ben Sheppard",
             "equipo": "Pacers",
             "estatus": "OUT",
             "motivo": "2027-01-02",
-            "impacto_simulador": "-2.1 pts"
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Oscar Tshiebwe",
             "equipo": "Rockets",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-2.0 pts"
+            "impacto_simulador": "-0.1 pts"
         },
         {
             "jugador": "Clint Capela",
             "equipo": "Rockets",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
-            "impacto_simulador": "-2.2 pts"
+            "motivo": "2026-11-15",
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Steven Adams",
             "equipo": "Rockets",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
-            "impacto_simulador": "-2.8 pts"
+            "motivo": "2026-11-15",
+            "impacto_simulador": "-1.0 pts"
         },
         {
             "jugador": "Jordan Goodwin",
             "equipo": "Suns",
             "estatus": "OUT",
-            "motivo": "2026-11-09",
-            "impacto_simulador": "-5.5 pts"
+            "motivo": "2026-11-10",
+            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Devin Vassell",
             "equipo": "Spurs",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-8.3 pts"
+            "impacto_simulador": "-3.0 pts"
+        },
+        {
+            "jugador": "Gary Payton II",
+            "equipo": "Warriors",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Will Richard",
             "equipo": "Warriors",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
-            "impacto_simulador": "-3.6 pts"
+            "motivo": "2026-11-16",
+            "impacto_simulador": "-1.3 pts"
         },
         {
             "jugador": "Zion Williamson",
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-14.7 pts"
+            "impacto_simulador": "-5.2 pts"
         },
         {
             "jugador": "Trendon Watford",
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-5.0 pts"
+            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Trey Murphy III",
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "2026-11-11",
-            "impacto_simulador": "-10.9 pts"
+            "impacto_simulador": "-3.9 pts"
         },
         {
             "jugador": "Yves Missi",
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "2026-11-16",
-            "impacto_simulador": "-6.6 pts"
+            "impacto_simulador": "-2.4 pts"
         }
     ]
 }
