@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-10",
-    "ultima_actualizacion": "12:12 UTC-6",
+    "ultima_actualizacion": "16:39 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
@@ -32,13 +32,6 @@
             "impacto_simulador": "-0.5 pts"
         },
         {
-            "jugador": "Jordan Goodwin",
-            "equipo": "Suns",
-            "estatus": "OUT",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-2.0 pts"
-        },
-        {
             "jugador": "Cam Christie",
             "equipo": "Clippers",
             "estatus": "DAY-TO-DAY",
@@ -46,18 +39,18 @@
             "impacto_simulador": "-0.1 pts"
         },
         {
+            "jugador": "Lauri Markkanen",
+            "equipo": "Jazz",
+            "estatus": "OUT",
+            "motivo": "2026-11-11",
+            "impacto_simulador": "-4.5 pts"
+        },
+        {
             "jugador": "Keyonte George",
             "equipo": "Jazz",
             "estatus": "OUT",
             "motivo": "2026-11-11",
             "impacto_simulador": "-5.3 pts"
-        },
-        {
-            "jugador": "Lauri Markkanen",
-            "equipo": "Jazz",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "Jaren Jackson Jr.",
@@ -72,20 +65,6 @@
             "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-10",
             "impacto_simulador": "-1.4 pts"
-        },
-        {
-            "jugador": "Keegan Murray",
-            "equipo": "Kings",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.4 pts"
-        },
-        {
-            "jugador": "Domantas Sabonis",
-            "equipo": "Kings",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Tristan da Silva",
