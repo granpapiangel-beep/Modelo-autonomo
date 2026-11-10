@@ -136,11 +136,11 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-08,Bucks,Celtics,,221.5,OVER,229.1,,Bucks,54.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
 2026-11-08,Clippers,Pelicans,,226.5,DEBAJO,207.1,,Clippers,62.8,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
 2026-11-08,Kings,Heat,,237.5,DEBAJO,222.7,,Kings,62.4,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-09,Hawks,Lakers,,222.7,OVER,223.0,,Lakers,54.7,🔴 ROJO (Volátil - Evitar Moneyline),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Hornets,Cavaliers,,221.7,DEBAJO,219.9,,Cavaliers,79.9,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Pistons,Wizards,,217.7,DEBAJO,215.1,,Pistons,82.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Raptors,Grizzlies,,218.7,DEBAJO,215.0,,Grizzlies,65.4,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Hawks,Lakers,,226.7,OVER,226.9,,Lakers,69.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Hornets,Cavaliers,,220.2,DEBAJO,217.5,,Cavaliers,75.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Pistons,Wizards,,217.7,DEBAJO,215.7,,Pistons,82.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Raptors,Grizzlies,,218.7,DEBAJO,215.2,,Grizzlies,65.4,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-09,Mavericks,Pacers,,226.7,DEBAJO,224.4,,Mavericks,86.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Rockets,Nuggets,,228.3,OVER,228.5,,Rockets,57.6,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Suns,Spurs,,228.8,DEBAJO,228.5,,Spurs,69.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Warriors,Pelicans,,222.7,DEBAJO,218.1,,Warriors,83.6,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
+2026-11-09,Rockets,Nuggets,,228.3,OVER,229.1,,Rockets,57.6,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Suns,Spurs,,228.8,OVER,228.9,,Spurs,69.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-09,Warriors,Pelicans,,222.7,DEBAJO,218.0,,Warriors,83.6,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
