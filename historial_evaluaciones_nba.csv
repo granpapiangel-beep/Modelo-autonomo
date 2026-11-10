@@ -144,9 +144,9 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-09,Rockets,Nuggets,,228.3,OVER,229.1,,Rockets,57.6,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-09,Suns,Spurs,,228.8,OVER,228.9,,Spurs,69.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
 2026-11-09,Warriors,Pelicans,,222.7,DEBAJO,218.0,,Warriors,83.6,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-10,Knicks,Bucks,,221.5,OVER,226.7,,Knicks,77.0,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-10,76ers,Celtics,,217.5,OVER,237.2,,76ers,58.3,🟡 AMARILLO (Precaución - Juego Cerrado),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-10,Suns,Clippers,,224.5,DEBAJO,220.8,,Suns,59.5,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,Jazz,Heat,,227.5,DEBAJO,214.3,,Heat,66.6,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-10,Kings,Magic,,223.5,DEBAJO,221.8,,Kings,76.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,Trail Blazers,Thunder,,224.5,DEBAJO,218.7,,Thunder,79.2,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
+2026-11-10,Knicks,Bucks,,222.5,OVER,226.3,,Knicks,77.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-10,76ers,Celtics,,217.5,OVER,237.2,,76ers,58.1,🟡 AMARILLO (Precaución - Juego Cerrado),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-10,Suns,Clippers,,224.5,DEBAJO,221.0,,Suns,59.4,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-10,Jazz,Heat,,227.5,DEBAJO,213.6,,Heat,66.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-10,Kings,Magic,,223.5,DEBAJO,221.4,,Kings,77.0,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
+2026-11-10,Trail Blazers,Thunder,,224.5,DEBAJO,218.8,,Thunder,79.3,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False

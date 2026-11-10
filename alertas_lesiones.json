@@ -1,11 +1,18 @@
 {
     "fecha": "2026-11-10",
-    "ultima_actualizacion": "10:13 UTC-6",
+    "ultima_actualizacion": "12:12 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
             "jugador": "Josh Hart",
             "equipo": "Knicks",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-10",
+            "impacto_simulador": "-0.4 pts"
+        },
+        {
+            "jugador": "Kel'el Ware",
+            "equipo": "Bucks",
             "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-10",
             "impacto_simulador": "-0.4 pts"
@@ -76,6 +83,13 @@
         {
             "jugador": "Domantas Sabonis",
             "equipo": "Kings",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "2026-11-10",
+            "impacto_simulador": "-0.8 pts"
+        },
+        {
+            "jugador": "Tristan da Silva",
+            "equipo": "Magic",
             "estatus": "DAY-TO-DAY",
             "motivo": "2026-11-10",
             "impacto_simulador": "-0.8 pts"
