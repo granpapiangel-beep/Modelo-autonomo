@@ -126,22 +126,30 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                 if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
                     for inj in team_inj.get("injuries", []):
                         status = inj.get("status", "").upper()
-                        if "OUT" in status or "QUESTIONABLE" in status:
-                            jugador = inj.get("athlete", {}).get("displayName", "")
-                            motivo = inj.get("details", {}).get("returnDate", "Lesión / Descanso")
+                        
+                        # NUEVA LÓGICA DE MULTIPLICADORES
+                        if "OUT" in status:
+                            multiplicador = 0.25 # Pierden el 25% de sus puntos
+                        elif "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status:
+                            multiplicador = 0.05 # Si es duda, el castigo es mínimo
+                        else:
+                            continue
                             
-                            if not df_titulares.empty:
-                                fila_jug = df_titulares[df_titulares['Jugador'].str.contains(jugador, case=False, na=False)]
-                                if not fila_jug.empty:
-                                    puntos_lista = [float(str(fila_jug.iloc[0].get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(fila_jug.iloc[0].get(col, ""))]
-                                    if puntos_lista:
-                                        prom = np.mean(puntos_lista)
-                                        impacto_neto = prom * 0.70
-                                        penizacion_total += impacto_neto
-                                        alertas_equipo.append({
-                                            "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
-                                            "motivo": motivo, "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
-                                        })
+                        jugador = inj.get("athlete", {}).get("displayName", "")
+                        motivo = inj.get("details", {}).get("returnDate", "Lesión / Descanso")
+                        
+                        if not df_titulares.empty:
+                            fila_jug = df_titulares[df_titulares['Jugador'].str.contains(jugador, case=False, na=False)]
+                            if not fila_jug.empty:
+                                puntos_lista = [float(str(fila_jug.iloc[0].get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(fila_jug.iloc[0].get(col, ""))]
+                                if puntos_lista:
+                                    prom = np.mean(puntos_lista)
+                                    impacto_neto = prom * multiplicador
+                                    penizacion_total += impacto_neto
+                                    alertas_equipo.append({
+                                        "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
+                                        "motivo": motivo, "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
+                                    })
     except Exception as e:
         logging.error(f"Error consultando lesiones en ESPN: {e}")
         
@@ -217,11 +225,13 @@ def obtener_cartelera_y_boxscore_avanzado():
             
             todas_las_alertas.extend(alert_loc + alert_vis)
 
-            base_loc = max(85.0, base_loc - pen_loc)
-            base_vis = max(85.0, base_vis - pen_vis)
+            # NUEVA LÓGICA DE DEFENSAS Y PISOS DE PUNTAJE
+            base_loc_ofensiva = max(98.0, base_loc - pen_loc)
+            base_vis_ofensiva = max(98.0, base_vis - pen_vis)
 
-            stats_loc = {"PTS_OFENSIVA": base_loc, "DEF_R_RIVAL": base_vis, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
-            stats_vis = {"PTS_OFENSIVA": base_vis, "DEF_R_RIVAL": base_loc, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
+            # La defensa rival usa la BASE ORIGINAL del oponente, no la base castigada por lesiones
+            stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
+            stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 99.0, "FACTOR_FORMA": 1.0}
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             odds_info = comp_data.get("odds", [])
@@ -336,4 +346,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado! Las lesiones detectadas modificaron las simulaciones.")
+    logging.info("✨ ¡Proceso completado! Las lesiones detectadas modificaron las simulaciones de forma precisa.")
