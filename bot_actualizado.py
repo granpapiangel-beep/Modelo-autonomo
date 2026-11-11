@@ -139,7 +139,11 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                             continue
                             
                         jugador = inj.get("athlete", {}).get("displayName", "")
-                        motivo = inj.get("details", {}).get("returnDate", "Lesión / Descanso")
+                        
+                        # Mapeo corregido para separar motivo y fecha
+                        details = inj.get("details", {})
+                        motivo_texto = details.get("detail", details.get("type", "Lesión / Descanso"))
+                        fecha_retorno = details.get("returnDate", "Por definir")
                         
                         if not df_titulares.empty:
                             fila_jug = df_titulares[df_titulares['Jugador'].str.contains(jugador, case=False, na=False)]
@@ -150,8 +154,12 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                                     impacto_neto = prom * multiplicador
                                     penizacion_total += impacto_neto
                                     alertas_equipo.append({
-                                        "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
-                                        "motivo": motivo, "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
+                                        "jugador": jugador, 
+                                        "equipo": nombre_equipo, 
+                                        "estatus": status,
+                                        "motivo": motivo_texto,
+                                        "fecha_regreso": fecha_retorno,
+                                        "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
                                     })
     except Exception as e:
         logging.error(f"Error consultando lesiones en ESPN para {nombre_equipo}: {e}")
@@ -289,12 +297,10 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-    # ECUACIÓN AJUSTADA: Refleja las probabilidades de Las Vegas de forma precisa
-    diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final # Localía suma 3 puntos
-    prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) # Divisor 6.5 equilibra la curva
+    diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final 
+    prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
 
-    # SEMÁFOROS REALISTAS
     if prob_ganador_pct >= 65.0: 
         semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
     elif prob_ganador_pct >= 55.0: 
