@@ -101,18 +101,18 @@ with st.sidebar:
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
     
-    # RENDERIZAR LAS ALERTAS CRÍTICAS EN LA BARRA LATERAL
+    # RENDERIZAR LAS ALERTAS CRÍTICAS EN LA BARRA LATERAL (Corregido de sangría)
     if alertas_data.get("alertas_criticas"):
         st.markdown('<div class="injury-panel">🏥 <b>Bajas Confirmadas</b>', unsafe_allow_html=True)
         for alerta in alertas_data["alertas_criticas"]:
-    st.markdown(f"""
-    <div class="injury-item">
-        <span style="color:#F8FAFC; font-weight:bold;">{alerta['jugador']}</span> ({alerta['equipo']})<br>
-        <span style="color:#94A3B8; font-size:0.8rem;">Motivo: {alerta.get('motivo', 'Lesión')}</span><br>
-        <span style="color:#94A3B8; font-size:0.8rem;">Fecha ret.: {alerta.get('fecha_regreso', 'N/A')}</span><br>
-        <span style="color:#F87171; font-weight:bold; font-size:0.85rem;">Estatus: {alerta['estatus']}</span>
-    </div>
-    """, unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="injury-item">
+                <span style="color:#F8FAFC; font-weight:bold;">{alerta['jugador']}</span> ({alerta['equipo']})<br>
+                <span style="color:#94A3B8; font-size:0.8rem;">Motivo: {alerta.get('motivo', 'Lesión')}</span><br>
+                <span style="color:#94A3B8; font-size:0.8rem;">Fecha ret.: {alerta.get('fecha_regreso', 'N/A')}</span><br>
+                <span style="color:#F87171; font-weight:bold; font-size:0.85rem;">Estatus: {alerta['estatus']}</span>
+            </div>
+            """, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.success(alertas_data.get("mensaje_general", "Sin bajas críticas."))
