@@ -1,132 +1,134 @@
 {
     "fecha": "2026-11-10",
-    "ultima_actualizacion": "16:39 UTC-6",
+    "ultima_actualizacion": "21:21 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
             "jugador": "Josh Hart",
             "equipo": "Knicks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.4 pts"
-        },
-        {
-            "jugador": "Kel'el Ware",
-            "equipo": "Bucks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.4 pts"
+            "estatus": "OUT",
+            "motivo": "Illness",
+            "fecha_regreso": "2026-11-11",
+            "impacto_simulador": "-2.1 pts"
         },
         {
             "jugador": "Tyler Herro",
             "equipo": "Bucks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-1.1 pts"
+            "estatus": "OUT",
+            "motivo": "Bruise",
+            "fecha_regreso": "2026-11-11",
+            "impacto_simulador": "-5.4 pts"
         },
         {
             "jugador": "Adem Bona",
             "equipo": "76ers",
             "estatus": "OUT",
-            "motivo": "2026-11-12",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-12",
             "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Cam Christie",
             "equipo": "Clippers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.1 pts"
+            "estatus": "OUT",
+            "motivo": "Ankle",
+            "fecha_regreso": "2026-11-13",
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Lauri Markkanen",
             "equipo": "Jazz",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-11",
             "impacto_simulador": "-4.5 pts"
         },
         {
             "jugador": "Keyonte George",
             "equipo": "Jazz",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-11",
             "impacto_simulador": "-5.3 pts"
         },
         {
             "jugador": "Jaren Jackson Jr.",
             "equipo": "Jazz",
             "estatus": "OUT",
-            "motivo": "2026-12-14",
+            "motivo": "Not Specified",
+            "fecha_regreso": "2026-12-14",
             "impacto_simulador": "-4.1 pts"
-        },
-        {
-            "jugador": "Giannis Antetokounmpo",
-            "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-1.4 pts"
         },
         {
             "jugador": "Tristan da Silva",
             "equipo": "Magic",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "2026-11-10",
-            "impacto_simulador": "-0.8 pts"
+            "estatus": "OUT",
+            "motivo": "Strain",
+            "fecha_regreso": "2026-11-11",
+            "impacto_simulador": "-3.8 pts"
         },
         {
             "jugador": "Jalen Suggs",
             "equipo": "Magic",
             "estatus": "OUT",
-            "motivo": "2026-11-16",
+            "motivo": "Knee",
+            "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Paolo Banchero",
             "equipo": "Magic",
             "estatus": "OUT",
-            "motivo": "2026-11-22",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-6.1 pts"
         },
         {
             "jugador": "Ja Morant",
             "equipo": "Trail Blazers",
             "estatus": "OUT",
-            "motivo": "2026-12-01",
+            "motivo": "Not Specified",
+            "fecha_regreso": "2026-12-01",
             "impacto_simulador": "-3.9 pts"
         },
         {
             "jugador": "Vit Krejci",
             "equipo": "Trail Blazers",
             "estatus": "OUT",
-            "motivo": "2027-01-02",
+            "motivo": "Ankle",
+            "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-0.7 pts"
         },
         {
             "jugador": "Jaylin Williams",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "2026-11-11",
+            "motivo": "Spasms",
+            "fecha_regreso": "2026-11-11",
             "impacto_simulador": "-0.7 pts"
         },
         {
             "jugador": "Cason Wallace",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "2027-03-02",
+            "motivo": "Surgery",
+            "fecha_regreso": "2027-03-02",
             "impacto_simulador": "-1.6 pts"
         },
         {
             "jugador": "Chet Holmgren",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "2027-01-02",
+            "motivo": "Knee",
+            "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-3.0 pts"
         },
         {
             "jugador": "Jalen Williams",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "2027-03-02",
+            "motivo": "Fracture",
+            "fecha_regreso": "2027-03-02",
             "impacto_simulador": "-3.4 pts"
         }
     ]
