@@ -1,8 +1,16 @@
 {
     "fecha": "2026-11-11",
-    "ultima_actualizacion": "12:19 UTC-6",
+    "ultima_actualizacion": "16:49 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
+        {
+            "jugador": "Tyrese Haliburton",
+            "equipo": "Pacers",
+            "estatus": "OUT",
+            "motivo": "Strain",
+            "fecha_regreso": "2026-11-22",
+            "impacto_simulador": "-5.4 pts"
+        },
         {
             "jugador": "T.J. McConnell",
             "equipo": "Pacers",
@@ -10,14 +18,6 @@
             "motivo": "Hamstring",
             "fecha_regreso": "2026-11-11",
             "impacto_simulador": "-0.2 pts"
-        },
-        {
-            "jugador": "Tyrese Haliburton",
-            "equipo": "Pacers",
-            "estatus": "OUT",
-            "motivo": "Strain",
-            "fecha_regreso": "2026-11-13",
-            "impacto_simulador": "-5.4 pts"
         },
         {
             "jugador": "Ben Sheppard",
@@ -44,14 +44,6 @@
             "impacto_simulador": "-1.8 pts"
         },
         {
-            "jugador": "Josh Hart",
-            "equipo": "Knicks",
-            "estatus": "OUT",
-            "motivo": "Illness",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-2.1 pts"
-        },
-        {
             "jugador": "Sam Merrill",
             "equipo": "Cavaliers",
             "estatus": "OUT",
@@ -74,22 +66,6 @@
             "motivo": "Illness",
             "fecha_regreso": "2026-11-12",
             "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Collin Murray-Boyles",
-            "equipo": "Raptors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Illness",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Immanuel Quickley",
-            "equipo": "Raptors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Hamstring",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "Scottie Barnes",
@@ -116,20 +92,28 @@
             "impacto_simulador": "-5.5 pts"
         },
         {
+            "jugador": "Tobe Awaka",
+            "equipo": "Bulls",
+            "estatus": "OUT",
+            "motivo": "Back",
+            "fecha_regreso": "2026-11-13",
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Caleb Wilson",
+            "equipo": "Bulls",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Soreness",
+            "fecha_regreso": "2026-11-11",
+            "impacto_simulador": "-1.0 pts"
+        },
+        {
             "jugador": "Norman Powell",
             "equipo": "Bulls",
             "estatus": "DAY-TO-DAY",
             "motivo": "Inflammation",
             "fecha_regreso": "2026-11-11",
             "impacto_simulador": "-1.0 pts"
-        },
-        {
-            "jugador": "Tobe Awaka",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Back",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.1 pts"
         },
         {
             "jugador": "Zach Collins",
@@ -180,12 +164,20 @@
             "impacto_simulador": "-1.1 pts"
         },
         {
+            "jugador": "Myles Turner",
+            "equipo": "Bucks",
+            "estatus": "OUT",
+            "motivo": "Rest",
+            "fecha_regreso": "2026-11-13",
+            "impacto_simulador": "-1.7 pts"
+        },
+        {
             "jugador": "Quentin Grimes",
             "equipo": "Lakers",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Finger",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.4 pts"
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Bennedict Mathurin",
@@ -220,20 +212,20 @@
             "impacto_simulador": "-2.4 pts"
         },
         {
+            "jugador": "Nolan Traore",
+            "equipo": "Nets",
+            "estatus": "OUT",
+            "motivo": "Soreness",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-3.2 pts"
+        },
+        {
             "jugador": "Mikel Brown Jr.",
             "equipo": "Nets",
             "estatus": "OUT",
             "motivo": "Not Specified",
             "fecha_regreso": "2026-11-14",
             "impacto_simulador": "-3.2 pts"
-        },
-        {
-            "jugador": "Nolan Traore",
-            "equipo": "Nets",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Soreness",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Keyonte George",
@@ -246,10 +238,10 @@
         {
             "jugador": "Lauri Markkanen",
             "equipo": "Jazz",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-11",
-            "impacto_simulador": "-0.9 pts"
+            "estatus": "OUT",
+            "motivo": "Fracture",
+            "fecha_regreso": "2027-01-04",
+            "impacto_simulador": "-4.5 pts"
         },
         {
             "jugador": "Jaren Jackson Jr.",
@@ -258,6 +250,14 @@
             "motivo": "Not Specified",
             "fecha_regreso": "2026-12-14",
             "impacto_simulador": "-4.1 pts"
+        },
+        {
+            "jugador": "Jamal Cain",
+            "equipo": "Magic",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Bruise",
+            "fecha_regreso": "2026-11-11",
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Tristan da Silva",
@@ -324,6 +324,22 @@
             "impacto_simulador": "-2.6 pts"
         },
         {
+            "jugador": "Chris Youngblood",
+            "equipo": "Trail Blazers",
+            "estatus": "OUT",
+            "motivo": "Bruise",
+            "fecha_regreso": "2026-11-13",
+            "impacto_simulador": "-1.5 pts"
+        },
+        {
+            "jugador": "Vit Krejci",
+            "equipo": "Trail Blazers",
+            "estatus": "OUT",
+            "motivo": "Ankle",
+            "fecha_regreso": "2027-01-12",
+            "impacto_simulador": "-0.7 pts"
+        },
+        {
             "jugador": "Ja Morant",
             "equipo": "Trail Blazers",
             "estatus": "OUT",
@@ -332,20 +348,20 @@
             "impacto_simulador": "-3.9 pts"
         },
         {
-            "jugador": "Vit Krejci",
-            "equipo": "Trail Blazers",
-            "estatus": "OUT",
-            "motivo": "Ankle",
-            "fecha_regreso": "2027-01-02",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
             "jugador": "Jaylin Williams",
             "equipo": "Thunder",
             "estatus": "OUT",
             "motivo": "Spasms",
-            "fecha_regreso": "2026-11-11",
+            "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.7 pts"
+        },
+        {
+            "jugador": "Ajay Mitchell",
+            "equipo": "Thunder",
+            "estatus": "OUT",
+            "motivo": "Ankle",
+            "fecha_regreso": "2026-11-13",
+            "impacto_simulador": "-4.6 pts"
         },
         {
             "jugador": "Cason Wallace",
@@ -362,14 +378,6 @@
             "motivo": "Knee",
             "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-3.0 pts"
-        },
-        {
-            "jugador": "Jalen Williams",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Fracture",
-            "fecha_regreso": "2027-03-02",
-            "impacto_simulador": "-3.4 pts"
         }
     ]
 }
