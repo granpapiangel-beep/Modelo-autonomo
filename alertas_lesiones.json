@@ -1,8 +1,16 @@
 {
     "fecha": "2026-11-12",
-    "ultima_actualizacion": "12:18 UTC-6",
+    "ultima_actualizacion": "12:34 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
+        {
+            "jugador": "LeBron James",
+            "equipo": "76ers",
+            "estatus": "OUT",
+            "motivo": "Back",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-3.8 pts"
+        },
         {
             "jugador": "Adem Bona",
             "equipo": "76ers",
@@ -20,14 +28,6 @@
             "impacto_simulador": "-0.9 pts"
         },
         {
-            "jugador": "LeBron James",
-            "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Back",
-            "fecha_regreso": "2026-11-12",
-            "impacto_simulador": "-0.8 pts"
-        },
-        {
             "jugador": "Trayce Jackson-Davis",
             "equipo": "Raptors",
             "estatus": "OUT",
@@ -36,20 +36,20 @@
             "impacto_simulador": "-0.8 pts"
         },
         {
-            "jugador": "Kawhi Leonard",
-            "equipo": "Raptors",
-            "estatus": "OUT",
-            "motivo": "Inflammation",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-4.9 pts"
-        },
-        {
             "jugador": "Scottie Barnes",
             "equipo": "Raptors",
             "estatus": "OUT",
             "motivo": "Soreness",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-5.9 pts"
+        },
+        {
+            "jugador": "Kawhi Leonard",
+            "equipo": "Raptors",
+            "estatus": "OUT",
+            "motivo": "Inflammation",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-4.9 pts"
         },
         {
             "jugador": "Reece Beekman",
