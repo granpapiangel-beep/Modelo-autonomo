@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-12",
-    "ultima_actualizacion": "12:34 UTC-6",
+    "ultima_actualizacion": "16:45 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
@@ -104,14 +104,6 @@
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
             "motivo": "Bruise",
-            "fecha_regreso": "2026-11-12",
-            "impacto_simulador": "-0.4 pts"
-        },
-        {
-            "jugador": "Moussa Diabate",
-            "equipo": "Hornets",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Quadriceps",
             "fecha_regreso": "2026-11-12",
             "impacto_simulador": "-0.4 pts"
         },
