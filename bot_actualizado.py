@@ -15,7 +15,7 @@ ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
 ARCHIVO_LESIONES = "alertas_lesiones.json"
 PLAYOFFS_MODE = False 
 
-# TIERS AMPLIADOS: Reflejan mejor las diferencias reales y el ritmo ofensivo base
+# TIERS AMPLIADOS: Reflejan mejor las diferencias reales de la NBA actual
 TIERS_BASE_EQUIPOS = {
     "Celtics": 117.0, "Thunder": 117.5, "Cavaliers": 113.5, "Nuggets": 113.0, "Mavericks": 115.5, 
     "Spurs": 117.0, "Bucks": 109.5, "76ers": 116.5, "Timberwolves": 114.0, "Knicks": 114.0, 
@@ -29,55 +29,6 @@ TIERS_BASE_EQUIPOS = {
 def normalizar_texto(texto):
     if not isinstance(texto, str): return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
-
-def evaluar_factores_contextuales(equipo_local, equipo_visitante, modo_playoffs=False, margen_juego_anterior_local=0):
-    """
-    Evalúa factores contextuales avanzados, inercia de titulares y Teoría Zig-Zag para Playoffs.
-    """
-    csv_filename = ARCHIVO_TITULARES
-    
-    factor_local = 1.05    
-    factor_visita = 0.98
-    estabilidad = "Moderada (Base)"
-    nota = "Factores contextuales ponderados mediante análisis de series temporales."
-    
-    if modo_playoffs:
-        nota += " | Modo Playoffs activo (Rotaciones cortadas)."
-        if margen_juego_anterior_local <= -15:
-            factor_local *= 1.08  
-            nota += " | Zig-Zag aplicado: Gran rebote esperado para el Local tras paliza."
-        elif margen_juego_anterior_local >= 15:
-            factor_local *= 0.95  
-            factor_visita *= 1.08
-            nota += " | Zig-Zag aplicado: Rebote esperado para la Visita tras paliza."
-
-    if os.path.exists(csv_filename):
-        try:
-            df = pd.read_csv(csv_filename, encoding='utf-8-sig')
-            df['Equipo_Clean'] = df['Equipo'].apply(normalizar_texto)
-            loc_clean = normalizar_texto(equipo_local)
-            vis_clean = normalizar_texto(equipo_visitante)
-            
-            df_loc = df[df['Equipo_Clean'].str.contains(loc_clean, na=False)]
-            df_vis = df[df['Equipo_Clean'].str.contains(vis_clean, na=False)]
-            
-            if not df_loc.empty and not df_vis.empty:
-                estabilidad = "Alta (Validada con CSV)"
-                factor_local *= 1.01 
-                factor_visita *= 0.99
-            else:
-                estabilidad = "Estándar (Fase de calibración)"
-        except Exception as e:
-            estabilidad = "Error lectura CSV"
-            nota = f"Excepción: {str(e)}"
-
-    return {
-        "factor_local": round(factor_local, 3),
-        "factor_visita": round(factor_visita, 3),
-        "estabilidad_dupla": estabilidad,
-        "impacto_lesiones": "Evaluación Oficial activa a las 4:00 PM",
-        "nota_analitica": nota
-    }
 
 def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
@@ -115,7 +66,8 @@ def sincronizar_titulares_y_puntajes():
             for event in events:
                 event_id = event.get("id")
                 competitions = event.get("competitions", [])
-                if not competitions or not competitions[0].get("status", {}).get("type", {}).get("completed", False): continue
+                if not competitions: continue
+                if not competitions[0].get("status", {}).get("type", {}).get("completed", False): continue
 
                 url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
                 sum_resp = requests.get(url_summary, timeout=5)
@@ -178,9 +130,13 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                 if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
                     for inj in team_inj.get("injuries", []):
                         status = inj.get("status", "").upper()
-                        if "OUT" in status: multiplicador = 0.25 
-                        elif "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status: multiplicador = 0.05 
-                        else: continue
+                        
+                        if "OUT" in status:
+                            multiplicador = 0.25 
+                        elif "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status:
+                            multiplicador = 0.05 
+                        else:
+                            continue
                             
                         jugador = inj.get("athlete", {}).get("displayName", "")
                         details = inj.get("details", {})
@@ -196,8 +152,11 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                                     impacto_neto = prom * multiplicador
                                     penizacion_total += impacto_neto
                                     alertas_equipo.append({
-                                        "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
-                                        "motivo": motivo_texto, "fecha_regreso": fecha_retorno,
+                                        "jugador": jugador, 
+                                        "equipo": nombre_equipo, 
+                                        "estatus": status,
+                                        "motivo": motivo_texto,
+                                        "fecha_regreso": fecha_retorno,
                                         "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
                                     })
     except Exception as e:
@@ -278,13 +237,8 @@ def obtener_cartelera_y_boxscore_avanzado():
             base_loc_ofensiva = max(98.0, base_loc - pen_loc)
             base_vis_ofensiva = max(98.0, base_vis - pen_vis)
 
-            # --- MEJORA: Detección preliminar de Ritmo (Pace Factor) basado en Tiers ---
-            ritmo_combinado = 1.0
-            if base_loc >= 113.0 and base_vis >= 113.0:
-                ritmo_combinado = 1.04 # Impulso a partidos de alto goleo (ej. Bulls vs Hawks)
-
-            stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": ritmo_combinado, "FACTOR_FORMA": 1.0}
-            stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": ritmo_combinado, "FACTOR_FORMA": 1.0}
+            stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
+            stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             odds_info = comp_data.get("odds", [])
@@ -309,7 +263,7 @@ def obtener_cartelera_y_boxscore_avanzado():
         datos_json = {
             "fecha": ahora.strftime("%Y-%m-%d"),
             "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
-            "mensaje_general": "🏥 Reporte médico y contextual autónomo procesado exitosamente.",
+            "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
             "alertas_criticas": todas_las_alertas
         }
         with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
@@ -333,12 +287,20 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
     proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
 
-    # --- MEJORA: Aplicación del Pace Factor Conjunto en la Simulación ---
-    multiplicador_ritmo = stats_loc.get("RITMO", 1.0)
+    # --- ANCLAJE INTELIGENTE DE RITMO CON LAS VEGAS ---
+    suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
+    factor_ajuste_vegas = 1.0
+    
+    if linea_apuesta >= 235.0 and suma_proyectada_base < linea_apuesta:
+        factor_ajuste_vegas = min(1.08, linea_apuesta / max(suma_proyectada_base, 1.0))
+    elif linea_apuesta <= 215.0 and suma_proyectada_base > linea_apuesta:
+        factor_ajuste_vegas = max(0.92, linea_apuesta / max(suma_proyectada_base, 1.0))
+
+    multiplicador_ritmo = stats_loc.get("RITMO", 1.0) * factor_ajuste_vegas
 
     n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 8.0, n_sims), 85, 145)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 8.0, n_sims), 85, 145)
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
@@ -361,7 +323,6 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     elif distancia_linea >= 4.0: 
         semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
     else: 
-        # --- MEJORA: Reemplazo del falso rojo por un gris/neutro informativo ---
         semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
@@ -380,7 +341,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución autónoma (Modelo de Probabilidad Calibrado y Robusto)...")
+    logging.info("🤖 Iniciando ejecución autónoma (Modelo Calibrado con Anclaje de Ritmo)...")
     
     sincronizar_titulares_y_puntajes()
     pesos_calibrados = optimizar_pesos_modelo()
