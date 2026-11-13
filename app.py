@@ -47,7 +47,8 @@ def render_badge(texto):
     bg, text = "#334155", "#F8FAFC"
     if "VERDE" in texto_str or "GRAN VALOR" in texto_str: bg, text = "#065F46", "#34D399"
     elif "AMARILLO" in texto_str or "MODERADO" in texto_str: bg, text = "#78350F", "#FBBF24"
-    elif "ROJO" in texto_str or "SIN VALOR" in texto_str: bg, text = "#7F1D1D", "#F87171"
+    elif "NEUTRO" in texto_str or "SIN VALOR" in texto_str: bg, text = "#334155", "#94A3B8" # <-- Actualizado para manejar el gris neutro amigable
+    elif "ROJO" in texto_str: bg, text = "#7F1D1D", "#F87171"
     return f'<span class="badge" style="background-color: {bg}; color: {text}; border: 1px solid {text}40;">{texto}</span>'
 
 def obtener_patron_titulares(nombre_equipo):
@@ -96,12 +97,11 @@ with st.sidebar:
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
     st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.7 | Injury Tracker Activo")
+    st.caption("v 3.7.1 | Injury Tracker & Neutral Safe Active")
     
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
     
-    # RENDERIZAR LAS ALERTAS CRÍTICAS EN LA BARRA LATERAL (Corregido de sangría)
     if alertas_data.get("alertas_criticas"):
         st.markdown('<div class="injury-panel">🏥 <b>Bajas Confirmadas</b>', unsafe_allow_html=True)
         for alerta in alertas_data["alertas_criticas"]:
@@ -141,9 +141,11 @@ if os.path.exists(ARCHIVO_EVAL):
             linea, prom_sim = row.get("Line_Apuesta", 225.5), row.get("Promedio_Simulado", 225.5)
             pred_ou, sem_puntos = row.get("Pred_OU", "N/A"), row.get("Semaforo_Puntos", "Estándar")
             
-            borde_ou = "#F59E0B"
-            if "GRAN VALOR" in sem_puntos: borde_ou = "#34D399"
-            elif "SIN VALOR" in sem_puntos: borde_ou = "#EF4444"
+            # --- Ajuste visual para el borde de la tarjeta O/U ---
+            borde_ou = "#64748B" # Gris por defecto (Neutral)
+            if "GRAN VALOR" in str(sem_puntos): borde_ou = "#34D399"
+            elif "VALOR MODERADO" in str(sem_puntos): borde_ou = "#FBBF24"
+            elif "ROJO" in str(sem_puntos): borde_ou = "#EF4444"
             
             jugadores_loc = obtener_patron_titulares(local)
             jugadores_vis = obtener_patron_titulares(visita)
