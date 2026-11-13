@@ -1,7 +1,7 @@
 {
     "fecha": "2026-11-13",
-    "ultima_actualizacion": "12:16 UTC-6",
-    "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
+    "ultima_actualizacion": "16:16 UTC-6",
+    "mensaje_general": "🏥 Reporte médico y contextual autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
             "jugador": "T.J. McConnell",
@@ -39,16 +39,16 @@
             "jugador": "Jamal Cain",
             "equipo": "Magic",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Bruise",
-            "fecha_regreso": "2026-11-13",
+            "motivo": "Lesión / Descanso",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Tristan da Silva",
             "equipo": "Magic",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Strain",
-            "fecha_regreso": "2026-11-13",
+            "motivo": "Lesión / Descanso",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-0.8 pts"
         },
         {
@@ -74,14 +74,6 @@
             "motivo": "Soreness",
             "fecha_regreso": "2026-11-13",
             "impacto_simulador": "-0.7 pts"
-        },
-        {
-            "jugador": "Giannis Antetokounmpo",
-            "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Wrist",
-            "fecha_regreso": "2026-11-13",
-            "impacto_simulador": "-1.4 pts"
         },
         {
             "jugador": "Pelle Larsson",
@@ -156,20 +148,28 @@
             "impacto_simulador": "-0.4 pts"
         },
         {
-            "jugador": "Bryce McGowens",
-            "equipo": "Pelicans",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Infection",
-            "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-0.2 pts"
-        },
-        {
-            "jugador": "Trendon Watford",
+            "jugador": "Dejounte Murray",
             "equipo": "Pelicans",
             "estatus": "OUT",
-            "motivo": "Sprain",
+            "motivo": "Ankle",
+            "fecha_regreso": "2026-11-20",
+            "impacto_simulador": "-3.4 pts"
+        },
+        {
+            "jugador": "Bryce McGowens",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "Infection",
             "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-1.8 pts"
+            "impacto_simulador": "-0.9 pts"
+        },
+        {
+            "jugador": "Yves Missi",
+            "equipo": "Pelicans",
+            "estatus": "OUT",
+            "motivo": "Bruise",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-2.4 pts"
         },
         {
             "jugador": "Bennedict Mathurin",
@@ -180,20 +180,12 @@
             "impacto_simulador": "-0.3 pts"
         },
         {
-            "jugador": "Yves Missi",
-            "equipo": "Pelicans",
-            "estatus": "OUT",
-            "motivo": "Bruise",
-            "fecha_regreso": "2026-11-13",
-            "impacto_simulador": "-2.4 pts"
-        },
-        {
             "jugador": "Trey Murphy III",
             "equipo": "Pelicans",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Tendinitis",
             "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-0.8 pts"
+            "impacto_simulador": "-3.9 pts"
         },
         {
             "jugador": "Quinten Post",
@@ -294,10 +286,10 @@
         {
             "jugador": "Precious Achiuwa",
             "equipo": "Kings",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Soreness",
-            "fecha_regreso": "2026-11-13",
-            "impacto_simulador": "-0.5 pts"
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-2.6 pts"
         },
         {
             "jugador": "Chris Youngblood",
