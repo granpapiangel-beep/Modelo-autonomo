@@ -1,7 +1,7 @@
 {
     "fecha": "2026-11-13",
-    "ultima_actualizacion": "16:16 UTC-6",
-    "mensaje_general": "🏥 Reporte médico y contextual autónomo procesado exitosamente.",
+    "ultima_actualizacion": "16:37 UTC-6",
+    "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
             "jugador": "T.J. McConnell",
@@ -34,30 +34,6 @@
             "motivo": "Knee",
             "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Jamal Cain",
-            "equipo": "Magic",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión / Descanso",
-            "fecha_regreso": "Por definir",
-            "impacto_simulador": "-0.4 pts"
-        },
-        {
-            "jugador": "Tristan da Silva",
-            "equipo": "Magic",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión / Descanso",
-            "fecha_regreso": "Por definir",
-            "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Jalen Suggs",
-            "equipo": "Magic",
-            "estatus": "OUT",
-            "motivo": "Knee",
-            "fecha_regreso": "2026-11-13",
-            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Paolo Banchero",
