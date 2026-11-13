@@ -167,7 +167,7 @@ Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,
 2026-11-13,Pacers,Knicks,,219.5,OVER,222.8,,Knicks,70.5,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
 2026-11-13,Magic,Bucks,,224.5,DEBAJO,219.6,,Bucks,50.6,🔴 ROJO (Volátil - Evitar Moneyline),🟡 VALOR MODERADO (Margen Aceptable),False
 2026-11-13,Heat,Cavaliers,,236.5,DEBAJO,223.3,,Heat,55.4,🟡 AMARILLO (Precaución - Juego Cerrado),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-13,Bulls,Hawks,,245.5,DEBAJO,214.9,,Hawks,50.2,🔴 ROJO (Volátil - Evitar Moneyline),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
+2026-11-13,Bulls,Hawks,,245.5,OVER,246.2,,Hawks,50.2,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
 2026-11-13,Pelicans,Grizzlies,,235.5,DEBAJO,215.0,,Grizzlies,57.5,🟡 AMARILLO (Precaución - Juego Cerrado),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
 2026-11-13,Rockets,Jazz,,220.5,DEBAJO,216.8,,Rockets,89.3,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
 2026-11-13,Spurs,Warriors,,217.5,OVER,227.0,,Spurs,87.2,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
