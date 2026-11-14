@@ -1,15 +1,15 @@
 {
     "fecha": "2026-11-14",
-    "ultima_actualizacion": "10:36 UTC-6",
+    "ultima_actualizacion": "12:03 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
             "jugador": "Bryce McGowens",
             "equipo": "Pelicans",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Infection",
-            "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-0.2 pts"
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "Dejounte Murray",
@@ -32,7 +32,7 @@
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "Tendinitis",
-            "fecha_regreso": "2026-11-14",
+            "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-3.9 pts"
         },
         {
@@ -40,7 +40,7 @@
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "Sprain",
-            "fecha_regreso": "2026-11-14",
+            "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-1.8 pts"
         },
         {
