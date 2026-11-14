@@ -1,16 +1,8 @@
 {
     "fecha": "2026-11-14",
-    "ultima_actualizacion": "12:19 UTC-6",
+    "ultima_actualizacion": "16:37 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
-        {
-            "jugador": "Yves Missi",
-            "equipo": "Pelicans",
-            "estatus": "OUT",
-            "motivo": "Bruise",
-            "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-2.4 pts"
-        },
         {
             "jugador": "Trendon Watford",
             "equipo": "Pelicans",
@@ -44,26 +36,50 @@
             "impacto_simulador": "-3.4 pts"
         },
         {
-            "jugador": "Evan Mobley",
+            "jugador": "Peyton Watson",
             "equipo": "Cavaliers",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Toe",
+            "motivo": "Hamstring",
             "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-0.8 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
-            "jugador": "Sam Merrill",
+            "jugador": "Evan Mobley",
             "equipo": "Cavaliers",
             "estatus": "OUT",
-            "motivo": "Elbow",
+            "motivo": "Sprain",
             "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-1.9 pts"
+            "impacto_simulador": "-4.2 pts"
+        },
+        {
+            "jugador": "Jarrett Allen",
+            "equipo": "Cavaliers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Knee",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-0.6 pts"
+        },
+        {
+            "jugador": "Donovan Mitchell",
+            "equipo": "Cavaliers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Bruise",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-1.2 pts"
+        },
+        {
+            "jugador": "James Harden",
+            "equipo": "Cavaliers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Calf",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Max Christie",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Ankle",
+            "motivo": "Sprain",
             "fecha_regreso": "2026-11-14",
             "impacto_simulador": "-0.3 pts"
         },
@@ -84,14 +100,6 @@
             "impacto_simulador": "-1.3 pts"
         },
         {
-            "jugador": "Giannis Antetokounmpo",
-            "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-1.4 pts"
-        },
-        {
             "jugador": "Pelle Larsson",
             "equipo": "Heat",
             "estatus": "DAY-TO-DAY",
@@ -103,9 +111,17 @@
             "jugador": "Klay Thompson",
             "equipo": "Heat",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Soreness",
+            "motivo": "Sprain",
             "fecha_regreso": "2026-11-14",
             "impacto_simulador": "-0.7 pts"
+        },
+        {
+            "jugador": "Giannis Antetokounmpo",
+            "equipo": "Heat",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-14",
+            "impacto_simulador": "-1.4 pts"
         },
         {
             "jugador": "Isaiah Joe",
@@ -126,10 +142,18 @@
         {
             "jugador": "Quinten Post",
             "equipo": "Grizzlies",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Concussion",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-1.2 pts"
+        },
+        {
+            "jugador": "Jerami Grant",
+            "equipo": "Grizzlies",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Head",
             "fecha_regreso": "2026-11-14",
-            "impacto_simulador": "-0.2 pts"
+            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Zach Edey",
@@ -138,6 +162,14 @@
             "motivo": "Ankle",
             "fecha_regreso": "2026-11-14",
             "impacto_simulador": "-0.4 pts"
+        },
+        {
+            "jugador": "Ty Jerome",
+            "equipo": "Grizzlies",
+            "estatus": "OUT",
+            "motivo": "Soreness",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-6.3 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
@@ -172,6 +204,14 @@
             "impacto_simulador": "-8.3 pts"
         },
         {
+            "jugador": "Tobe Awaka",
+            "equipo": "Bulls",
+            "estatus": "OUT",
+            "motivo": "Back",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
             "jugador": "Nic Claxton",
             "equipo": "Bulls",
             "estatus": "DAY-TO-DAY",
@@ -196,20 +236,12 @@
             "impacto_simulador": "-1.0 pts"
         },
         {
-            "jugador": "Dailyn Swain",
+            "jugador": "Caleb Wilson",
             "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión / Descanso",
-            "fecha_regreso": "Por definir",
-            "impacto_simulador": "-0.1 pts"
-        },
-        {
-            "jugador": "Tobe Awaka",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Back",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.1 pts"
+            "estatus": "OUT",
+            "motivo": "Hand",
+            "fecha_regreso": "2026-12-13",
+            "impacto_simulador": "-4.7 pts"
         }
     ]
 }
