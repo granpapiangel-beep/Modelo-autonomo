@@ -95,7 +95,7 @@ with st.sidebar:
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
     st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.8.0 | Tactical Advisor Active")
+    st.caption("v 3.9.0 | Clean Tactical View")
     
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
@@ -138,7 +138,7 @@ if os.path.exists(ARCHIVO_EVAL):
             ganador, prob = row.get("Pred_Ganador", "N/A"), row.get("Prob_Ganador_Pct", 50.0)
             linea, prom_sim = row.get("Line_Apuesta", 225.5), row.get("Promedio_Simulado", 225.5)
             pred_ou, sem_puntos = row.get("Pred_OU", "N/A"), row.get("Semaforo_Puntos", "Estándar")
-            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis táctico autónomo en proceso...")
+            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis táctico en proceso...")
             
             borde_ou = "#64748B"
             if "GRAN VALOR" in str(sem_puntos): borde_ou = "#34D399"
@@ -164,7 +164,7 @@ if os.path.exists(ARCHIVO_EVAL):
                     </div>
                 </div>
                 <div style="background:#111827; padding: 16px; border-radius:8px; border-left:4px solid #F59E0B; font-size:0.95rem; color:#E2E8F0; line-height: 1.6;">
-                    <b>🤖 Informe y Recomendación Táctica (IA Autónoma):</b><br>{rec_autonoma}
+                    <b>📋 Informe y Recomendación Táctica:</b><br><br>{rec_autonoma}
                 </div>
             </div>
             """
