@@ -15,7 +15,6 @@ ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
 ARCHIVO_LESIONES = "alertas_lesiones.json"
 PLAYOFFS_MODE = False 
 
-# TIERS AMPLIADOS: Reflejan mejor las diferencias reales de la NBA actual
 TIERS_BASE_EQUIPOS = {
     "Celtics": 117.0, "Thunder": 117.5, "Cavaliers": 113.5, "Nuggets": 113.0, "Mavericks": 115.5, 
     "Spurs": 117.0, "Bucks": 109.5, "76ers": 116.5, "Timberwolves": 114.0, "Knicks": 114.0, 
@@ -116,7 +115,6 @@ def sincronizar_titulares_y_puntajes():
 def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
     penizacion_total = 0.0
     alertas_equipo = []
-    
     url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
     try:
         resp = requests.get(url_summary, timeout=8)
@@ -130,14 +128,9 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                 if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
                     for inj in team_inj.get("injuries", []):
                         status = inj.get("status", "").upper()
+                        multiplicador = 0.25 if "OUT" in status else (0.05 if "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status else 0.0)
+                        if multiplicador == 0.0: continue
                         
-                        if "OUT" in status:
-                            multiplicador = 0.25 
-                        elif "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status:
-                            multiplicador = 0.05 
-                        else:
-                            continue
-                            
                         jugador = inj.get("athlete", {}).get("displayName", "")
                         details = inj.get("details", {})
                         motivo_texto = details.get("detail", details.get("type", "Lesión / Descanso"))
@@ -152,16 +145,12 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                                     impacto_neto = prom * multiplicador
                                     penizacion_total += impacto_neto
                                     alertas_equipo.append({
-                                        "jugador": jugador, 
-                                        "equipo": nombre_equipo, 
-                                        "estatus": status,
-                                        "motivo": motivo_texto,
-                                        "fecha_regreso": fecha_retorno,
+                                        "jugador": jugador, "equipo": nombre_equipo, "estatus": status,
+                                        "motivo": motivo_texto, "fecha_regreso": fecha_retorno,
                                         "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
                                     })
     except Exception as e:
         logging.error(f"Error consultando lesiones en ESPN para {nombre_equipo}: {e}")
-        
     return penizacion_total, alertas_equipo
 
 def obtener_fuerza_actualizada_equipos():
@@ -213,30 +202,24 @@ def obtener_cartelera_y_boxscore_avanzado():
     try:
         response = requests.get(url, timeout=10)
         events = response.json().get("events", [])
-
         for event in events:
             event_id = event.get("id")
             competitions = event.get("competitions", [])
             if not competitions: continue
-
             comp_data = competitions[0]
             local_team, visitante_team = None, None
-
             for comp in comp_data.get("competitors", []):
                 if comp.get("homeAway") == "home": local_team = comp.get("team", {}).get("name", "")
                 else: visitante_team = comp.get("team", {}).get("name", "")
 
             base_loc = fuerzas_actuales.get(local_team, 110.0)
             base_vis = fuerzas_actuales.get(visitante_team, 110.0)
-
             pen_loc, alert_loc = detectar_lesiones_y_calcular_impacto(event_id, local_team)
             pen_vis, alert_vis = detectar_lesiones_y_calcular_impacto(event_id, visitante_team)
-            
             todas_las_alertas.extend(alert_loc + alert_vis)
 
             base_loc_ofensiva = max(98.0, base_loc - pen_loc)
             base_vis_ofensiva = max(98.0, base_vis - pen_vis)
-
             stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
             stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
 
@@ -245,34 +228,66 @@ def obtener_cartelera_y_boxscore_avanzado():
             if odds_info:
                 try: linea_apuesta = float(odds_info[0].get("overUnder", linea_apuesta))
                 except: pass
-            
             if linea_apuesta < 200 or linea_apuesta > 255: linea_apuesta = linea_promedio_historica
 
             if local_team and visitante_team:
                 partidos.append({
-                    "event_id": event_id,
-                    "local": local_team,
-                    "visitante": visitante_team,
-                    "stats_loc": stats_loc,
-                    "stats_vis": stats_vis,
-                    "linea": linea_apuesta,
+                    "event_id": event_id, "local": local_team, "visitante": visitante_team,
+                    "stats_loc": stats_loc, "stats_vis": stats_vis, "linea": linea_apuesta,
                 })
                 
         tz_mexico = timezone(timedelta(hours=-6))
         ahora = datetime.now(tz_mexico)
         datos_json = {
-            "fecha": ahora.strftime("%Y-%m-%d"),
-            "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
-            "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
-            "alertas_criticas": todas_las_alertas
+            "fecha": ahora.strftime("%Y-%m-%d"), "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
+            "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.", "alertas_criticas": todas_las_alertas
         }
         with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
             json.dump(datos_json, f, ensure_ascii=False, indent=4)
-
     except Exception as e:
         logging.error(f"Error procesando cartelera: {e}")
-        
     return partidos
+
+def generar_recomendacion_autonoma(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta):
+    """
+    Analiza de forma 100% autónoma las líneas, hándicaps (spread), totales y decide 
+    si es seguro, si conviene ajustar líneas o si es mejor vetar el partido.
+    """
+    analisis = []
+    es_local = (pred_ganador == local)
+    prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
+    favorito = local if es_local else visitante
+    underdog = visitante if es_local else local
+    margen_estimado = round(abs(prob_ganador_pct - 50.0) / 7.0 * 3.5, 1)
+
+    # 1. Análisis de Moneyline y Spread / Hándicap
+    if prob_fav >= 72.0:
+        analisis.append(f"🔥 **Hándicap & Spread:** {favorito} muestra solidez absoluta ({prob_fav}%). Margen proyectado de ~{margen_estimado} puntos. Para parleys seguros, **se recomienda comprar puntos o ajustar la línea de ventaja (bajar el hándicap o tomar al underdog recibiendo +4.5/+7.5)** en lugar del triunfo directo ajustado.")
+    elif prob_fav >= 58.0:
+        analisis.append(f"⚖️ **Hándicap & Spread:** Ventaja moderada para {favorito} ({prob_fav}%). Margen estrecho (~{margen_estimado} pts). **Evitar apuestas directas al ganador; si se busca valor, la opción más prudente es tomar el spread ampliado a favor del underdog** para proteger la jugada.")
+    else:
+        analisis.append(f"🚫 **Hándicap & Spread:** Escenario de máxima paridad entre {local} y {visitante} con margen virtualmente nulo.")
+
+    # 2. Análisis de Totales (Over / Under)
+    diferencia_ou = abs(promedio_simulado - linea_apuesta)
+    tipo_ou = "OVER (Altas)" if promedio_simulado > linea_apuesta else "DEBAJO (Bajas)"
+    if diferencia_ou >= 7.5:
+        analisis.append(f"📊 **Totales (O/U):** Divergencia fuerte frente a Las Vegas (Simulado: {promedio_simulado} vs Línea: {linea_apuesta}), apuntando a un **{tipo_ou}** claro.")
+    elif diferencia_ou >= 4.0:
+        analisis.append(f"📈 **Totales (O/U):** Margen aceptable hacia el **{tipo_ou}** (Sim: {promedio_simulado} vs Línea: {linea_apuesta}).")
+    else:
+        analisis.append(f"📉 **Totales (O/U):** Mercado eficiente; la línea de Las Vegas ({linea_apuesta}) y la simulación ({promedio_simulado}) están alineadas sin divergencia útil.")
+
+    # 3. Veredicto de Seguridad y Veto Total
+    if prob_fav < 60.0 and diferencia_ou < 5.0:
+        veredicto = "🛑 **Veredicto Final:** Partido con alta volatilidad y sin ventajas claras en el mercado. **Preferible no meterle un solo peso ni arriesgarlo en parley.**"
+    elif prob_fav >= 70.0 or diferencia_ou >= 7.5:
+        veredicto = "✅ **Veredicto Final:** Encuentro apto para armar combinadas de valor, priorizando líneas ajustadas de hándicap o totales respaldados."
+    else:
+        veredicto = "⚠️ **Veredicto Final:** Precaución moderada. Se aconseja operar únicamente con líneas alternativas de protección o descartarlo."
+
+    analisis.append(veredicto)
+    return " ".join(analisis)
 
 def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     local = partido["local"]
@@ -287,10 +302,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
     proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
 
-    # --- ANCLAJE INTELIGENTE DE RITMO CON LAS VEGAS ---
     suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
     factor_ajuste_vegas = 1.0
-    
     if linea_apuesta >= 235.0 and suma_proyectada_base < linea_apuesta:
         factor_ajuste_vegas = min(1.08, linea_apuesta / max(suma_proyectada_base, 1.0))
     elif linea_apuesta <= 215.0 and suma_proyectada_base > linea_apuesta:
@@ -309,40 +322,40 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final 
     prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
+    pred_ganador = local if prob_local >= 0.5 else visitante
 
-    if prob_ganador_pct >= 65.0: 
-        semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
-    elif prob_ganador_pct >= 55.0: 
-        semaforo_ganador = "🟡 AMARILLO (Precaución - Juego Cerrado)"
-    else: 
-        semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
+    if prob_ganador_pct >= 65.0: semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
+    elif prob_ganador_pct >= 55.0: semaforo_ganador = "🟡 AMARILLO (Precaución - Juego Cerrado)"
+    else: semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
 
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 7.5: 
-        semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
-    elif distancia_linea >= 4.0: 
-        semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
-    else: 
-        semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
+    if distancia_linea >= 7.5: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
+    elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
+    else: semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
+
+    recomendacion_texto = generar_recomendacion_autonoma(
+        local, visitante, pred_ganador, round(prob_ganador_pct, 1), 
+        round(promedio_simulado, 1), linea_apuesta
+    )
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
 
     return {
         "Fecha": fecha_actual_mexico,
         "Local": local, "Visitante": visitante,
-        "Pred_Ganador": local if prob_local >= 0.5 else visitante,
+        "Pred_Ganador": pred_ganador,
         "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
         "Semaforo_Ganador": semaforo_ganador,
         "Line_Apuesta": linea_apuesta,
         "Pred_OU": "OVER" if prob_over > 50 else "DEBAJO",
         "Promedio_Simulado": round(promedio_simulado, 1),
         "Semaforo_Puntos": semaforo_puntos,
-        "Modo_Playoffs": PLAYOFFS_MODE
+        "Modo_Playoffs": PLAYOFFS_MODE,
+        "Recomendacion_Autonoma": recomendacion_texto
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución autónoma (Modelo Calibrado con Anclaje de Ritmo)...")
-    
+    logging.info("🤖 Iniciando ejecución autónoma (Modelo con Recomendación Táctica de Apuestas)...")
     sincronizar_titulares_y_puntajes()
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
@@ -356,7 +369,6 @@ if __name__ == "__main__":
         }]
 
     nuevos_registros = [simular_monte_carlo_con_rotacion(p, pesos_calibrados) for p in partidos_de_hoy]
-
     df_new = pd.DataFrame(nuevos_registros)
     if os.path.exists(ARCHIVO_HISTORIAL):
         try:
@@ -370,4 +382,4 @@ if __name__ == "__main__":
     else:
         df_new.to_csv(ARCHIVO_HISTORIAL, index=False)
 
-    logging.info("✨ ¡Proceso completado! Modelo actualizado y optimizado con éxito.")
+    logging.info("✨ ¡Proceso completado con éxito!")
