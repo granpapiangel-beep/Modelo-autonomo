@@ -1,180 +1,180 @@
-Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,Estado_Evaluacion,Pred_Ganador,Prob_Ganador_Pct,Semaforo_Ganador,Semaforo_Puntos,Modo_Playoffs
-2026-10-28,Celtics,Nets,True,225.5,OVER,237.9,,,,,,
-2026-10-28,Knicks,Pistons,True,225.5,DEBAJO,206.3,,,,,,
-2026-10-28,Spurs,Kings,True,225.5,OVER,231.8,,,,,,
-2026-10-28,Lakers,Trail Blazers,False,225.5,OVER,270.6,,,,,,
-2026-10-28,Hawks,Heat,True,225.5,DEBAJO,221.8,,,,,,
-2026-10-28,Cavaliers,Wizards,True,225.5,DEBAJO,218.0,,,,,,
-2026-10-28,Pistons,Hornets,True,225.5,OVER,228.6,,,,,,
-2026-10-28,Pacers,76ers,True,225.5,OVER,228.9,,,,,,
-2026-10-28,Raptors,Magic,True,224.5,OVER,229.0,,,,,,
-2026-10-28,Bulls,Knicks,True,232.5,DEBAJO,213.6,,,,,,
-2026-10-28,Bucks,Rockets,False,226.5,DEBAJO,221.2,,,,,,
-2026-10-28,Timberwolves,Warriors,True,227.5,DEBAJO,221.4,,,,,,
-2026-10-28,Pelicans,Nuggets,True,240.5,DEBAJO,213.6,,,,,,
-2026-10-28,Jazz,Spurs,False,233.5,DEBAJO,221.7,,,,,,
-2026-10-28,Mavericks,Thunder,True,227.5,OVER,228.9,,,,,,
-2026-10-28,Clippers,Lakers,False,224.5,DEBAJO,220.9,,,,,,
-2026-10-29,Hawks,Heat,False,225.5,OVER,243.1,,,,,,
-2026-10-29,Cavaliers,Wizards,True,225.5,DEBAJO,221.4,,,,,,
-2026-10-29,Pistons,Hornets,True,225.5,DEBAJO,194.0,,,,,,
-2026-10-29,Pacers,76ers,False,225.5,OVER,228.2,,,,,,
-2026-10-29,Raptors,Magic,True,225.5,OVER,227.6,,,,,,
-2026-10-29,Bulls,Knicks,False,225.5,OVER,247.9,,,,,,
-2026-10-29,Bucks,Rockets,False,225.5,OVER,231.2,,,,,,
-2026-10-29,Timberwolves,Warriors,True,225.5,OVER,230.7,,,,,,
-2026-10-29,Pelicans,Nuggets,False,225.5,DEBAJO,195.3,,,,,,
-2026-10-29,Jazz,Spurs,False,225.5,DEBAJO,225.7,,,,,,
-2026-10-29,Mavericks,Thunder,True,225.5,DEBAJO,221.8,,,,,,
-2026-10-29,Clippers,Lakers,False,225.5,DEBAJO,196.2,,,,,,
-2026-10-29,Hawks,Cavaliers,True,237.5,DEBAJO,221.4,,,,,,
-2026-10-29,Pelicans,Kings,True,235.5,DEBAJO,213.9,,,,,,
-2026-10-29,Trail Blazers,Grizzlies,True,232.5,DEBAJO,228.6,,,,,,
-2026-10-30,Hawks,Cavaliers,,225.5,OVER,226.1,,Hawks,79.9,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-10-30,Pelicans,Kings,,225.5,OVER,241.8,,Pelicans,86.5,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),
-2026-10-30,Trail Blazers,Grizzlies,,225.5,OVER,228.6,,Grizzlies,93.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Wizards,Hornets,,218.5,OVER,222.5,,Wizards,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Celtics,Bulls,,234.5,DEBAJO,217.9,,Celtics,70.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Nets,Pistons,,222.5,DEBAJO,221.8,,Nets,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🔴 ROJO (Zona de Incertidumbre),
-2026-10-30,76ers,Knicks,,226.5,DEBAJO,221.8,,76ers,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Raptors,Magic,,227.5,DEBAJO,221.8,,Raptors,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Heat,Pacers,,237.5,DEBAJO,221.9,,Heat,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Mavericks,Rockets,,222.5,OVER,225.5,,Mavericks,70.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Timberwolves,Clippers,,223.5,DEBAJO,221.5,,Timberwolves,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Warriors,Lakers,,234.5,DEBAJO,221.7,,Warriors,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-30,Suns,Nuggets,,231.5,DEBAJO,219.7,,Suns,63.1,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Wizards,Hornets,,225.5,DEBAJO,181.0,,Wizards,93.1,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),
-2026-10-31,Celtics,Bulls,,225.5,OVER,230.2,,Celtics,90.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Nets,Pistons,,225.5,DEBAJO,206.1,,Pistons,93.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,76ers,Knicks,,225.5,DEBAJO,195.0,,76ers,82.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Raptors,Magic,,225.5,OVER,238.0,,Magic,68.0,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),
-2026-10-31,Heat,Pacers,,225.5,OVER,245.2,,Heat,96.2,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),
-2026-10-31,Mavericks,Rockets,,225.5,OVER,232.2,,Mavericks,73.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Timberwolves,Clippers,,225.5,DEBAJO,223.6,,Timberwolves,99.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Warriors,Lakers,,225.5,DEBAJO,211.5,,Warriors,90.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Suns,Nuggets,,225.5,OVER,241.2,,Nuggets,83.0,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),
-2026-10-31,Jazz,Trail Blazers,,231.5,DEBAJO,221.6,,Jazz,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Hornets,76ers,,215.5,OVER,222.5,,Hornets,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Pelicans,Hawks,,240.5,DEBAJO,222.2,,Pelicans,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Grizzlies,Kings,,231.5,DEBAJO,221.6,,Grizzlies,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Bucks,Cavaliers,,235.5,DEBAJO,217.5,,Bucks,70.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-10-31,Spurs,Timberwolves,,226.5,OVER,226.2,,Spurs,70.5,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-10-31,Rockets,Thunder,,218.5,OVER,226.0,,Rockets,70.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-01,Magic,Celtics,,224.7,OVER,226.7,,Celtics,66.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-01,Pacers,Nets,,214.1,DEBAJO,213.4,,Pacers,78.7,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-01,Warriors,Clippers,,220.5,OVER,221.6,,Warriors,69.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-01,Lakers,Raptors,,224.5,DEBAJO,222.5,,Lakers,76.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Magic,Celtics,,224.7,OVER,225.6,,Celtics,66.6,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-02,Pacers,Nets,,214.1,DEBAJO,213.2,,Pacers,78.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-02,Warriors,Clippers,,221.2,OVER,221.6,,Warriors,69.0,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-02,Lakers,Raptors,,219.2,OVER,223.0,,Lakers,75.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Cavaliers,Thunder,,229.5,OVER,236.9,,Cavaliers,52.6,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Hornets,Pistons,,210.5,OVER,212.8,,Hornets,54.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Pacers,Hawks,,231.5,DEBAJO,218.9,,Pacers,58.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Knicks,Nets,,219.5,DEBAJO,216.3,,Knicks,85.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Magic,Wizards,,225.5,DEBAJO,215.8,,Magic,75.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,76ers,Bulls,,239.5,DEBAJO,223.5,,76ers,84.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Mavericks,Kings,,232.5,DEBAJO,227.3,,Mavericks,79.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Grizzlies,Pelicans,,233.5,DEBAJO,220.8,,Grizzlies,69.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Timberwolves,Bucks,,234.5,DEBAJO,226.2,,Timberwolves,61.5,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Rockets,Celtics,,218.5,OVER,226.6,,Celtics,64.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Spurs,Jazz,,229.5,DEBAJO,214.7,,Spurs,70.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Nuggets,Trail Blazers,,231.5,DEBAJO,224.1,,Nuggets,88.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Warriors,Suns,,227.5,DEBAJO,225.0,,Warriors,54.8,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Clippers,Raptors,,221.5,DEBAJO,216.7,,Clippers,62.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-02,Lakers,Heat,,236.5,DEBAJO,223.6,,Lakers,72.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Pistons,76ers,,217.5,OVER,223.3,,76ers,77.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Wizards,Hawks,,232.5,DEBAJO,215.8,,Hawks,63.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Celtics,Bucks,,223.5,OVER,228.4,,Celtics,70.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Nets,Hornets,,213.5,DEBAJO,208.9,,Nets,51.4,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Knicks,Bulls,,233.5,DEBAJO,221.3,,Knicks,79.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Grizzlies,Pacers,,230.5,DEBAJO,222.2,,Grizzlies,66.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Pelicans,Jazz,,234.5,DEBAJO,215.6,,Pelicans,73.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Thunder,Cavaliers,,228.5,OVER,235.6,,Thunder,66.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Rockets,Timberwolves,,220.5,OVER,225.4,,Timberwolves,59.4,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Nuggets,Raptors,,230.5,DEBAJO,223.5,,Nuggets,84.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Suns,Trail Blazers,,227.5,DEBAJO,218.7,,Suns,75.6,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Spurs,Mavericks,,227.5,DEBAJO,225.2,,Mavericks,68.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Kings,Lakers,,234.5,DEBAJO,224.3,,Lakers,55.9,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-03,Clippers,Heat,,233.5,DEBAJO,218.6,,Clippers,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Pistons,76ers,,219.2,OVER,223.1,,76ers,77.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Wizards,Hawks,,213.1,OVER,215.7,,Hawks,62.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Celtics,Bucks,,221.5,OVER,228.5,,Celtics,70.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Nets,Hornets,,213.5,DEBAJO,209.1,,Nets,52.1,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Knicks,Bulls,,233.5,DEBAJO,221.3,,Knicks,79.6,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Grizzlies,Pacers,,228.5,DEBAJO,221.7,,Grizzlies,66.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Pelicans,Jazz,,231.5,DEBAJO,215.4,,Pelicans,73.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Thunder,Cavaliers,,226.5,OVER,235.1,,Thunder,66.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Rockets,Timberwolves,,218.5,OVER,225.9,,Timberwolves,58.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Nuggets,Raptors,,231.5,DEBAJO,223.3,,Nuggets,84.4,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Suns,Trail Blazers,,227.5,DEBAJO,218.1,,Suns,76.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Spurs,Mavericks,,226.5,DEBAJO,225.1,,Mavericks,68.0,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-04,Kings,Lakers,,233.5,DEBAJO,224.5,,Lakers,55.2,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-04,Clippers,Heat,,233.5,DEBAJO,218.8,,Clippers,56.2,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),
-2026-11-05,Suns,Magic,,222.5,DEBAJO,221.9,,Suns,64.1,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),
-2026-11-05,Warriors,Heat,,233.5,DEBAJO,223.1,,Warriors,72.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),
-2026-11-06,Hawks,Wizards,,213.1,OVER,214.9,,Hawks,79.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Hornets,Celtics,,219.7,OVER,220.9,,Celtics,81.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Cavaliers,76ers,,230.3,OVER,233.7,,Cavaliers,66.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Mavericks,Jazz,,221.2,OVER,222.8,,Mavericks,90.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Grizzlies,Thunder,,227.2,OVER,228.7,,Thunder,77.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Bucks,Raptors,,220.2,OVER,221.0,,Bucks,76.0,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Pelicans,Timberwolves,,222.2,OVER,224.6,,Timberwolves,63.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Lakers,Trail Blazers,,217.2,OVER,221.0,,Lakers,82.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-06,Kings,Spurs,,218.7,OVER,219.9,,Kings,63.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Pacers,Nuggets,,225.2,OVER,228.0,,Nuggets,58.9,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Hawks,Nets,,226.5,DEBAJO,213.9,,Hawks,80.6,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-07,Cavaliers,Knicks,,223.5,OVER,232.8,,Cavaliers,69.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-07,Thunder,Wizards,,223.5,DEBAJO,223.0,,Thunder,94.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Warriors,Magic,,219.5,OVER,223.8,,Warriors,69.9,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-07,Suns,Rockets,,224.5,DEBAJO,222.6,,Suns,60.8,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-07,Trail Blazers,Spurs,,229.5,DEBAJO,216.4,,Spurs,53.1,🔴 ROJO (Volátil),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Bulls,76ers,,206.0,OVER,207.9,,76ers,94.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-08,Pistons,Lakers,,216.5,DEBAJO,181.3,,Pistons,75.9,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Timberwolves,Jazz,,222.5,DEBAJO,187.5,,Jazz,62.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Mavericks,Nets,,223.5,DEBAJO,203.9,,Mavericks,98.2,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Bucks,Celtics,,221.5,OVER,229.1,,Bucks,54.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Clippers,Pelicans,,226.5,DEBAJO,207.1,,Clippers,62.8,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-08,Kings,Heat,,237.5,DEBAJO,222.7,,Kings,62.4,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-09,Hawks,Lakers,,226.7,OVER,226.9,,Lakers,69.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Hornets,Cavaliers,,220.2,DEBAJO,217.5,,Cavaliers,75.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Pistons,Wizards,,217.7,DEBAJO,215.7,,Pistons,82.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Raptors,Grizzlies,,218.7,DEBAJO,215.2,,Grizzlies,65.4,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Mavericks,Pacers,,226.7,DEBAJO,224.4,,Mavericks,86.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Rockets,Nuggets,,228.3,OVER,229.1,,Rockets,57.6,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Suns,Spurs,,228.8,OVER,228.9,,Spurs,69.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-09,Warriors,Pelicans,,222.7,DEBAJO,218.0,,Warriors,83.6,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-10,Knicks,Bucks,,225.7,DEBAJO,222.9,,Knicks,80.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,76ers,Celtics,,235.8,OVER,237.3,,76ers,58.1,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,Suns,Clippers,,220.7,OVER,221.8,,Suns,63.5,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,Jazz,Heat,,216.6,DEBAJO,214.8,,Heat,69.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-10,Kings,Magic,,225.2,DEBAJO,220.9,,Kings,82.3,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-10,Trail Blazers,Thunder,,226.5,DEBAJO,218.9,,Thunder,79.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-11,Pacers,Wizards,,227.5,DEBAJO,212.4,,Pacers,72.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-11,Knicks,Cavaliers,,221.5,OVER,229.3,,Knicks,69.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-11,Raptors,Celtics,,216.5,OVER,220.0,,Celtics,81.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-11,Bulls,Spurs,,237.5,DEBAJO,227.0,,Spurs,76.5,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-11,Grizzlies,Nuggets,,230.5,DEBAJO,225.4,,Nuggets,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-11,Bucks,Lakers,,229.5,DEBAJO,227.4,,Lakers,66.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-11,Pelicans,Nets,,228.5,DEBAJO,209.2,,Pelicans,76.9,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-11,Jazz,Magic,,214.5,DEBAJO,211.5,,Magic,57.7,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-11,Rockets,Warriors,,219.5,OVER,226.4,,Rockets,68.8,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-11,Trail Blazers,Thunder,,224.5,DEBAJO,217.1,,Thunder,79.4,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-12,76ers,Raptors,,223.5,DEBAJO,219.7,,76ers,91.0,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-12,Wizards,Pistons,,222.5,DEBAJO,215.9,,Pistons,65.1,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-12,Timberwolves,Mavericks,,225.5,OVER,228.1,,Mavericks,57.4,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-12,Suns,Hornets,,214.5,DEBAJO,214.3,,Suns,85.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False
-2026-11-13,Pacers,Knicks,,219.5,OVER,223.0,,Knicks,70.7,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-13,Magic,Bucks,,224.5,DEBAJO,221.0,,Magic,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-13,Heat,Cavaliers,,236.5,OVER,236.6,,Heat,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-13,Bulls,Hawks,,245.5,DEBAJO,232.5,,Hawks,50.5,🔴 ROJO (Volátil - Evitar Moneyline),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-13,Pelicans,Grizzlies,,235.5,DEBAJO,232.3,,Grizzlies,57.8,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-13,Rockets,Jazz,,220.5,DEBAJO,217.0,,Rockets,89.2,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-13,Spurs,Warriors,,218.5,OVER,227.3,,Spurs,87.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-13,Kings,Trail Blazers,,229.5,DEBAJO,215.1,,Kings,87.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-13,Clippers,Thunder,,222.5,OVER,226.8,,Thunder,59.7,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-14,Pelicans,Nuggets,,234.5,DEBAJO,220.2,,Nuggets,74.6,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-14,Cavaliers,Mavericks,,231.5,DEBAJO,230.7,,Cavaliers,51.8,🔴 ROJO (Volátil - Evitar Moneyline),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
-2026-11-14,Heat,Pistons,,228.5,DEBAJO,222.1,,Heat,58.8,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False
-2026-11-14,Grizzlies,Nets,,228.5,DEBAJO,215.1,,Grizzlies,82.5,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False
-2026-11-14,Timberwolves,Bulls,,235.5,DEBAJO,235.3,,Timberwolves,77.8,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False
+Fecha,Local,Visitante,Pred_Ganador_Local,Line_Apuesta,Pred_OU,Promedio_Simulado,Estado_Evaluacion,Pred_Ganador,Prob_Ganador_Pct,Semaforo_Ganador,Semaforo_Puntos,Modo_Playoffs,Recomendacion_Autonoma
+2026-10-28,Celtics,Nets,True,225.5,OVER,237.9,,,,,,,
+2026-10-28,Knicks,Pistons,True,225.5,DEBAJO,206.3,,,,,,,
+2026-10-28,Spurs,Kings,True,225.5,OVER,231.8,,,,,,,
+2026-10-28,Lakers,Trail Blazers,False,225.5,OVER,270.6,,,,,,,
+2026-10-28,Hawks,Heat,True,225.5,DEBAJO,221.8,,,,,,,
+2026-10-28,Cavaliers,Wizards,True,225.5,DEBAJO,218.0,,,,,,,
+2026-10-28,Pistons,Hornets,True,225.5,OVER,228.6,,,,,,,
+2026-10-28,Pacers,76ers,True,225.5,OVER,228.9,,,,,,,
+2026-10-28,Raptors,Magic,True,224.5,OVER,229.0,,,,,,,
+2026-10-28,Bulls,Knicks,True,232.5,DEBAJO,213.6,,,,,,,
+2026-10-28,Bucks,Rockets,False,226.5,DEBAJO,221.2,,,,,,,
+2026-10-28,Timberwolves,Warriors,True,227.5,DEBAJO,221.4,,,,,,,
+2026-10-28,Pelicans,Nuggets,True,240.5,DEBAJO,213.6,,,,,,,
+2026-10-28,Jazz,Spurs,False,233.5,DEBAJO,221.7,,,,,,,
+2026-10-28,Mavericks,Thunder,True,227.5,OVER,228.9,,,,,,,
+2026-10-28,Clippers,Lakers,False,224.5,DEBAJO,220.9,,,,,,,
+2026-10-29,Hawks,Heat,False,225.5,OVER,243.1,,,,,,,
+2026-10-29,Cavaliers,Wizards,True,225.5,DEBAJO,221.4,,,,,,,
+2026-10-29,Pistons,Hornets,True,225.5,DEBAJO,194.0,,,,,,,
+2026-10-29,Pacers,76ers,False,225.5,OVER,228.2,,,,,,,
+2026-10-29,Raptors,Magic,True,225.5,OVER,227.6,,,,,,,
+2026-10-29,Bulls,Knicks,False,225.5,OVER,247.9,,,,,,,
+2026-10-29,Bucks,Rockets,False,225.5,OVER,231.2,,,,,,,
+2026-10-29,Timberwolves,Warriors,True,225.5,OVER,230.7,,,,,,,
+2026-10-29,Pelicans,Nuggets,False,225.5,DEBAJO,195.3,,,,,,,
+2026-10-29,Jazz,Spurs,False,225.5,DEBAJO,225.7,,,,,,,
+2026-10-29,Mavericks,Thunder,True,225.5,DEBAJO,221.8,,,,,,,
+2026-10-29,Clippers,Lakers,False,225.5,DEBAJO,196.2,,,,,,,
+2026-10-29,Hawks,Cavaliers,True,237.5,DEBAJO,221.4,,,,,,,
+2026-10-29,Pelicans,Kings,True,235.5,DEBAJO,213.9,,,,,,,
+2026-10-29,Trail Blazers,Grizzlies,True,232.5,DEBAJO,228.6,,,,,,,
+2026-10-30,Hawks,Cavaliers,,225.5,OVER,226.1,,Hawks,79.9,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-10-30,Pelicans,Kings,,225.5,OVER,241.8,,Pelicans,86.5,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),,
+2026-10-30,Trail Blazers,Grizzlies,,225.5,OVER,228.6,,Grizzlies,93.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Wizards,Hornets,,218.5,OVER,222.5,,Wizards,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Celtics,Bulls,,234.5,DEBAJO,217.9,,Celtics,70.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Nets,Pistons,,222.5,DEBAJO,221.8,,Nets,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🔴 ROJO (Zona de Incertidumbre),,
+2026-10-30,76ers,Knicks,,226.5,DEBAJO,221.8,,76ers,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Raptors,Magic,,227.5,DEBAJO,221.8,,Raptors,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Heat,Pacers,,237.5,DEBAJO,221.9,,Heat,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Mavericks,Rockets,,222.5,OVER,225.5,,Mavericks,70.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Timberwolves,Clippers,,223.5,DEBAJO,221.5,,Timberwolves,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Warriors,Lakers,,234.5,DEBAJO,221.7,,Warriors,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-30,Suns,Nuggets,,231.5,DEBAJO,219.7,,Suns,63.1,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Wizards,Hornets,,225.5,DEBAJO,181.0,,Wizards,93.1,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),,
+2026-10-31,Celtics,Bulls,,225.5,OVER,230.2,,Celtics,90.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Nets,Pistons,,225.5,DEBAJO,206.1,,Pistons,93.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,76ers,Knicks,,225.5,DEBAJO,195.0,,76ers,82.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Raptors,Magic,,225.5,OVER,238.0,,Magic,68.0,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),,
+2026-10-31,Heat,Pacers,,225.5,OVER,245.2,,Heat,96.2,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),,
+2026-10-31,Mavericks,Rockets,,225.5,OVER,232.2,,Mavericks,73.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Timberwolves,Clippers,,225.5,DEBAJO,223.6,,Timberwolves,99.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Warriors,Lakers,,225.5,DEBAJO,211.5,,Warriors,90.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Suns,Nuggets,,225.5,OVER,241.2,,Nuggets,83.0,🟢 VERDE (Alta Confiabilidad),🟢 VERDE (Margen Sólido O/U),,
+2026-10-31,Jazz,Trail Blazers,,231.5,DEBAJO,221.6,,Jazz,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Hornets,76ers,,215.5,OVER,222.5,,Hornets,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Pelicans,Hawks,,240.5,DEBAJO,222.2,,Pelicans,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Grizzlies,Kings,,231.5,DEBAJO,221.6,,Grizzlies,81.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Bucks,Cavaliers,,235.5,DEBAJO,217.5,,Bucks,70.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-10-31,Spurs,Timberwolves,,226.5,OVER,226.2,,Spurs,70.5,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-10-31,Rockets,Thunder,,218.5,OVER,226.0,,Rockets,70.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-01,Magic,Celtics,,224.7,OVER,226.7,,Celtics,66.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-01,Pacers,Nets,,214.1,DEBAJO,213.4,,Pacers,78.7,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-01,Warriors,Clippers,,220.5,OVER,221.6,,Warriors,69.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-01,Lakers,Raptors,,224.5,DEBAJO,222.5,,Lakers,76.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Magic,Celtics,,224.7,OVER,225.6,,Celtics,66.6,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-02,Pacers,Nets,,214.1,DEBAJO,213.2,,Pacers,78.4,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-02,Warriors,Clippers,,221.2,OVER,221.6,,Warriors,69.0,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-02,Lakers,Raptors,,219.2,OVER,223.0,,Lakers,75.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Cavaliers,Thunder,,229.5,OVER,236.9,,Cavaliers,52.6,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Hornets,Pistons,,210.5,OVER,212.8,,Hornets,54.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Pacers,Hawks,,231.5,DEBAJO,218.9,,Pacers,58.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Knicks,Nets,,219.5,DEBAJO,216.3,,Knicks,85.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Magic,Wizards,,225.5,DEBAJO,215.8,,Magic,75.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,76ers,Bulls,,239.5,DEBAJO,223.5,,76ers,84.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Mavericks,Kings,,232.5,DEBAJO,227.3,,Mavericks,79.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Grizzlies,Pelicans,,233.5,DEBAJO,220.8,,Grizzlies,69.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Timberwolves,Bucks,,234.5,DEBAJO,226.2,,Timberwolves,61.5,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Rockets,Celtics,,218.5,OVER,226.6,,Celtics,64.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Spurs,Jazz,,229.5,DEBAJO,214.7,,Spurs,70.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Nuggets,Trail Blazers,,231.5,DEBAJO,224.1,,Nuggets,88.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Warriors,Suns,,227.5,DEBAJO,225.0,,Warriors,54.8,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Clippers,Raptors,,221.5,DEBAJO,216.7,,Clippers,62.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-02,Lakers,Heat,,236.5,DEBAJO,223.6,,Lakers,72.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Pistons,76ers,,217.5,OVER,223.3,,76ers,77.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Wizards,Hawks,,232.5,DEBAJO,215.8,,Hawks,63.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Celtics,Bucks,,223.5,OVER,228.4,,Celtics,70.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Nets,Hornets,,213.5,DEBAJO,208.9,,Nets,51.4,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Knicks,Bulls,,233.5,DEBAJO,221.3,,Knicks,79.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Grizzlies,Pacers,,230.5,DEBAJO,222.2,,Grizzlies,66.3,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Pelicans,Jazz,,234.5,DEBAJO,215.6,,Pelicans,73.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Thunder,Cavaliers,,228.5,OVER,235.6,,Thunder,66.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Rockets,Timberwolves,,220.5,OVER,225.4,,Timberwolves,59.4,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Nuggets,Raptors,,230.5,DEBAJO,223.5,,Nuggets,84.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Suns,Trail Blazers,,227.5,DEBAJO,218.7,,Suns,75.6,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Spurs,Mavericks,,227.5,DEBAJO,225.2,,Mavericks,68.7,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Kings,Lakers,,234.5,DEBAJO,224.3,,Lakers,55.9,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-03,Clippers,Heat,,233.5,DEBAJO,218.6,,Clippers,55.6,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Pistons,76ers,,219.2,OVER,223.1,,76ers,77.0,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Wizards,Hawks,,213.1,OVER,215.7,,Hawks,62.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Celtics,Bucks,,221.5,OVER,228.5,,Celtics,70.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Nets,Hornets,,213.5,DEBAJO,209.1,,Nets,52.1,🔴 ROJO (Volátil / No recomendado),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Knicks,Bulls,,233.5,DEBAJO,221.3,,Knicks,79.6,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Grizzlies,Pacers,,228.5,DEBAJO,221.7,,Grizzlies,66.9,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Pelicans,Jazz,,231.5,DEBAJO,215.4,,Pelicans,73.5,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Thunder,Cavaliers,,226.5,OVER,235.1,,Thunder,66.8,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Rockets,Timberwolves,,218.5,OVER,225.9,,Timberwolves,58.7,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Nuggets,Raptors,,231.5,DEBAJO,223.3,,Nuggets,84.4,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Suns,Trail Blazers,,227.5,DEBAJO,218.1,,Suns,76.1,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Spurs,Mavericks,,226.5,DEBAJO,225.1,,Mavericks,68.0,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-04,Kings,Lakers,,233.5,DEBAJO,224.5,,Lakers,55.2,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-04,Clippers,Heat,,233.5,DEBAJO,218.8,,Clippers,56.2,🟡 AMARILLO (Precaución / Partido Parejo),🟡 AMARILLO (Margen Ajustado),,
+2026-11-05,Suns,Magic,,222.5,DEBAJO,221.9,,Suns,64.1,🟢 VERDE (Alta Confiabilidad),🔴 ROJO (Zona de Incertidumbre),,
+2026-11-05,Warriors,Heat,,233.5,DEBAJO,223.1,,Warriors,72.2,🟢 VERDE (Alta Confiabilidad),🟡 AMARILLO (Margen Ajustado),,
+2026-11-06,Hawks,Wizards,,213.1,OVER,214.9,,Hawks,79.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Hornets,Celtics,,219.7,OVER,220.9,,Celtics,81.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Cavaliers,76ers,,230.3,OVER,233.7,,Cavaliers,66.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Mavericks,Jazz,,221.2,OVER,222.8,,Mavericks,90.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Grizzlies,Thunder,,227.2,OVER,228.7,,Thunder,77.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Bucks,Raptors,,220.2,OVER,221.0,,Bucks,76.0,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Pelicans,Timberwolves,,222.2,OVER,224.6,,Timberwolves,63.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Lakers,Trail Blazers,,217.2,OVER,221.0,,Lakers,82.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-06,Kings,Spurs,,218.7,OVER,219.9,,Kings,63.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-07,Pacers,Nuggets,,225.2,OVER,228.0,,Nuggets,58.9,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-07,Hawks,Nets,,226.5,DEBAJO,213.9,,Hawks,80.6,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-07,Cavaliers,Knicks,,223.5,OVER,232.8,,Cavaliers,69.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-07,Thunder,Wizards,,223.5,DEBAJO,223.0,,Thunder,94.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-07,Warriors,Magic,,219.5,OVER,223.8,,Warriors,69.9,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-07,Suns,Rockets,,224.5,DEBAJO,222.6,,Suns,60.8,🟡 AMARILLO (Precaución),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-07,Trail Blazers,Spurs,,229.5,DEBAJO,216.4,,Spurs,53.1,🔴 ROJO (Volátil),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Bulls,76ers,,206.0,OVER,207.9,,76ers,94.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-08,Pistons,Lakers,,216.5,DEBAJO,181.3,,Pistons,75.9,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Timberwolves,Jazz,,222.5,DEBAJO,187.5,,Jazz,62.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Mavericks,Nets,,223.5,DEBAJO,203.9,,Mavericks,98.2,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Bucks,Celtics,,221.5,OVER,229.1,,Bucks,54.2,🟡 AMARILLO (Precaución),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Clippers,Pelicans,,226.5,DEBAJO,207.1,,Clippers,62.8,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-08,Kings,Heat,,237.5,DEBAJO,222.7,,Kings,62.4,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-09,Hawks,Lakers,,226.7,OVER,226.9,,Lakers,69.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Hornets,Cavaliers,,220.2,DEBAJO,217.5,,Cavaliers,75.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Pistons,Wizards,,217.7,DEBAJO,215.7,,Pistons,82.6,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Raptors,Grizzlies,,218.7,DEBAJO,215.2,,Grizzlies,65.4,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Mavericks,Pacers,,226.7,DEBAJO,224.4,,Mavericks,86.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Rockets,Nuggets,,228.3,OVER,229.1,,Rockets,57.6,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Suns,Spurs,,228.8,OVER,228.9,,Spurs,69.5,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-09,Warriors,Pelicans,,222.7,DEBAJO,218.0,,Warriors,83.6,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-10,Knicks,Bucks,,225.7,DEBAJO,222.9,,Knicks,80.3,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-10,76ers,Celtics,,235.8,OVER,237.3,,76ers,58.1,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-10,Suns,Clippers,,220.7,OVER,221.8,,Suns,63.5,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-10,Jazz,Heat,,216.6,DEBAJO,214.8,,Heat,69.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-10,Kings,Magic,,225.2,DEBAJO,220.9,,Kings,82.3,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-10,Trail Blazers,Thunder,,226.5,DEBAJO,218.9,,Thunder,79.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-11,Pacers,Wizards,,227.5,DEBAJO,212.4,,Pacers,72.3,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-11,Knicks,Cavaliers,,221.5,OVER,229.3,,Knicks,69.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-11,Raptors,Celtics,,216.5,OVER,220.0,,Celtics,81.2,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-11,Bulls,Spurs,,237.5,DEBAJO,227.0,,Spurs,76.5,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-11,Grizzlies,Nuggets,,230.5,DEBAJO,225.4,,Nuggets,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-11,Bucks,Lakers,,229.5,DEBAJO,227.4,,Lakers,66.8,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-11,Pelicans,Nets,,228.5,DEBAJO,209.2,,Pelicans,76.9,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-11,Jazz,Magic,,214.5,DEBAJO,211.5,,Magic,57.7,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-11,Rockets,Warriors,,219.5,OVER,226.4,,Rockets,68.8,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-11,Trail Blazers,Thunder,,224.5,DEBAJO,217.1,,Thunder,79.4,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-12,76ers,Raptors,,223.5,DEBAJO,219.7,,76ers,91.0,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-12,Wizards,Pistons,,222.5,DEBAJO,215.9,,Pistons,65.1,🟢 VERDE (Alta Confiabilidad),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-12,Timberwolves,Mavericks,,225.5,OVER,228.1,,Mavericks,57.4,🟡 AMARILLO (Precaución - Juego Cerrado),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-12,Suns,Hornets,,214.5,DEBAJO,214.3,,Suns,85.1,🟢 VERDE (Alta Confiabilidad),🔴 SIN VALOR (Línea idéntica a Vegas),False,
+2026-11-13,Pacers,Knicks,,219.5,OVER,223.0,,Knicks,70.7,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,
+2026-11-13,Magic,Bucks,,224.5,DEBAJO,221.0,,Magic,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,
+2026-11-13,Heat,Cavaliers,,236.5,OVER,236.6,,Heat,55.1,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,
+2026-11-13,Bulls,Hawks,,245.5,DEBAJO,232.5,,Hawks,50.5,🔴 ROJO (Volátil - Evitar Moneyline),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-13,Pelicans,Grizzlies,,235.5,DEBAJO,232.3,,Grizzlies,57.8,🟡 AMARILLO (Precaución - Juego Cerrado),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,
+2026-11-13,Rockets,Jazz,,220.5,DEBAJO,217.0,,Rockets,89.2,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,
+2026-11-13,Spurs,Warriors,,218.5,OVER,227.3,,Spurs,87.1,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-13,Kings,Trail Blazers,,229.5,DEBAJO,215.1,,Kings,87.7,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,
+2026-11-13,Clippers,Thunder,,222.5,OVER,226.8,,Thunder,59.7,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False,
+2026-11-14,Pelicans,Nuggets,,234.5,DEBAJO,219.9,,Nuggets,74.5,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,"🚫 **Hándicap & Spread:** Escenario de máxima paridad entre Pelicans y Nuggets con margen virtualmente nulo. 📊 **Totales (O/U):** Divergencia fuerte frente a Las Vegas (Simulado: 219.9 vs Línea: 234.5), apuntando a un **DEBAJO (Bajas)** claro. ✅ **Veredicto Final:** Encuentro apto para armar combinadas de valor, priorizando líneas ajustadas de hándicap o totales respaldados."
+2026-11-14,Cavaliers,Mavericks,,231.5,DEBAJO,230.4,,Cavaliers,51.9,🔴 ROJO (Volátil - Evitar Moneyline),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,🚫 **Hándicap & Spread:** Escenario de máxima paridad entre Cavaliers y Mavericks con margen virtualmente nulo. 📉 **Totales (O/U):** Mercado eficiente; la línea de Las Vegas (231.5) y la simulación (230.4) están alineadas sin divergencia útil. 🛑 **Veredicto Final:** Partido con alta volatilidad y sin ventajas claras en el mercado. **Preferible no meterle un solo peso ni arriesgarlo en parley.**
+2026-11-14,Heat,Pistons,,228.5,DEBAJO,221.8,,Heat,58.9,🟡 AMARILLO (Precaución - Juego Cerrado),🟡 VALOR MODERADO (Margen Aceptable),False,"⚖️ **Hándicap & Spread:** Ventaja moderada para Heat (58.9%). Margen estrecho (~4.4 pts). **Evitar apuestas directas al ganador; si se busca valor, la opción más prudente es tomar el spread ampliado a favor del underdog** para proteger la jugada. 📈 **Totales (O/U):** Margen aceptable hacia el **DEBAJO (Bajas)** (Sim: 221.8 vs Línea: 228.5). ⚠️ **Veredicto Final:** Precaución moderada. Se aconseja operar únicamente con líneas alternativas de protección o descartarlo."
+2026-11-14,Grizzlies,Nets,,228.5,DEBAJO,215.1,,Grizzlies,82.5,🟢 VERDE (Alta Confiabilidad),🟢 GRAN VALOR (Divergencia Fuerte vs Vegas),False,"🔥 **Hándicap & Spread:** Grizzlies muestra solidez absoluta (82.5%). Margen proyectado de ~16.2 puntos. Para parleys seguros, **se recomienda comprar puntos o ajustar la línea de ventaja (bajar el hándicap o tomar al underdog recibiendo +4.5/+7.5)** en lugar del triunfo directo ajustado. 📊 **Totales (O/U):** Divergencia fuerte frente a Las Vegas (Simulado: 215.1 vs Línea: 228.5), apuntando a un **DEBAJO (Bajas)** claro. ✅ **Veredicto Final:** Encuentro apto para armar combinadas de valor, priorizando líneas ajustadas de hándicap o totales respaldados."
+2026-11-14,Timberwolves,Bulls,,235.5,OVER,235.4,,Timberwolves,77.9,🟢 VERDE (Alta Confiabilidad),⚪ NEUTRO (Línea Cerrada / Sin Ventaja),False,"🔥 **Hándicap & Spread:** Timberwolves muestra solidez absoluta (77.9%). Margen proyectado de ~14.0 puntos. Para parleys seguros, **se recomienda comprar puntos o ajustar la línea de ventaja (bajar el hándicap o tomar al underdog recibiendo +4.5/+7.5)** en lugar del triunfo directo ajustado. 📉 **Totales (O/U):** Mercado eficiente; la línea de Las Vegas (235.5) y la simulación (235.4) están alineadas sin divergencia útil. ✅ **Veredicto Final:** Encuentro apto para armar combinadas de valor, priorizando líneas ajustadas de hándicap o totales respaldados."
