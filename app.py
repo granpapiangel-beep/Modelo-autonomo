@@ -36,7 +36,6 @@ st.markdown("""
     .player-name { font-weight: 600; color: #E2E8F0; }
     .player-stat { color: #94A3B8; font-size: 0.85rem; }
     
-    /* Panel de Enfermería Visual */
     .injury-panel { background: #1F0D0D; border: 1px solid #7F1D1D; padding: 12px; border-radius: 8px; margin-top: 15px; }
     .injury-item { background: #2F1515; padding: 8px; border-radius: 6px; margin-top: 6px; border-left: 4px solid #EF4444; font-size: 0.9rem; }
 </style>
@@ -82,9 +81,8 @@ def obtener_patron_titulares(nombre_equipo):
     return jugadores_equipo[:6]
 
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Motor analítico de proyecciones y divergencia de líneas.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Motor analítico, de recomendaciones y divergencia de líneas.</p>', unsafe_allow_html=True)
 
-# LECTURA DEL JSON DE LESIONES PARA LA INTERFAZ
 alertas_data = {"mensaje_general": "Monitoreo activo.", "alertas_criticas": []}
 if os.path.exists("alertas_lesiones.json"):
     try:
@@ -97,7 +95,7 @@ with st.sidebar:
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
     st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.7.2 | Pace Anchor & Neutral Active")
+    st.caption("v 3.8.0 | Tactical Advisor Active")
     
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
@@ -140,6 +138,7 @@ if os.path.exists(ARCHIVO_EVAL):
             ganador, prob = row.get("Pred_Ganador", "N/A"), row.get("Prob_Ganador_Pct", 50.0)
             linea, prom_sim = row.get("Line_Apuesta", 225.5), row.get("Promedio_Simulado", 225.5)
             pred_ou, sem_puntos = row.get("Pred_OU", "N/A"), row.get("Semaforo_Puntos", "Estándar")
+            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis táctico autónomo en proceso...")
             
             borde_ou = "#64748B"
             if "GRAN VALOR" in str(sem_puntos): borde_ou = "#34D399"
@@ -163,6 +162,9 @@ if os.path.exists(ARCHIVO_EVAL):
                         <span style="color:#F8FAFC; font-size:1.2rem; font-weight:700;">📉 {pred_ou} <span style="color:#94A3B8; font-size:1rem;">(Bot Sim: {prom_sim})</span></span>
                         <br><span style="font-size:0.85rem; color:#CBD5E1;">{sem_puntos}</span>
                     </div>
+                </div>
+                <div style="background:#111827; padding: 16px; border-radius:8px; border-left:4px solid #F59E0B; font-size:0.95rem; color:#E2E8F0; line-height: 1.6;">
+                    <b>🤖 Informe y Recomendación Táctica (IA Autónoma):</b><br>{rec_autonoma}
                 </div>
             </div>
             """
