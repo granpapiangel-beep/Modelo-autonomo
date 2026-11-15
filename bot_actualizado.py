@@ -30,7 +30,7 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
 def traducir_motivo_lesion(motivo):
-    """Traduce los motivos médicos de ESPN del inglés al español."""
+    """Traduce exhaustivamente los motivos médicos de ESPN al español."""
     m_lower = motivo.lower()
     diccionario = {
         "soreness": "Molestia muscular",
@@ -46,7 +46,13 @@ def traducir_motivo_lesion(motivo):
         "concussion": "Protocolo de conmoción",
         "foot": "Lesión de pie",
         "wrist": "Lesión de muñeca",
-        "hip": "Molestia en cadera"
+        "hip": "Molestia en cadera",
+        "inflammation": "Inflamación",
+        "toe": "Lesión en el dedo del pie",
+        "spasms": "Espasmos musculares",
+        "sprain": "Esguince",
+        "surgery": "Cirugía / Recuperación",
+        "achilles": "Lesión en el talón de Aquiles"
     }
     for eng, esp in diccionario.items():
         if eng in m_lower:
@@ -250,6 +256,7 @@ def obtener_cartelera_y_boxscore_avanzado():
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             spread_casa = 3.5 
+            momio_estimado = 1.88  # Cuota estándar promedio de referencia
             odds_info = comp_data.get("odds", [])
             if odds_info:
                 try: linea_apuesta = float(odds_info[0].get("overUnder", linea_apuesta))
@@ -262,7 +269,8 @@ def obtener_cartelera_y_boxscore_avanzado():
             if local_team and visitante_team:
                 partidos.append({
                     "event_id": event_id, "local": local_team, "visitante": visitante_team,
-                    "stats_loc": stats_loc, "stats_vis": stats_vis, "linea": linea_apuesta, "spread_casa": spread_casa
+                    "stats_loc": stats_loc, "stats_vis": stats_vis, "linea": linea_apuesta, 
+                    "spread_casa": spread_casa, "momio": momio_estimado
                 })
                 
         tz_mexico = timezone(timedelta(hours=-6))
@@ -277,9 +285,10 @@ def obtener_cartelera_y_boxscore_avanzado():
         logging.error(f"Error procesando cartelera: {e}")
     return partidos
 
-def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa):
+def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_base):
     """
-    Genera un reporte corto enfocado en parleys con una recomendación de apuesta explícita (estilo tarjeta de selección).
+    Genera la recomendación exacta para parleys con signos correctos (- para favoritos, + para underdogs)
+    y sugerencia de momio protegido para combinadas seguras (~1.27x - 1.40x).
     """
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
@@ -288,24 +297,25 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
     
     lineas = []
 
-    # 1. Filtro de Veto si el partido es muy parejo
+    # 1. Filtro estricto de partidos cerrados (Moneda al aire)
     if prob_fav < 56.0:
-        lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo (Moneda al aire). <i>Preferible no meterle a este encuentro.</i>")
+        lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo y volátil. <i>Preferible no meterle a este encuentro.</i>")
         return "<br>".join(lineas)
 
-    # 2. Análisis y Selección de Apuesta Concreta (Estilo Tarjeta de Apuesta)
+    # 2. Asignación correcta de signos de hándicap y cálculo de línea segura para parley
     if prob_fav >= 72.0:
-        if abs(spread_casa) >= 7.0:
-            lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%). Con hándicap alto de {spread_casa:+g}, se recomienda comprar puntos.")
-            lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap Ajustado (-3.5 / -4.5)</b> (Cuota segura para parley)")
-        else:
-            lineas.append(f"• <b>Análisis:</b> Gran solidez para <b>{favorito}</b> ({prob_fav}%).")
-            lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_casa:+g})</b>")
+        # Para favoritos sólidos, recomendamos hándicap negativo corto (-3.5 o línea ajustada segura)
+        spread_sugerido = -3.5 if abs(spread_casa) > 5.0 else -abs(spread_casa)
+        momio_seguro = 1.27 if abs(spread_sugerido) <= 3.5 else 1.45
+        lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%).")
+        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_sugerido:+.1f})</b> (Cuota aprox. <b>{momio_seguro}x</b> ideal para parley)")
     else:
-        lineas.append(f"• <b>Análisis:</b> Ventaja moderada para <b>{favorito}</b> ({prob_fav}%).")
-        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap a favor (tomar puntos)</b>")
+        # Para ventajas moderadas, damos tolerancia de puntos positivos al underdog (+)
+        spread_protegido = abs(spread_casa) + 3.5
+        lineas.append(f"• <b>Análisis:</b> Ventaja ajustada para <b>{favorito}</b> ({prob_fav}%).")
+        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen protegido)")
 
-    # 3. Totales opcionales si hay divergencia
+    # 3. Totales
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
     if diferencia_ou >= 6.0:
@@ -320,6 +330,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     stats_vis = partido["stats_vis"]
     linea_apuesta = partido["linea"]
     spread_casa = partido["spread_casa"]
+    momio = partido["momio"]
 
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
@@ -360,7 +371,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
     recomendacion_texto = generar_recomendacion_corta(
         local, visitante, pred_ganador, round(prob_ganador_pct, 1), 
-        round(promedio_simulado, 1), linea_apuesta, spread_casa
+        round(promedio_simulado, 1), linea_apuesta, spread_casa, momio
     )
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
@@ -390,7 +401,7 @@ if __name__ == "__main__":
             "event_id": "000000", "local": "Celtics", "visitante": "Heat",
             "stats_loc": {"PTS_OFENSIVA": 118.0, "DEF_R_RIVAL": 109.5, "RITMO": 1.0, "FACTOR_FORMA": 1.0},
             "stats_vis": {"PTS_OFENSIVA": 109.5, "DEF_R_RIVAL": 118.0, "RITMO": 1.0, "FACTOR_FORMA": 1.0},
-            "linea": 221.5, "spread_casa": 4.5
+            "linea": 221.5, "spread_casa": 4.5, "momio": 1.88
         }]
 
     nuevos_registros = [simular_monte_carlo_con_rotacion(p, pesos_calibrados) for p in partidos_de_hoy]
