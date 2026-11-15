@@ -1,31 +1,31 @@
 {
     "fecha": "2026-11-15",
-    "ultima_actualizacion": "14:58 UTC-6",
+    "ultima_actualizacion": "15:10 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
             "jugador": "Joel Embiid",
             "equipo": "76ers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Lesión de pie",
             "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-4.5 pts"
+            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "Adem Bona",
             "equipo": "76ers",
             "estatus": "OUT",
-            "motivo": "Sprain",
+            "motivo": "Esguince",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Andrew Nembhard",
             "equipo": "Pacers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-4.2 pts"
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Tyrese Haliburton",
@@ -103,7 +103,7 @@
             "jugador": "Santi Aldama",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
+            "motivo": "Esguince",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.4 pts"
         },
@@ -111,7 +111,7 @@
             "jugador": "Max Christie",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
+            "motivo": "Esguince",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.3 pts"
         },
@@ -143,7 +143,7 @@
             "jugador": "Kawhi Leonard",
             "equipo": "Raptors",
             "estatus": "OUT",
-            "motivo": "Inflammation",
+            "motivo": "Inflamación",
             "fecha_regreso": "2026-11-23",
             "impacto_simulador": "-4.9 pts"
         },
@@ -175,7 +175,7 @@
             "jugador": "Clint Capela",
             "equipo": "Rockets",
             "estatus": "OUT",
-            "motivo": "Sprain",
+            "motivo": "Esguince",
             "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-0.8 pts"
         },
@@ -207,7 +207,7 @@
             "jugador": "Jock Landale",
             "equipo": "Hawks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Inflammation",
+            "motivo": "Inflamación",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.3 pts"
         },
@@ -223,7 +223,7 @@
             "jugador": "Asa Newell",
             "equipo": "Hawks",
             "estatus": "OUT",
-            "motivo": "Toe",
+            "motivo": "Lesión en el dedo del pie",
             "fecha_regreso": "2026-11-20",
             "impacto_simulador": "-0.9 pts"
         },
@@ -239,7 +239,7 @@
             "jugador": "Jaylin Williams",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "Spasms",
+            "motivo": "Espasmos musculares",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.7 pts"
         },
@@ -247,7 +247,7 @@
             "jugador": "Ajay Mitchell",
             "equipo": "Thunder",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
+            "motivo": "Esguince",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.9 pts"
         },
@@ -255,7 +255,7 @@
             "jugador": "Cason Wallace",
             "equipo": "Thunder",
             "estatus": "OUT",
-            "motivo": "Surgery",
+            "motivo": "Cirugía / Recuperación",
             "fecha_regreso": "2027-03-02",
             "impacto_simulador": "-1.6 pts"
         },
