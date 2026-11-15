@@ -1,13 +1,29 @@
 {
     "fecha": "2026-11-15",
-    "ultima_actualizacion": "14:37 UTC-6",
+    "ultima_actualizacion": "14:58 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
+        {
+            "jugador": "Joel Embiid",
+            "equipo": "76ers",
+            "estatus": "OUT",
+            "motivo": "Lesión de pie",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-4.5 pts"
+        },
+        {
+            "jugador": "Adem Bona",
+            "equipo": "76ers",
+            "estatus": "OUT",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.5 pts"
+        },
         {
             "jugador": "Andrew Nembhard",
             "equipo": "Pacers",
             "estatus": "OUT",
-            "motivo": "Soreness",
+            "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-4.2 pts"
         },
@@ -15,7 +31,7 @@
             "jugador": "Tyrese Haliburton",
             "equipo": "Pacers",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-5.4 pts"
         },
@@ -23,7 +39,7 @@
             "jugador": "Ben Sheppard",
             "equipo": "Pacers",
             "estatus": "OUT",
-            "motivo": "Knee",
+            "motivo": "Lesión de rodilla",
             "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-0.8 pts"
         },
@@ -31,7 +47,7 @@
             "jugador": "Austin Reaves",
             "equipo": "Lakers",
             "estatus": "OUT",
-            "motivo": "Bruise",
+            "motivo": "Contusión / Golpe",
             "fecha_regreso": "2026-11-17",
             "impacto_simulador": "-6.2 pts"
         },
@@ -39,7 +55,7 @@
             "jugador": "Kon Knueppel",
             "equipo": "Hornets",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-12-12",
             "impacto_simulador": "-0.8 pts"
         },
@@ -47,7 +63,7 @@
             "jugador": "Dennis Schroder",
             "equipo": "Hornets",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-11-25",
             "impacto_simulador": "-2.6 pts"
         },
@@ -55,7 +71,7 @@
             "jugador": "Jaxson Hayes",
             "equipo": "Jazz",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-11-17",
             "impacto_simulador": "-2.2 pts"
         },
@@ -74,6 +90,14 @@
             "motivo": "Not Specified",
             "fecha_regreso": "2026-12-14",
             "impacto_simulador": "-4.1 pts"
+        },
+        {
+            "jugador": "De'Aaron Fox",
+            "equipo": "Spurs",
+            "estatus": "OUT",
+            "motivo": "Molestia en cadera",
+            "fecha_regreso": "2026-11-17",
+            "impacto_simulador": "-3.4 pts"
         },
         {
             "jugador": "Santi Aldama",
@@ -95,7 +119,7 @@
             "jugador": "Kyrie Irving",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Knee",
+            "motivo": "Lesión de rodilla",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-1.1 pts"
         },
@@ -111,7 +135,7 @@
             "jugador": "Scottie Barnes",
             "equipo": "Raptors",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-5.9 pts"
         },
@@ -127,7 +151,7 @@
             "jugador": "Tre Johnson",
             "equipo": "Wizards",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Back",
+            "motivo": "Dolor de espalda",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.5 pts"
         },
@@ -135,7 +159,7 @@
             "jugador": "Reece Beekman",
             "equipo": "Wizards",
             "estatus": "OUT",
-            "motivo": "Shoulder",
+            "motivo": "Lesión de hombro",
             "fecha_regreso": "2026-12-03",
             "impacto_simulador": "-0.0 pts"
         },
@@ -159,7 +183,7 @@
             "jugador": "Fred VanVleet",
             "equipo": "Rockets",
             "estatus": "OUT",
-            "motivo": "Knee",
+            "motivo": "Lesión de rodilla",
             "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-3.5 pts"
         },
@@ -175,7 +199,7 @@
             "jugador": "Ryan Rollins",
             "equipo": "Bucks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Illness",
+            "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.5 pts"
         },
@@ -191,7 +215,7 @@
             "jugador": "Kingston Flemings",
             "equipo": "Hawks",
             "estatus": "OUT",
-            "motivo": "Strain",
+            "motivo": "Distensión muscular",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.9 pts"
         },
@@ -207,9 +231,41 @@
             "jugador": "Precious Achiuwa",
             "equipo": "Kings",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Soreness",
+            "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Jaylin Williams",
+            "equipo": "Thunder",
+            "estatus": "OUT",
+            "motivo": "Spasms",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.7 pts"
+        },
+        {
+            "jugador": "Ajay Mitchell",
+            "equipo": "Thunder",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Sprain",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-0.9 pts"
+        },
+        {
+            "jugador": "Cason Wallace",
+            "equipo": "Thunder",
+            "estatus": "OUT",
+            "motivo": "Surgery",
+            "fecha_regreso": "2027-03-02",
+            "impacto_simulador": "-1.6 pts"
+        },
+        {
+            "jugador": "Chet Holmgren",
+            "equipo": "Thunder",
+            "estatus": "OUT",
+            "motivo": "Lesión de rodilla",
+            "fecha_regreso": "2027-01-02",
+            "impacto_simulador": "-3.0 pts"
         }
     ]
 }
