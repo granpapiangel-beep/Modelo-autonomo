@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-15",
-    "ultima_actualizacion": "12:02 UTC-6",
+    "ultima_actualizacion": "13:55 UTC-6",
     "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
     "alertas_criticas": [
         {
@@ -42,22 +42,6 @@
             "motivo": "Knee",
             "fecha_regreso": "2027-01-02",
             "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Adou Thiero",
-            "equipo": "Lakers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.1 pts"
-        },
-        {
-            "jugador": "Collin Sexton",
-            "equipo": "Lakers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Head",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Austin Reaves",
@@ -108,12 +92,20 @@
             "impacto_simulador": "-4.1 pts"
         },
         {
-            "jugador": "Daniel Gafford",
+            "jugador": "De'Aaron Fox",
+            "equipo": "Spurs",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Hip",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-0.7 pts"
+        },
+        {
+            "jugador": "Santi Aldama",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Face",
+            "motivo": "Sprain",
             "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.5 pts"
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Max Christie",
@@ -124,12 +116,20 @@
             "impacto_simulador": "-0.3 pts"
         },
         {
-            "jugador": "Sergio de Larrea",
+            "jugador": "Kyrie Irving",
             "equipo": "Mavericks",
-            "estatus": "OUT",
-            "motivo": "Strain",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.3 pts"
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Knee",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-1.1 pts"
+        },
+        {
+            "jugador": "Daniel Gafford",
+            "equipo": "Mavericks",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Stinger",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Scottie Barnes",
@@ -148,14 +148,6 @@
             "impacto_simulador": "-4.9 pts"
         },
         {
-            "jugador": "Alex Sarr",
-            "equipo": "Wizards",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Illness",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.6 pts"
-        },
-        {
             "jugador": "Tre Johnson",
             "equipo": "Wizards",
             "estatus": "DAY-TO-DAY",
@@ -167,8 +159,8 @@
             "jugador": "Bub Carrington",
             "equipo": "Wizards",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Chest",
-            "fecha_regreso": "2026-11-15",
+            "motivo": "Lesión / Descanso",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-0.2 pts"
         },
         {
@@ -178,6 +170,14 @@
             "motivo": "Shoulder",
             "fecha_regreso": "2026-12-03",
             "impacto_simulador": "-0.0 pts"
+        },
+        {
+            "jugador": "Justin Champagnie",
+            "equipo": "Wizards",
+            "estatus": "OUT",
+            "motivo": "Not Specified",
+            "fecha_regreso": "2027-02-25",
+            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Clint Capela",
@@ -212,6 +212,14 @@
             "impacto_simulador": "-1.0 pts"
         },
         {
+            "jugador": "Jock Landale",
+            "equipo": "Hawks",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Inflammation",
+            "fecha_regreso": "2026-11-15",
+            "impacto_simulador": "-0.3 pts"
+        },
+        {
             "jugador": "Kingston Flemings",
             "equipo": "Hawks",
             "estatus": "OUT",
@@ -226,14 +234,6 @@
             "motivo": "Toe",
             "fecha_regreso": "2026-11-20",
             "impacto_simulador": "-0.9 pts"
-        },
-        {
-            "jugador": "Keegan Murray",
-            "equipo": "Kings",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Illness",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Precious Achiuwa",
