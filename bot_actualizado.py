@@ -224,7 +224,7 @@ def obtener_cartelera_y_boxscore_avanzado():
             stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
-            spread_casa = 3.5  # Valor por defecto de spread si la API no provee la cuota exacta
+            spread_casa = 3.5 
             odds_info = comp_data.get("odds", [])
             if odds_info:
                 try: linea_apuesta = float(odds_info[0].get("overUnder", linea_apuesta))
@@ -244,7 +244,7 @@ def obtener_cartelera_y_boxscore_avanzado():
         ahora = datetime.now(tz_mexico)
         datos_json = {
             "fecha": ahora.strftime("%Y-%m-%d"), "ultima_actualizacion": ahora.strftime("%H:%M UTC-6"),
-            "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.", "alertas_criticas": todas_las_alertas
+            "mensaje_general": "🏥 Reporte médico procesado.", "alertas_criticas": todas_las_alertas
         }
         with open(ARCHIVO_LESIONES, "w", encoding="utf-8") as f:
             json.dump(datos_json, f, ensure_ascii=False, indent=4)
@@ -252,44 +252,40 @@ def obtener_cartelera_y_boxscore_avanzado():
         logging.error(f"Error procesando cartelera: {e}")
     return partidos
 
-def generar_recomendacion_autonoma(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa):
+def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa):
     """
-    Compara el spread real de la casa de apuestas con la simulación y genera una recomendación limpia,
-    ordenada y sin menciones innecesarias.
+    Genera un reporte corto, directo y estructurado en viñetas para lectura rápida en parleys.
     """
-    lineas = []
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
-    underdog = visitante if es_local else local
+    
+    lineas = []
 
-    # 1. Análisis del Spread / Hándicap frente al Casino
+    # 1. Spread / Hándicap directo
     if prob_fav >= 72.0:
-        lineas.append(f"• **Hándicap & Spread:** El modelo da amplio favoritismo a **{favorito}** ({prob_fav}%). Frente al spread de la casa (**{spread_casa:+g}**), la simulación respalda la línea o sugiere una ligera protección con el underdog si el hándicap es muy alto.")
+        lineas.append(f"• <b>Ganador / Spread:</b> Favoritismo fuerte para <b>{favorito}</b> ({prob_fav}%). Con spread de <b>{spread_casa:+g}</b>, ideal para parley ajustando puntos o bajando hándicap.")
     elif prob_fav >= 58.0:
-        lineas.append(f"• **Hándicap & Spread:** Ventaja moderada para **{favorito}** ({prob_fav}%). Con un spread de **{spread_casa:+g}**, el margen es estrecho; es preferible tomar los puntos a favor del underdog o evitar jugarlo directo.")
+        lineas.append(f"• <b>Ganador / Spread:</b> Ventaja ligera para <b>{favorito}</b> ({prob_fav}%). Spread de <b>{spread_casa:+g}</b>; mejor tomar puntos a favor del underdog.")
     else:
-        lineas.append(f"• **Hándicap & Spread:** Máxima paridad entre ambos equipos. El spread de **{spread_casa:+g}** refleja un duelo impredecible.")
+        lineas.append(f"• <b>Ganador / Spread:</b> Duelo muy cerrado con spread de <b>{spread_casa:+g}</b>. Sin favorito claro.")
 
-    # 2. Análisis de Totales (Over / Under)
+    # 2. Totales corto
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
-    tipo_ou = "OVER (Altas)" if promedio_simulado > linea_apuesta else "DEBAJO (Bajas)"
-    if diferencia_ou >= 7.5:
-        lineas.append(f"• **Totales (O/U):** Fuerte divergencia (Simulado: {promedio_simulado} vs Línea: {linea_apuesta}), apuntando claramente a un **{tipo_ou}**.")
-    elif diferencia_ou >= 4.0:
-        lineas.append(f"• **Totales (O/U):** Margen aceptable hacia el **{tipo_ou}** (Sim: {promedio_simulado} vs Línea: {linea_apuesta}).")
+    tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
+    if diferencia_ou >= 6.0:
+        lineas.append(f"• <b>Totales:</b> Clara tendencia a <b>{tipo_ou}</b> (Sim: {promedio_simulado} vs Línea: {linea_apuesta}).")
     else:
-        lineas.append(f"• **Totales (O/U):** Línea eficiente en {linea_apuesta} puntos; sin divergencia útil frente al simulador ({promedio_simulado}).")
+        lineas.append(f"• <b>Totales:</b> Línea eficiente en {linea_apuesta} pts; sin divergencia útil.")
 
-    # 3. Veredicto Final / Filtro de Seguridad
-    if prob_fav < 60.0 and diferencia_ou < 5.0:
-        veredicto = "🛑 **Veredicto:** Alta volatilidad y sin ventajas claras. **Preferible no meterle a este partido.**"
-    elif prob_fav >= 70.0 or diferencia_ou >= 7.5:
-        veredicto = "✅ **Veredicto:** Partido apto para parley combinando líneas de hándicap o totales respaldados."
+    # 3. Veredicto corto
+    if prob_fav < 60.0 and diferencia_ou < 4.0:
+        lineas.append("🛑 <b>Veredicto:</b> Alta volatilidad. <i>Preferible no meterle a este partido.</i>")
+    elif prob_fav >= 70.0 or diferencia_ou >= 6.0:
+        lineas.append("✅ <b>Veredicto:</b> Apto para parley con líneas protegidas.")
     else:
-        veredicto = "⚠️ **Veredicto:** Precaución moderada. Operar únicamente con líneas protegidas o descartar."
+        lineas.append("⚠️ <b>Veredicto:</b> Precaución moderada. Solo con hándicap seguro.")
 
-    lineas.append(veredicto)
     return "<br>".join(lineas)
 
 def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
@@ -337,7 +333,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
     else: semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
 
-    recomendacion_texto = generar_recomendacion_autonoma(
+    recomendacion_texto = generar_recomendacion_corta(
         local, visitante, pred_ganador, round(prob_ganador_pct, 1), 
         round(promedio_simulado, 1), linea_apuesta, spread_casa
     )
@@ -359,7 +355,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución autónoma...")
+    logging.info("🤖 Iniciando ejecución con formato rápido y directo...")
     sincronizar_titulares_y_puntajes()
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
