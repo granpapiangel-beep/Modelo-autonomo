@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-15",
-    "ultima_actualizacion": "15:10 UTC-6",
+    "ultima_actualizacion": "16:38 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -102,41 +102,33 @@
         {
             "jugador": "Santi Aldama",
             "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Esguince",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.4 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Max Christie",
             "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Esguince",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.3 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.3 pts"
         },
         {
             "jugador": "Kyrie Irving",
             "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Lesión de rodilla",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-1.1 pts"
-        },
-        {
-            "jugador": "Daniel Gafford",
-            "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Stinger",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.5 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-5.7 pts"
         },
         {
             "jugador": "Scottie Barnes",
             "equipo": "Raptors",
             "estatus": "OUT",
-            "motivo": "Distensión muscular",
-            "fecha_regreso": "2026-11-15",
+            "motivo": "Lesión / Descanso",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-5.9 pts"
         },
         {
