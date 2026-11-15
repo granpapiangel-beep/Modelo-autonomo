@@ -81,7 +81,7 @@ def obtener_patron_titulares(nombre_equipo):
     return jugadores_equipo[:6]
 
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Motor analítico, de recomendaciones y divergencia de líneas.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Análisis rápido, spread real y selección para Parley.</p>', unsafe_allow_html=True)
 
 alertas_data = {"mensaje_general": "Monitoreo activo.", "alertas_criticas": []}
 if os.path.exists("alertas_lesiones.json"):
@@ -95,7 +95,7 @@ with st.sidebar:
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
     st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.9.0 | Clean Tactical View")
+    st.caption("v 3.9.3 | Quick Tactical View")
     
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
@@ -138,7 +138,7 @@ if os.path.exists(ARCHIVO_EVAL):
             ganador, prob = row.get("Pred_Ganador", "N/A"), row.get("Prob_Ganador_Pct", 50.0)
             linea, prom_sim = row.get("Line_Apuesta", 225.5), row.get("Promedio_Simulado", 225.5)
             pred_ou, sem_puntos = row.get("Pred_OU", "N/A"), row.get("Semaforo_Puntos", "Estándar")
-            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis táctico en proceso...")
+            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis rápido en proceso...")
             
             borde_ou = "#64748B"
             if "GRAN VALOR" in str(sem_puntos): borde_ou = "#34D399"
@@ -164,7 +164,7 @@ if os.path.exists(ARCHIVO_EVAL):
                     </div>
                 </div>
                 <div style="background:#111827; padding: 16px; border-radius:8px; border-left:4px solid #F59E0B; font-size:0.95rem; color:#E2E8F0; line-height: 1.6;">
-                    <b>📋 Informe y Recomendación Táctica:</b><br><br>{rec_autonoma}
+                    <b>💡 Recomendación Rápida para Parley:</b><br><br>{rec_autonoma}
                 </div>
             </div>
             """
