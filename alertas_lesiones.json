@@ -1,24 +1,8 @@
 {
     "fecha": "2026-11-15",
-    "ultima_actualizacion": "13:55 UTC-6",
-    "mensaje_general": "🏥 Reporte médico autónomo procesado exitosamente.",
+    "ultima_actualizacion": "14:37 UTC-6",
+    "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
-        {
-            "jugador": "Joel Embiid",
-            "equipo": "76ers",
-            "estatus": "OUT",
-            "motivo": "Foot",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-4.5 pts"
-        },
-        {
-            "jugador": "Adem Bona",
-            "equipo": "76ers",
-            "estatus": "OUT",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
-        },
         {
             "jugador": "Andrew Nembhard",
             "equipo": "Pacers",
@@ -92,14 +76,6 @@
             "impacto_simulador": "-4.1 pts"
         },
         {
-            "jugador": "De'Aaron Fox",
-            "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Hip",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
             "jugador": "Santi Aldama",
             "equipo": "Mavericks",
             "estatus": "DAY-TO-DAY",
@@ -156,14 +132,6 @@
             "impacto_simulador": "-0.5 pts"
         },
         {
-            "jugador": "Bub Carrington",
-            "equipo": "Wizards",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión / Descanso",
-            "fecha_regreso": "Por definir",
-            "impacto_simulador": "-0.2 pts"
-        },
-        {
             "jugador": "Reece Beekman",
             "equipo": "Wizards",
             "estatus": "OUT",
@@ -196,20 +164,20 @@
             "impacto_simulador": "-3.5 pts"
         },
         {
+            "jugador": "Ousmane Dieng",
+            "equipo": "Bucks",
+            "estatus": "OUT",
+            "motivo": "Fracture",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.0 pts"
+        },
+        {
             "jugador": "Ryan Rollins",
             "equipo": "Bucks",
             "estatus": "DAY-TO-DAY",
             "motivo": "Illness",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Ousmane Dieng",
-            "equipo": "Bucks",
-            "estatus": "OUT",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.0 pts"
         },
         {
             "jugador": "Jock Landale",
@@ -242,38 +210,6 @@
             "motivo": "Soreness",
             "fecha_regreso": "2026-11-15",
             "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Jaylin Williams",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Spasms",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
-            "jugador": "Ajay Mitchell",
-            "equipo": "Thunder",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Sprain",
-            "fecha_regreso": "2026-11-15",
-            "impacto_simulador": "-0.9 pts"
-        },
-        {
-            "jugador": "Cason Wallace",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Surgery",
-            "fecha_regreso": "2027-03-02",
-            "impacto_simulador": "-1.6 pts"
-        },
-        {
-            "jugador": "Chet Holmgren",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Knee",
-            "fecha_regreso": "2027-01-02",
-            "impacto_simulador": "-3.0 pts"
         }
     ]
 }
