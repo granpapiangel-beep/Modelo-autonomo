@@ -29,6 +29,30 @@ def normalizar_texto(texto):
     if not isinstance(texto, str): return ""
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
+def traducir_motivo_lesion(motivo):
+    """Traduce los motivos médicos de ESPN del inglés al español."""
+    m_lower = motivo.lower()
+    diccionario = {
+        "soreness": "Molestia muscular",
+        "strain": "Distensión muscular",
+        "knee": "Lesión de rodilla",
+        "ankle": "Lesión de tobillo",
+        "bruise": "Contusión / Golpe",
+        "illness": "Enfermedad / Indispuesto",
+        "hamstring": "Molestia en isquiotibiales",
+        "back": "Dolor de espalda",
+        "shoulder": "Lesión de hombro",
+        "rest": "Descanso programado",
+        "concussion": "Protocolo de conmoción",
+        "foot": "Lesión de pie",
+        "wrist": "Lesión de muñeca",
+        "hip": "Molestia en cadera"
+    }
+    for eng, esp in diccionario.items():
+        if eng in m_lower:
+            return esp
+    return motivo
+
 def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
     tz_mexico = timezone(timedelta(hours=-6))
@@ -133,7 +157,8 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                         
                         jugador = inj.get("athlete", {}).get("displayName", "")
                         details = inj.get("details", {})
-                        motivo_texto = details.get("detail", details.get("type", "Lesión / Descanso"))
+                        motivo_raw = details.get("detail", details.get("type", "Lesión / Descanso"))
+                        motivo_texto = traducir_motivo_lesion(motivo_raw)
                         fecha_retorno = details.get("returnDate", "Por definir")
                         
                         if not df_titulares.empty:
@@ -254,37 +279,37 @@ def obtener_cartelera_y_boxscore_avanzado():
 
 def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa):
     """
-    Genera un reporte corto, directo y estructurado en viñetas para lectura rápida en parleys.
+    Genera un reporte corto enfocado en parleys con una recomendación de apuesta explícita (estilo tarjeta de selección).
     """
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
+    underdog = visitante if es_local else local
     
     lineas = []
 
-    # 1. Spread / Hándicap directo
-    if prob_fav >= 72.0:
-        lineas.append(f"• <b>Ganador / Spread:</b> Favoritismo fuerte para <b>{favorito}</b> ({prob_fav}%). Con spread de <b>{spread_casa:+g}</b>, ideal para parley ajustando puntos o bajando hándicap.")
-    elif prob_fav >= 58.0:
-        lineas.append(f"• <b>Ganador / Spread:</b> Ventaja ligera para <b>{favorito}</b> ({prob_fav}%). Spread de <b>{spread_casa:+g}</b>; mejor tomar puntos a favor del underdog.")
-    else:
-        lineas.append(f"• <b>Ganador / Spread:</b> Duelo muy cerrado con spread de <b>{spread_casa:+g}</b>. Sin favorito claro.")
+    # 1. Filtro de Veto si el partido es muy parejo
+    if prob_fav < 56.0:
+        lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo (Moneda al aire). <i>Preferible no meterle a este encuentro.</i>")
+        return "<br>".join(lineas)
 
-    # 2. Totales corto
+    # 2. Análisis y Selección de Apuesta Concreta (Estilo Tarjeta de Apuesta)
+    if prob_fav >= 72.0:
+        if abs(spread_casa) >= 7.0:
+            lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%). Con hándicap alto de {spread_casa:+g}, se recomienda comprar puntos.")
+            lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap Ajustado (-3.5 / -4.5)</b> (Cuota segura para parley)")
+        else:
+            lineas.append(f"• <b>Análisis:</b> Gran solidez para <b>{favorito}</b> ({prob_fav}%).")
+            lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_casa:+g})</b>")
+    else:
+        lineas.append(f"• <b>Análisis:</b> Ventaja moderada para <b>{favorito}</b> ({prob_fav}%).")
+        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap a favor (tomar puntos)</b>")
+
+    # 3. Totales opcionales si hay divergencia
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
     if diferencia_ou >= 6.0:
-        lineas.append(f"• <b>Totales:</b> Clara tendencia a <b>{tipo_ou}</b> (Sim: {promedio_simulado} vs Línea: {linea_apuesta}).")
-    else:
-        lineas.append(f"• <b>Totales:</b> Línea eficiente en {linea_apuesta} pts; sin divergencia útil.")
-
-    # 3. Veredicto corto
-    if prob_fav < 60.0 and diferencia_ou < 4.0:
-        lineas.append("🛑 <b>Veredicto:</b> Alta volatilidad. <i>Preferible no meterle a este partido.</i>")
-    elif prob_fav >= 70.0 or diferencia_ou >= 6.0:
-        lineas.append("✅ <b>Veredicto:</b> Apto para parley con líneas protegidas.")
-    else:
-        lineas.append("⚠️ <b>Veredicto:</b> Precaución moderada. Solo con hándicap seguro.")
+        lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b>")
 
     return "<br>".join(lineas)
 
@@ -355,7 +380,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     }
 
 if __name__ == "__main__":
-    logging.info("🤖 Iniciando ejecución con formato rápido y directo...")
+    logging.info("🤖 Iniciando ejecución autónoma...")
     sincronizar_titulares_y_puntajes()
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
