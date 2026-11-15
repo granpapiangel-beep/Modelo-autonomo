@@ -256,12 +256,21 @@ def obtener_cartelera_y_boxscore_avanzado():
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             spread_casa = 3.5 
-            momio_estimado = 1.88  # Cuota estándar promedio de referencia
+            momio_decimal = 1.88 # Valor por defecto real de mercado
             odds_info = comp_data.get("odds", [])
             if odds_info:
                 try: linea_apuesta = float(odds_info[0].get("overUnder", linea_apuesta))
                 except: pass
                 try: spread_casa = float(odds_info[0].get("spread", spread_casa))
+                except: pass
+                try:
+                    # Extraer precio/momio real del equipo favorito de la API y convertirlo a decimal
+                    home_odds = odds_info[0].get("homeTeamOdds", {})
+                    price_american = home_odds.get("price", -110)
+                    if price_american > 0:
+                        momio_decimal = round(1 + (price_american / 100), 2)
+                    else:
+                        momio_decimal = round(1 + (100 / abs(price_american)), 2)
                 except: pass
 
             if linea_apuesta < 200 or linea_apuesta > 255: linea_apuesta = linea_promedio_historica
@@ -270,7 +279,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                 partidos.append({
                     "event_id": event_id, "local": local_team, "visitante": visitante_team,
                     "stats_loc": stats_loc, "stats_vis": stats_vis, "linea": linea_apuesta, 
-                    "spread_casa": spread_casa, "momio": momio_estimado
+                    "spread_casa": spread_casa, "momio": momio_decimal
                 })
                 
         tz_mexico = timezone(timedelta(hours=-6))
@@ -285,10 +294,9 @@ def obtener_cartelera_y_boxscore_avanzado():
         logging.error(f"Error procesando cartelera: {e}")
     return partidos
 
-def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_base):
+def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real):
     """
-    Genera la recomendación exacta para parleys con signos correctos (- para favoritos, + para underdogs)
-    y sugerencia de momio protegido para combinadas seguras (~1.27x - 1.40x).
+    Genera la recomendación exacta para parleys extrayendo el hándicap real y el momio decimal del mercado.
     """
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
@@ -302,15 +310,12 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
         lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo y volátil. <i>Preferible no meterle a este encuentro.</i>")
         return "<br>".join(lineas)
 
-    # 2. Asignación correcta de signos de hándicap y cálculo de línea segura para parley
+    # 2. Asignación correcta de signo negativo (-) para el favorito según el spread real de la casa
     if prob_fav >= 72.0:
-        # Para favoritos sólidos, recomendamos hándicap negativo corto (-3.5 o línea ajustada segura)
-        spread_sugerido = -3.5 if abs(spread_casa) > 5.0 else -abs(spread_casa)
-        momio_seguro = 1.27 if abs(spread_sugerido) <= 3.5 else 1.45
+        spread_real = -abs(spread_casa) if spread_casa != 0 else -3.5
         lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%).")
-        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_sugerido:+.1f})</b> (Cuota aprox. <b>{momio_seguro}x</b> ideal para parley)")
+        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_real:+.1f})</b> (Cuota mercado: <b>{momio_real}x</b>)")
     else:
-        # Para ventajas moderadas, damos tolerancia de puntos positivos al underdog (+)
         spread_protegido = abs(spread_casa) + 3.5
         lineas.append(f"• <b>Análisis:</b> Ventaja ajustada para <b>{favorito}</b> ({prob_fav}%).")
         lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen protegido)")
