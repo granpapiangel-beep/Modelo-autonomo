@@ -1,8 +1,16 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "12:21 UTC-6",
+    "ultima_actualizacion": "16:46 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
+        {
+            "jugador": "Neemias Queta",
+            "equipo": "Celtics",
+            "estatus": "OUT",
+            "motivo": "Descanso programado",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-2.3 pts"
+        },
         {
             "jugador": "Paolo Banchero",
             "equipo": "Magic",
@@ -14,25 +22,17 @@
         {
             "jugador": "Jaylon Tyson",
             "equipo": "Cavaliers",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Lesión de tobillo",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Peyton Watson",
-            "equipo": "Cavaliers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.5 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-2.4 pts"
         },
         {
             "jugador": "Evan Mobley",
             "equipo": "Cavaliers",
             "estatus": "OUT",
             "motivo": "Esguince",
-            "fecha_regreso": "2026-11-18",
+            "fecha_regreso": "2026-11-29",
             "impacto_simulador": "-4.2 pts"
         },
         {
@@ -52,28 +52,12 @@
             "impacto_simulador": "-0.5 pts"
         },
         {
-            "jugador": "Jalen Smith",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.6 pts"
-        },
-        {
             "jugador": "Caleb Wilson",
             "equipo": "Bulls",
             "estatus": "OUT",
             "motivo": "Hand",
             "fecha_regreso": "2026-12-13",
             "impacto_simulador": "-4.7 pts"
-        },
-        {
-            "jugador": "Tre Johnson",
-            "equipo": "Wizards",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Reece Beekman",
@@ -132,20 +116,20 @@
             "impacto_simulador": "-1.2 pts"
         },
         {
-            "jugador": "LeBron James",
-            "equipo": "76ers",
-            "estatus": "OUT",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-3.8 pts"
-        },
-        {
             "jugador": "Joel Embiid",
             "equipo": "76ers",
             "estatus": "DAY-TO-DAY",
             "motivo": "Lesión de pie",
             "fecha_regreso": "2026-11-16",
             "impacto_simulador": "-0.9 pts"
+        },
+        {
+            "jugador": "LeBron James",
+            "equipo": "76ers",
+            "estatus": "OUT",
+            "motivo": "Dolor de espalda",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-3.8 pts"
         },
         {
             "jugador": "Adem Bona",
@@ -172,20 +156,12 @@
             "impacto_simulador": "-0.6 pts"
         },
         {
-            "jugador": "Steven Adams",
-            "equipo": "Rockets",
-            "estatus": "OUT",
-            "motivo": "Calf",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.2 pts"
-        },
-        {
-            "jugador": "Fred VanVleet",
+            "jugador": "Amen Thompson",
             "equipo": "Rockets",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión / Descanso",
-            "fecha_regreso": "Por definir",
-            "impacto_simulador": "-0.7 pts"
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Clint Capela",
@@ -194,6 +170,14 @@
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.8 pts"
+        },
+        {
+            "jugador": "Steven Adams",
+            "equipo": "Rockets",
+            "estatus": "OUT",
+            "motivo": "Calf",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Jaylen Clark",
@@ -298,6 +282,14 @@
             "motivo": "Not Specified",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-2.6 pts"
+        },
+        {
+            "jugador": "Ryan Dunn",
+            "equipo": "Suns",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-16",
+            "impacto_simulador": "-0.3 pts"
         }
     ]
 }
