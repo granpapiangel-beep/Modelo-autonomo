@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "17:36 UTC-6",
+    "ultima_actualizacion": "17:58 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -150,10 +150,10 @@
         {
             "jugador": "Amen Thompson",
             "equipo": "Rockets",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.8 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-3.9 pts"
         },
         {
             "jugador": "Clint Capela",
