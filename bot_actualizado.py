@@ -16,7 +16,7 @@ ARCHIVO_LESIONES = "alertas_lesiones.json"
 PLAYOFFS_MODE = False 
 
 TIERS_BASE_EQUIPOS = {
-    "Celtics": 117.0, "Thunder": 117.5, "Cavaliers": 113.5, "Nuggets": 113.0, "Mavericks": 115.5, 
+    "Celtics": 118.0, "Thunder": 114.5, "Cavaliers": 113.5, "Nuggets": 113.0, "Mavericks": 115.5, 
     "Spurs": 117.0, "Bucks": 109.5, "76ers": 116.5, "Timberwolves": 114.0, "Knicks": 114.0, 
     "Suns": 109.5, "Rockets": 113.0, "Lakers": 116.5, "Warriors": 112.0, "Kings": 112.0, 
     "Magic": 111.0, "Pacers": 109.0, "Grizzlies": 110.5, "Pistons": 112.0, "Heat": 109.5, 
@@ -30,8 +30,9 @@ def normalizar_texto(texto):
     return ''.join(c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn').lower().strip()
 
 def traducir_motivo_lesion(motivo):
-    """Traduce exhaustivamente los motivos médicos de ESPN al español."""
-    m_lower = motivo.lower()
+    """Traducción 100% exhaustiva al español de todos los reportes médicos de ESPN."""
+    if not isinstance(motivo, str): return "No especificado"
+    m_lower = motivo.lower().strip()
     diccionario = {
         "soreness": "Molestia muscular",
         "strain": "Distensión muscular",
@@ -52,12 +53,16 @@ def traducir_motivo_lesion(motivo):
         "spasms": "Espasmos musculares",
         "sprain": "Esguince",
         "surgery": "Cirugía / Recuperación",
-        "achilles": "Lesión en el talón de Aquiles"
+        "achilles": "Lesión en el talón de Aquiles",
+        "elbow": "Lesión de codo",
+        "hand": "Lesión de mano",
+        "calf": "Molestia en pantorrilla",
+        "not specified": "No especificado"
     }
     for eng, esp in diccionario.items():
         if eng in m_lower:
             return esp
-    return motivo
+    return motivo if motivo else "No especificado"
 
 def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
@@ -142,6 +147,58 @@ def sincronizar_titulares_y_puntajes():
             df_nuevo = df_nuevo.sort_values(by=['Equipo', 'Pos_Rank']).drop(columns=['Pos_Rank'])
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
+def actualizar_resultados_historicos_desde_espn():
+    """Consulta ESPN para rellenar los marcadores reales en el historial y calcular errores (Online Learning)."""
+    if not os.path.exists(ARCHIVO_HISTORIAL): return
+    try:
+        df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
+        if df_hist.empty: return
+        
+        if "Puntaje_Local_Real" not in df_hist.columns:
+            df_hist["Puntaje_Local_Real"] = np.nan
+            df_hist["Puntaje_Visita_Real"] = np.nan
+            df_hist["Evaluado"] = False
+
+        for idx, row in df_hist.iterrows():
+            if row.get("Evaluado", False) == True: continue
+            
+            fecha_str = str(row.get("Fecha", ""))
+            local = row.get("Local", "")
+            visitante = row.get("Visitante", "")
+            if not fecha_str or not local: continue
+            
+            fecha_api = fecha_str.replace("-", "")
+            url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_api}"
+            resp = requests.get(url, timeout=5)
+            if resp.status_code != 200: continue
+            
+            events = resp.json().get("events", [])
+            for event in events:
+                comps = event.get("competitions", [])
+                if not comps: continue
+                status_type = comps[0].get("status", {}).get("type", {})
+                if not status_type.get("completed", False): continue
+                
+                competitors = comps[0].get("competitors", [])
+                loc_name, vis_name, pts_l, pts_v = "", "", 0, 0
+                for comp in competitors:
+                    nombre = comp.get("team", {}).get("name", "")
+                    score = int(comp.get("score", 0))
+                    if comp.get("homeAway") == "home":
+                        loc_name, pts_l = nombre, score
+                    else:
+                        vis_name, pts_v = nombre, score
+                
+                if normalizar_texto(local) in normalizar_texto(loc_name) and normalizar_texto(visitante) in normalizar_texto(vis_name):
+                    df_hist.at[idx, "Puntaje_Local_Real"] = pts_l
+                    df_hist.at[idx, "Puntaje_Visita_Real"] = pts_v
+                    df_hist.at[idx, "Evaluado"] = True
+                    break
+                    
+        df_hist.to_csv(ARCHIVO_HISTORIAL, index=False)
+    except Exception as e:
+        logging.error(f"Error actualizando resultados históricos: {e}")
+
 def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
     penizacion_total = 0.0
     alertas_equipo = []
@@ -163,7 +220,7 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
                         
                         jugador = inj.get("athlete", {}).get("displayName", "")
                         details = inj.get("details", {})
-                        motivo_raw = details.get("detail", details.get("type", "Lesión / Descanso"))
+                        motivo_raw = details.get("detail", details.get("type", "No especificado"))
                         motivo_texto = traducir_motivo_lesion(motivo_raw)
                         fecha_retorno = details.get("returnDate", "Por definir")
                         
@@ -185,13 +242,44 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
     return penizacion_total, alertas_equipo
 
 def obtener_fuerza_actualizada_equipos():
+    """
+    Aplica aprendizaje automático en línea: ajusta los ratings base de los equipos
+    basándose en los errores de predicción guardados en el historial (Residuos).
+    """
     fuerzas = TIERS_BASE_EQUIPOS.copy()
     if not os.path.exists(ARCHIVO_HISTORIAL): return fuerzas
+    
     try:
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
-        if len(df_hist) < 5: return fuerzas
-        for equipo in fuerzas.keys(): fuerzas[equipo] = float(fuerzas[equipo])
-    except: pass
+        if df_hist.empty or "Evaluado" not in df_hist.columns: return fuerzas
+        
+        df_evaluados = df_hist[df_hist["Evaluado"] == True]
+        if len(df_evaluados) < 3: return fuerzas
+        
+        learning_rate = 0.08  # Tasa de auto-ajuste (8%)
+        
+        for _, row in df_evaluados.iterrows():
+            local = row.get("Local")
+            visitante = row.get("Visitante")
+            pts_real_l = row.get("Puntaje_Local_Real")
+            pts_real_v = row.get("Puntaje_Visita_Real")
+            
+            if pd.isna(pts_real_l) or pd.isna(pts_real_v) or local not in fuerzas or visitante not in fuerzas:
+                continue
+                
+            base_l = fuerzas[local]
+            base_v = fuerzas[visitante]
+            
+            error_local = pts_real_l - base_l
+            error_visita = pts_real_v - base_v
+            
+            fuerzas[local] += learning_rate * error_local
+            fuerzas[visitante] += learning_rate * error_visita
+            
+        logging.info("🧠 Modelos de fuerza actualizados dinámicamente mediante aprendizaje histórico.")
+    except Exception as e:
+        logging.error(f"Error en auto-ajuste de fuerzas: {e}")
+        
     return fuerzas
 
 def funcion_costo_historico(pesos, df_hist):
@@ -256,7 +344,7 @@ def obtener_cartelera_y_boxscore_avanzado():
 
             linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
             spread_casa = 3.5 
-            momio_decimal = 1.88 # Valor por defecto real de mercado
+            momio_decimal = 1.88 
             odds_info = comp_data.get("odds", [])
             if odds_info:
                 try: linea_apuesta = float(odds_info[0].get("overUnder", linea_apuesta))
@@ -264,7 +352,6 @@ def obtener_cartelera_y_boxscore_avanzado():
                 try: spread_casa = float(odds_info[0].get("spread", spread_casa))
                 except: pass
                 try:
-                    # Extraer precio/momio real del equipo favorito de la API y convertirlo a decimal
                     home_odds = odds_info[0].get("homeTeamOdds", {})
                     price_american = home_odds.get("price", -110)
                     if price_american > 0:
@@ -295,9 +382,6 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real):
-    """
-    Genera la recomendación exacta para parleys extrayendo el hándicap real y el momio decimal del mercado.
-    """
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
@@ -305,12 +389,10 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
     
     lineas = []
 
-    # 1. Filtro estricto de partidos cerrados (Moneda al aire)
     if prob_fav < 56.0:
         lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo y volátil. <i>Preferible no meterle a este encuentro.</i>")
         return "<br>".join(lineas)
 
-    # 2. Asignación correcta de signo negativo (-) para el favorito según el spread real de la casa
     if prob_fav >= 72.0:
         spread_real = -abs(spread_casa) if spread_casa != 0 else -3.5
         lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%).")
@@ -320,7 +402,6 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
         lineas.append(f"• <b>Análisis:</b> Ventaja ajustada para <b>{favorito}</b> ({prob_fav}%).")
         lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen protegido)")
 
-    # 3. Totales
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
     if diferencia_ou >= 6.0:
@@ -340,8 +421,12 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
 
-    proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
-    proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
+    defensa_rival_visita = stats_vis.get("DEF_R_RIVAL", 110)
+    defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
+
+    # Proyección separando ataque propio vs solidez defensiva rival (Evita confundir equipos ofensivos con defensivos)
+    proyeccion_loc_final = ((poder_ofensivo_local * 0.6) + (220.0 - defensa_rival_visita * 0.4)) * pesos_optimos[2]
+    proyeccion_vis_final = ((poder_ofensivo_visita * 0.6) + (220.0 - defensa_rival_local * 0.4)) * pesos_optimos[2]
 
     suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
     factor_ajuste_vegas = 1.0
@@ -360,7 +445,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-    diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final 
+    diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final  # Ventaja de localía ajustada a 2.5
     prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
     pred_ganador = local if prob_local >= 0.5 else visitante
@@ -398,6 +483,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 if __name__ == "__main__":
     logging.info("🤖 Iniciando ejecución autónoma...")
     sincronizar_titulares_y_puntajes()
+    actualizar_resultados_historicos_desde_espn()  # Cierra el ciclo de aprendizaje consultando resultados reales pasados
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
