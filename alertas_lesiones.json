@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "16:46 UTC-6",
+    "ultima_actualizacion": "17:36 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -39,7 +39,7 @@
             "jugador": "Sam Merrill",
             "equipo": "Cavaliers",
             "estatus": "OUT",
-            "motivo": "Elbow",
+            "motivo": "Lesión de codo",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.9 pts"
         },
@@ -55,7 +55,7 @@
             "jugador": "Caleb Wilson",
             "equipo": "Bulls",
             "estatus": "OUT",
-            "motivo": "Hand",
+            "motivo": "Lesión de mano",
             "fecha_regreso": "2026-12-13",
             "impacto_simulador": "-4.7 pts"
         },
@@ -71,7 +71,7 @@
             "jugador": "Justin Champagnie",
             "equipo": "Wizards",
             "estatus": "OUT",
-            "motivo": "Not Specified",
+            "motivo": "No especificado",
             "fecha_regreso": "2027-02-25",
             "impacto_simulador": "-1.8 pts"
         },
@@ -108,14 +108,6 @@
             "impacto_simulador": "-6.3 pts"
         },
         {
-            "jugador": "Quinten Post",
-            "equipo": "Grizzlies",
-            "estatus": "OUT",
-            "motivo": "Protocolo de conmoción",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-1.2 pts"
-        },
-        {
             "jugador": "Joel Embiid",
             "equipo": "76ers",
             "estatus": "DAY-TO-DAY",
@@ -142,18 +134,18 @@
         {
             "jugador": "Nikola Jovic",
             "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.1 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Pelle Larsson",
             "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.6 pts"
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-2.8 pts"
         },
         {
             "jugador": "Amen Thompson",
@@ -175,7 +167,7 @@
             "jugador": "Steven Adams",
             "equipo": "Rockets",
             "estatus": "OUT",
-            "motivo": "Calf",
+            "motivo": "Molestia en pantorrilla",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.2 pts"
         },
@@ -183,7 +175,7 @@
             "jugador": "Jaylen Clark",
             "equipo": "Timberwolves",
             "estatus": "OUT",
-            "motivo": "Not Specified",
+            "motivo": "No especificado",
             "fecha_regreso": "2026-11-29",
             "impacto_simulador": "-1.1 pts"
         },
@@ -215,7 +207,7 @@
             "jugador": "Ja Morant",
             "equipo": "Trail Blazers",
             "estatus": "OUT",
-            "motivo": "Not Specified",
+            "motivo": "No especificado",
             "fecha_regreso": "2026-12-01",
             "impacto_simulador": "-3.9 pts"
         },
@@ -279,7 +271,7 @@
             "jugador": "Brandon Williams",
             "equipo": "Warriors",
             "estatus": "OUT",
-            "motivo": "Not Specified",
+            "motivo": "No especificado",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-2.6 pts"
         },
