@@ -6,7 +6,13 @@ import pandas as pd
 import streamlit as st
 import unicodedata
 
-st.set_page_config(page_title="NBA AI Stephy | Analytics", page_icon="🏀", layout="wide", initial_sidebar_state="expanded")
+# Configuración de página con el logo oficial como favicon
+st.set_page_config(
+    page_title="NBA AI Stephy | Analytics", 
+    page_icon="Logo de stephy.png" if os.path.exists("Logo de stephy.png") else "🏀", 
+    layout="wide", 
+    initial_sidebar_state="expanded"
+)
 
 st.markdown("""
 <style>
@@ -15,7 +21,7 @@ st.markdown("""
     section[data-testid="stSidebar"] * { color: #F8FAFC !important; }
     
     @keyframes radar-pulse { 0% { transform: scale(0.1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-    .radar-container { position: relative; width: 100px; height: 100px; margin: 30px auto; }
+    .radar-container { position: relative; width: 100px; height: 100px; margin: 20px auto; }
     .radar-ring1 { position: absolute; width: 100%; height: 100%; border: 3px solid #FF4B4B; border-radius: 50%; opacity: 1; animation: radar-pulse 2s linear infinite; }
     .radar-ring2 { position: absolute; width: 100%; height: 100%; border: 3px solid #FF8C00; border-radius: 50%; opacity: 0; animation: radar-pulse 2s linear infinite; animation-delay: 1s; }
     .radar-core { position: absolute; top: 43px; left: 43px; width: 14px; height: 14px; background-color: #34D399; border-radius: 50%; box-shadow: 0 0 15px #34D399; }
@@ -80,8 +86,9 @@ def obtener_patron_titulares(nombre_equipo):
     jugadores_equipo.sort(key=lambda x: x[4], reverse=True)
     return jugadores_equipo[:6]
 
+# Encabezado principal
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Análisis rápido, spread real y selección para Parley.</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Análisis táctico autónomo, spread real y selección para Parley.</p>', unsafe_allow_html=True)
 
 alertas_data = {"mensaje_general": "Monitoreo activo.", "alertas_criticas": []}
 if os.path.exists("alertas_lesiones.json"):
@@ -90,12 +97,17 @@ if os.path.exists("alertas_lesiones.json"):
             alertas_data = json.load(f)
     except: pass
 
+# Barra Lateral con Logo y Monitoreo
 with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/889/889442.png", width=60)
+    if os.path.exists("Logo de stephy.png"):
+        st.image("Logo de stephy.png", use_container_width=True)
+    else:
+        st.image("https://cdn-icons-png.flaticon.com/512/889/889442.png", width=80)
+    
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
     st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.9.3 | Quick Tactical View")
+    st.caption("v 3.9.4 | Proyección Neuronal & Monte Carlo")
     
     st.markdown("---")
     st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
@@ -136,15 +148,20 @@ if os.path.exists(ARCHIVO_EVAL):
         for _, row in df_hoy.iterrows():
             local, visita = row.get("Local", "Local"), row.get("Visitante", "Visitante")
             ganador, prob = row.get("Pred_Ganador", "N/A"), row.get("Prob_Ganador_Pct", 50.0)
-            linea, prom_sim = row.get("Line_Apuesta", 225.5), row.get("Promedio_Simulado", 225.5)
-            pred_ou, sem_puntos = row.get("Pred_OU", "N/A"), row.get("Semaforo_Puntos", "Estándar")
+            linea = float(row.get("Line_Apuesta", 225.5))
+            prom_sim_raw = float(row.get("Promedio_Simulado", 225.5))
+            
+            # FILTRO DE SEGURIDAD: Evitar promedios irreales (ej. > 270 pts por error histórico)
+            prom_sim = prom_sim_raw if 170 <= prom_sim_raw <= 270 else linea
+            
+            # Recálculo limpio de Over/Under basado en el puntaje seguro
+            pred_ou = "OVER (Altas)" if prom_sim > linea else "UNDER (Bajas)"
+            
+            sem_puntos = row.get("Semaforo_Puntos", "Estándar")
             rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis rápido en proceso...")
             
-            borde_ou = "#64748B"
-            if "GRAN VALOR" in str(sem_puntos): borde_ou = "#34D399"
-            elif "VALOR MODERADO" in str(sem_puntos): borde_ou = "#FBBF24"
-            elif "NEUTRO" in str(sem_puntos): borde_ou = "#64748B"
-            elif "ROJO" in str(sem_puntos): borde_ou = "#EF4444"
+            borde_ou = "#34D399" if prom_sim > linea else "#F87171"
+            if "NEUTRO" in str(sem_puntos): borde_ou = "#64748B"
             
             jugadores_loc = obtener_patron_titulares(local)
             jugadores_vis = obtener_patron_titulares(visita)
@@ -159,7 +176,7 @@ if os.path.exists(ARCHIVO_EVAL):
                     </div>
                     <div style="background:#0F172A; padding: 12px 20px; border-radius:8px; flex:1; border-left:4px solid {borde_ou};">
                         <span style="color:#94A3B8; font-size:0.9rem; display:block;">ANÁLISIS OVER/UNDER (Vegas: {linea})</span>
-                        <span style="color:#F8FAFC; font-size:1.2rem; font-weight:700;">📉 {pred_ou} <span style="color:#94A3B8; font-size:1rem;">(Bot Sim: {prom_sim})</span></span>
+                        <span style="color:#F8FAFC; font-size:1.2rem; font-weight:700;">📉 {pred_ou} <span style="color:#94A3B8; font-size:1rem;">(Bot Sim: {prom_sim:.1f})</span></span>
                         <br><span style="font-size:0.85rem; color:#CBD5E1;">{sem_puntos}</span>
                     </div>
                 </div>
