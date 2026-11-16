@@ -256,7 +256,7 @@ def obtener_fuerza_actualizada_equipos():
         df_evaluados = df_hist[df_hist["Evaluado"] == True]
         if len(df_evaluados) < 3: return fuerzas
         
-        learning_rate = 0.08  # Tasa de auto-ajuste (8%)
+        learning_rate = 0.05  # Tasa de auto-ajuste conservadora (5%)
         
         for _, row in df_evaluados.iterrows():
             local = row.get("Local")
@@ -425,27 +425,23 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
 
     # Proyección separando ataque propio vs solidez defensiva rival (Evita confundir equipos ofensivos con defensivos)
-    proyeccion_loc_final = ((poder_ofensivo_local * 0.6) + (220.0 - defensa_rival_visita * 0.4)) * pesos_optimos[2]
-    proyeccion_vis_final = ((poder_ofensivo_visita * 0.6) + (220.0 - defensa_rival_local * 0.4)) * pesos_optimos[2]
+    proyeccion_loc_raw = ((poder_ofensivo_local * 0.55) + (220.0 - defensa_rival_visita * 0.45)) * pesos_optimos[2]
+    proyeccion_vis_raw = ((poder_ofensivo_visita * 0.55) + (220.0 - defensa_rival_local * 0.45)) * pesos_optimos[2]
 
-    suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
-    factor_ajuste_vegas = 1.0
-    if linea_apuesta >= 235.0 and suma_proyectada_base < linea_apuesta:
-        factor_ajuste_vegas = min(1.08, linea_apuesta / max(suma_proyectada_base, 1.0))
-    elif linea_apuesta <= 215.0 and suma_proyectada_base > linea_apuesta:
-        factor_ajuste_vegas = max(0.92, linea_apuesta / max(suma_proyectada_base, 1.0))
+    # RESTRICCIÓN FÍSICA ESTRICTA: Limitar puntos individuales lógicos en NBA (entre 90 y 125 pts)
+    proyeccion_loc_final = np.clip(proyeccion_loc_raw, 90.0, 125.0)
+    proyeccion_vis_final = np.clip(proyeccion_vis_raw, 90.0, 125.0)
 
-    multiplicador_ritmo = stats_loc.get("RITMO", 1.0) * factor_ajuste_vegas
-
+    # Simulación Monte Carlo con desviación estándar controlada (std=7.0 para evitar desbordamientos a 310 pts)
     n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 7.0, n_sims), 75, 140)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 7.0, n_sims), 75, 140)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
     promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-    diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final  # Ventaja de localía ajustada a 2.5
+    diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final  
     prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
     pred_ganador = local if prob_local >= 0.5 else visitante
