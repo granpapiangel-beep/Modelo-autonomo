@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "21:51 UTC-6",
+    "ultima_actualizacion": "22:04 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -41,7 +41,7 @@
             "estatus": "OUT",
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-29",
-            "impacto_simulador": "-4.2 pts"
+            "impacto_simulador": "-4.1 pts"
         },
         {
             "jugador": "Sam Merrill",
@@ -49,7 +49,7 @@
             "estatus": "OUT",
             "motivo": "Lesión de codo",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.9 pts"
+            "impacto_simulador": "-2.0 pts"
         },
         {
             "jugador": "Jalen Smith",
@@ -57,7 +57,7 @@
             "estatus": "DAY-TO-DAY",
             "motivo": "Undisclosed",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.6 pts"
+            "impacto_simulador": "-0.7 pts"
         },
         {
             "jugador": "Patrick Williams",
@@ -73,7 +73,7 @@
             "estatus": "OUT",
             "motivo": "Dolor de espalda",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
+            "impacto_simulador": "-0.2 pts"
         },
         {
             "jugador": "Caleb Wilson",
@@ -81,7 +81,7 @@
             "estatus": "OUT",
             "motivo": "Lesión de mano",
             "fecha_regreso": "2026-12-13",
-            "impacto_simulador": "-4.7 pts"
+            "impacto_simulador": "-4.4 pts"
         },
         {
             "jugador": "Reece Beekman",
@@ -105,7 +105,7 @@
             "estatus": "DAY-TO-DAY",
             "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
+            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Ty Jerome",
@@ -113,7 +113,7 @@
             "estatus": "DAY-TO-DAY",
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.3 pts"
+            "impacto_simulador": "-1.1 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
@@ -121,7 +121,7 @@
             "estatus": "OUT",
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-1.6 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "GG Jackson",
@@ -129,15 +129,15 @@
             "estatus": "OUT",
             "motivo": "Cirugía / Recuperación",
             "fecha_regreso": "2027-01-18",
-            "impacto_simulador": "-1.7 pts"
+            "impacto_simulador": "-1.9 pts"
         },
         {
             "jugador": "LeBron James",
             "equipo": "76ers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Dolor de espalda",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-3.8 pts"
+            "impacto_simulador": "-0.7 pts"
         },
         {
             "jugador": "Adem Bona",
@@ -145,7 +145,15 @@
             "estatus": "OUT",
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-21",
-            "impacto_simulador": "-0.5 pts"
+            "impacto_simulador": "-0.6 pts"
+        },
+        {
+            "jugador": "Nikola Jovic",
+            "equipo": "Heat",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Enfermedad / Indispuesto",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.1 pts"
         },
         {
             "jugador": "Bam Adebayo",
@@ -153,15 +161,7 @@
             "estatus": "DAY-TO-DAY",
             "motivo": "Molestia en cadera",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.0 pts"
-        },
-        {
-            "jugador": "Nikola Jovic",
-            "equipo": "Heat",
-            "estatus": "OUT",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.6 pts"
+            "impacto_simulador": "-1.1 pts"
         },
         {
             "jugador": "Pelle Larsson",
@@ -169,15 +169,31 @@
             "estatus": "OUT",
             "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-2.8 pts"
+            "impacto_simulador": "-3.2 pts"
         },
         {
             "jugador": "Amen Thompson",
             "equipo": "Rockets",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-3.9 pts"
+            "impacto_simulador": "-0.8 pts"
+        },
+        {
+            "jugador": "Marcus Smart",
+            "equipo": "Rockets",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Suspension",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.4 pts"
+        },
+        {
+            "jugador": "Steven Adams",
+            "equipo": "Rockets",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia en pantorrilla",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.2 pts"
         },
         {
             "jugador": "Clint Capela",
@@ -186,14 +202,6 @@
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Steven Adams",
-            "equipo": "Rockets",
-            "estatus": "OUT",
-            "motivo": "Molestia en pantorrilla",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Jonathan Kuminga",
@@ -244,20 +252,20 @@
             "impacto_simulador": "-3.9 pts"
         },
         {
+            "jugador": "Bennedict Mathurin",
+            "equipo": "Pelicans",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Plantar Fasciitis",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.3 pts"
+        },
+        {
             "jugador": "Bryce McGowens",
             "equipo": "Pelicans",
             "estatus": "OUT",
             "motivo": "Infection",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.9 pts"
-        },
-        {
-            "jugador": "Bennedict Mathurin",
-            "equipo": "Pelicans",
-            "estatus": "OUT",
-            "motivo": "Plantar Fasciitis",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.4 pts"
         },
         {
             "jugador": "Trey Murphy III",
