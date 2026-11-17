@@ -1,15 +1,15 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "21:29 UTC-6",
+    "ultima_actualizacion": "21:48 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
             "jugador": "Neemias Queta",
             "equipo": "Celtics",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Descanso programado",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-2.3 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Paolo Banchero",
@@ -20,20 +20,20 @@
             "impacto_simulador": "-6.1 pts"
         },
         {
+            "jugador": "Jaylon Tyson",
+            "equipo": "Cavaliers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Lesión de tobillo",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
             "jugador": "Peyton Watson",
             "equipo": "Cavaliers",
             "estatus": "DAY-TO-DAY",
             "motivo": "No especificado",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Jaylon Tyson",
-            "equipo": "Cavaliers",
-            "estatus": "OUT",
-            "motivo": "Lesión de tobillo",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-2.4 pts"
         },
         {
             "jugador": "Evan Mobley",
@@ -102,10 +102,18 @@
         {
             "jugador": "Isaiah Stewart",
             "equipo": "Grizzlies",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-2.7 pts"
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Ty Jerome",
+            "equipo": "Grizzlies",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.3 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
@@ -124,14 +132,6 @@
             "impacto_simulador": "-1.7 pts"
         },
         {
-            "jugador": "Ty Jerome",
-            "equipo": "Grizzlies",
-            "estatus": "OUT",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-6.3 pts"
-        },
-        {
             "jugador": "LeBron James",
             "equipo": "76ers",
             "estatus": "OUT",
@@ -144,7 +144,7 @@
             "equipo": "76ers",
             "estatus": "OUT",
             "motivo": "Esguince",
-            "fecha_regreso": "2026-11-18",
+            "fecha_regreso": "2026-11-21",
             "impacto_simulador": "-0.5 pts"
         },
         {
@@ -194,6 +194,14 @@
             "motivo": "Molestia en pantorrilla",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.2 pts"
+        },
+        {
+            "jugador": "Jonathan Kuminga",
+            "equipo": "Timberwolves",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Lesión de hombro",
+            "fecha_regreso": "2026-11-17",
+            "impacto_simulador": "-0.6 pts"
         },
         {
             "jugador": "Jaylen Clark",
