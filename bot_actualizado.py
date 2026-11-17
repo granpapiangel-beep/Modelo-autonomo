@@ -242,10 +242,6 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
     return penizacion_total, alertas_equipo
 
 def obtener_fuerza_actualizada_equipos():
-    """
-    Aplica aprendizaje automático en línea: ajusta los ratings base de los equipos
-    basándose en los errores de predicción guardados en el historial (Residuos).
-    """
     fuerzas = TIERS_BASE_EQUIPOS.copy()
     if not os.path.exists(ARCHIVO_HISTORIAL): return fuerzas
     
@@ -404,7 +400,7 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
 
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
-    if diferencia_ou >= 6.0:
+    if diferencia_ou >= 4.0:
         lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b>")
 
     return "<br>".join(lineas)
@@ -418,29 +414,37 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     spread_casa = partido["spread_casa"]
     momio = partido["momio"]
 
+    # 1. Poder ofensivo base ajustado por pesos y forma
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
 
     defensa_rival_visita = stats_vis.get("DEF_R_RIVAL", 110)
     defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
 
-    # Proyección separando ataque propio vs solidez defensiva rival (Evita confundir equipos ofensivos con defensivos)
+    # 2. Expectativas de rendimiento individual para el Moneyline / Spread
     proyeccion_loc_raw = ((poder_ofensivo_local * 0.55) + (220.0 - defensa_rival_visita * 0.45)) * pesos_optimos[2]
     proyeccion_vis_raw = ((poder_ofensivo_visita * 0.55) + (220.0 - defensa_rival_local * 0.45)) * pesos_optimos[2]
 
-    # RESTRICCIÓN FÍSICA ESTRICTA: Limitar puntos individuales lógicos en NBA (entre 90 y 125 pts)
     proyeccion_loc_final = np.clip(proyeccion_loc_raw, 90.0, 125.0)
     proyeccion_vis_final = np.clip(proyeccion_vis_raw, 90.0, 125.0)
 
-    # Simulación Monte Carlo con desviación estándar controlada (std=7.0 para evitar desbordamientos a 310 pts)
-    n_sims = 2000
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final, 7.0, n_sims), 75, 140)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final, 7.0, n_sims), 75, 140)
-    total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
+    # 3. METODOLOGÍA PROFESIONAL: Anclaje estricto a la Línea de Vegas + Ajuste Delta del Modelo
+    potencial_combinado = proyeccion_loc_final + proyeccion_vis_final
+    delta_modelo = (potencial_combinado - 220.0) * 0.35  # Ajuste marginal controlado
+    
+    # El promedio simulado parte estrictamente de la línea de Las Vegas y aplica el ajuste del modelo
+    promedio_simulado_base = linea_apuesta + delta_modelo
+    
+    # Rango de seguridad estricto: El bot se mueve en un rango lógico de ±10.0 puntos respecto a Las Vegas
+    promedio_simulado = float(np.clip(promedio_simulado_base, linea_apuesta - 10.0, linea_apuesta + 10.0))
 
-    promedio_simulado = np.mean(total_puntos_sim)
+    # 4. Simulación Monte Carlo acotada alrededor de este promedio inteligente
+    n_sims = 2000
+    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 5.5, n_sims), linea_apuesta - 18, linea_apuesta + 18)
+    
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
+    # 5. Cálculo de ganador (Moneyline)
     diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final  
     prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
@@ -451,8 +455,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     else: semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
 
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 7.5: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
-    elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
+    if distancia_linea >= 4.0: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
+    elif distancia_linea >= 2.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
     else: semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
 
     recomendacion_texto = generar_recomendacion_corta(
@@ -469,7 +473,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
         "Semaforo_Ganador": semaforo_ganador,
         "Line_Apuesta": linea_apuesta,
-        "Pred_OU": "OVER" if prob_over > 50 else "DEBAJO",
+        "Pred_OU": "OVER (Altas)" if prob_over > 50 else "UNDER (Bajas)",
         "Promedio_Simulado": round(promedio_simulado, 1),
         "Semaforo_Puntos": semaforo_puntos,
         "Modo_Playoffs": PLAYOFFS_MODE,
