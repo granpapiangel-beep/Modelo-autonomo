@@ -2,13 +2,18 @@ from datetime import datetime, timezone, timedelta
 import json
 import logging
 import os
+import time
 import unicodedata
 import numpy as np
 import pandas as pd
 import requests
 from scipy.optimize import minimize
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s", handlers=[logging.StreamHandler()])
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[logging.StreamHandler()]
+)
 
 ARCHIVO_HISTORIAL = "historial_evaluaciones_nba.csv"
 ARCHIVO_TITULARES = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
@@ -78,6 +83,32 @@ def resolver_nombre_equipo(nombre_equipo):
     return nombre_equipo
 
 
+def pedido_espn(url, timeout=10, max_retries=3, backoff=1.0):
+    last_error = None
+    for intento in range(max_retries):
+        try:
+            resp = requests.get(url, timeout=timeout)
+            if resp.status_code == 200:
+                return resp
+            if resp.status_code in (429, 500, 502, 503, 504):
+                last_error = RuntimeError(f"HTTP {resp.status_code} for {url}")
+                if intento < max_retries - 1:
+                    time.sleep(backoff * (2 ** intento))
+                    continue
+                return resp
+            return resp
+        except Exception as e:
+            last_error = e
+            if intento < max_retries - 1:
+                time.sleep(backoff * (2 ** intento))
+                continue
+            logging.warning(f"Fallo en solicitud a ESPN ({url}): {e}")
+            break
+    if last_error:
+        logging.warning(f"Último error de ESPN: {last_error}")
+    return None
+
+
 def traducir_motivo_lesion(motivo):
     if not isinstance(motivo, str):
         return "No especificado"
@@ -106,7 +137,7 @@ def traducir_motivo_lesion(motivo):
         "elbow": "Lesión de codo",
         "hand": "Lesión de mano",
         "calf": "Molestia en pantorrilla",
-        "not specified": "No especificado"
+        "not specified": "No especificado",
     }
     for eng, esp in diccionario.items():
         if eng in m_lower:
@@ -144,24 +175,24 @@ def sincronizar_titulares_y_puntajes():
         fecha_str_api = fecha_dt.strftime("%Y%m%d")
         url_scoreboard = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_str_api}"
         try:
-            resp = requests.get(url_scoreboard, timeout=10)
-            if resp.status_code != 200:
+            resp = pedido_espn(url_scoreboard, timeout=10, max_retries=3)
+            if resp is None or resp.status_code != 200:
                 continue
             events = resp.json().get("events", [])
             if not events:
                 continue
 
             for event in events:
-                event_id = event.get("id")
                 competitions = event.get("competitions", [])
                 if not competitions:
                     continue
                 if not competitions[0].get("status", {}).get("type", {}).get("completed", False):
                     continue
 
+                event_id = event.get("id")
                 url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
-                sum_resp = requests.get(url_summary, timeout=5)
-                if sum_resp.status_code != 200:
+                sum_resp = pedido_espn(url_summary, timeout=5, max_retries=3)
+                if sum_resp is None or sum_resp.status_code != 200:
                     continue
 
                 boxscore = sum_resp.json().get("boxscore", {})
@@ -197,8 +228,8 @@ def sincronizar_titulares_y_puntajes():
                                     base_datos_jugadores[clave][col_nombre] = f"{pts} pts"
                             except ValueError:
                                 pass
-        except Exception:
-            pass
+        except Exception as e:
+            logging.error(f"Error sincronizando titulares: {e}")
 
     filas_finales = list(base_datos_jugadores.values())
     if filas_finales:
@@ -226,7 +257,7 @@ def actualizar_resultados_historicos_desde_espn():
         for idx, row in df_hist.iterrows():
             if row.get("Evaluado", False) is True:
                 continue
-
+        
             fecha_str = str(row.get("Fecha", ""))
             local = row.get("Local", "")
             visitante = row.get("Visitante", "")
@@ -235,8 +266,8 @@ def actualizar_resultados_historicos_desde_espn():
 
             fecha_api = fecha_str.replace("-", "")
             url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_api}"
-            resp = requests.get(url, timeout=5)
-            if resp.status_code != 200:
+            resp = pedido_espn(url, timeout=5, max_retries=3)
+            if resp is None or resp.status_code != 200:
                 continue
 
             events = resp.json().get("events", [])
@@ -274,51 +305,60 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
     alertas_equipo = []
     url_summary = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={event_id}"
     try:
-        resp = requests.get(url_summary, timeout=8)
-        if resp.status_code == 200:
-            data = resp.json()
-            injuries = data.get("injuries", [])
-            df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig') if os.path.exists(ARCHIVO_TITULARES) else pd.DataFrame()
+        resp = pedido_espn(url_summary, timeout=8, max_retries=3)
+        if resp is None or resp.status_code != 200:
+            return penizacion_total, alertas_equipo
 
-            for team_inj in injuries:
-                team_name = resolver_nombre_equipo(team_inj.get("team", {}).get("displayName", ""))
-                if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
-                    for inj in team_inj.get("injuries", []):
-                        status = inj.get("status", "").upper()
-                        multiplicador = 0.25 if "OUT" in status else (0.05 if "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status else 0.0)
-                        if multiplicador == 0.0:
-                            continue
+        data = resp.json()
+        injuries = data.get("injuries", [])
+        df_titulares = pd.read_csv(ARCHIVO_TITULARES, encoding='utf-8-sig') if os.path.exists(ARCHIVO_TITULARES) else pd.DataFrame()
 
-                        jugador = inj.get("athlete", {}).get("displayName", "")
-                        details = inj.get("details", {})
-                        motivo_raw = details.get("detail", details.get("type", "No especificado"))
-                        motivo_texto = traducir_motivo_lesion(motivo_raw)
-                        fecha_retorno = details.get("returnDate", "Por definir")
+        for team_inj in injuries:
+            team_name = resolver_nombre_equipo(team_inj.get("team", {}).get("displayName", ""))
+            if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
+                for inj in team_inj.get("injuries", []):
+                    status = inj.get("status", "").upper()
+                    multiplicador = 0.25 if "OUT" in status else (0.05 if "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status else 0.0)
+                    if multiplicador == 0.0:
+                        continue
 
-                        if not df_titulares.empty:
-                            candidatos = df_titulares[df_titulares['Jugador'].apply(lambda x: isinstance(x, str) and (normalizar_texto(x) in normalizar_texto(jugador) or normalizar_texto(jugador) in normalizar_texto(x)))]
-                            if not candidatos.empty:
-                                fila_jug = candidatos.iloc[0]
-                                puntos_lista = []
-                                for col in df_titulares.columns[3:]:
-                                    valor = fila_jug.get(col, "")
-                                    if "pts" in str(valor).lower():
-                                        try:
-                                            puntos_lista.append(float(str(valor).lower().replace("pts", "").strip()))
-                                        except ValueError:
-                                            continue
-                                if puntos_lista:
-                                    prom = np.mean(puntos_lista)
-                                    impacto_neto = prom * multiplicador
-                                    penizacion_total += impacto_neto
-                                    alertas_equipo.append({
-                                        "jugador": jugador,
-                                        "equipo": nombre_equipo,
-                                        "estatus": status,
-                                        "motivo": motivo_texto,
-                                        "fecha_regreso": fecha_retorno,
-                                        "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
-                                    })
+                    jugador = inj.get("athlete", {}).get("displayName", "")
+                    details = inj.get("details", {})
+                    motivo_raw = details.get("detail", details.get("type", "No especificado"))
+                    motivo_texto = traducir_motivo_lesion(motivo_raw)
+                    fecha_retorno = details.get("returnDate", "Por definir")
+
+                    if not df_titulares.empty:
+                        candidatos = df_titulares[
+                            df_titulares['Jugador'].apply(
+                                lambda x: isinstance(x, str) and (
+                                    normalizar_texto(x) in normalizar_texto(jugador) or normalizar_texto(jugador) in normalizar_texto(x)
+                                )
+                            )
+                        ]
+                        if not candidatos.empty:
+                            fila_jug = candidatos.iloc[0]
+                            puntos_lista = []
+                            for col in df_titulares.columns[3:]:
+                                valor = fila_jug.get(col, "")
+                                if "pts" in str(valor).lower():
+                                    try:
+                                        puntos_lista.append(float(str(valor).lower().replace("pts", "").strip()))
+                                    except ValueError:
+                                        continue
+                            if puntos_lista:
+                                prom = np.mean(puntos_lista)
+                                factor_rol = 1.2 if "PG" in str(fila_jug.get("Posicion", "")).upper() or "SG" in str(fila_jug.get("Posicion", "")).upper() else 1.0
+                                impacto_neto = prom * multiplicador * factor_rol
+                                penizacion_total += impacto_neto
+                                alertas_equipo.append({
+                                    "jugador": jugador,
+                                    "equipo": nombre_equipo,
+                                    "estatus": status,
+                                    "motivo": motivo_texto,
+                                    "fecha_regreso": fecha_retorno,
+                                    "impacto_simulador": f"-{round(impacto_neto, 1)} pts"
+                                })
     except Exception as e:
         logging.error(f"Error consultando lesiones en ESPN para {nombre_equipo}: {e}")
     return penizacion_total, alertas_equipo
@@ -346,10 +386,12 @@ def funcion_costo_historico(pesos, df_hist):
         try:
             prom_sim = float(row.get("Promedio_Simulado", 225.5))
             pred_total = prom_sim * pesos[0] * pesos[2]
+
             if pd.notna(row.get("Puntaje_Local_Real")) and pd.notna(row.get("Puntaje_Visita_Real")):
                 total_objetivo = float(row.get("Puntaje_Local_Real", 0.0)) + float(row.get("Puntaje_Visita_Real", 0.0))
             else:
                 total_objetivo = float(row.get("Line_Apuesta", 225.5))
+
             error_total += (pred_total - total_objetivo) ** 2
             validos += 1
         except Exception:
@@ -389,7 +431,10 @@ def obtener_cartelera_y_boxscore_avanzado():
 
     todas_las_alertas = []
     try:
-        response = requests.get(url, timeout=10)
+        response = pedido_espn(url, timeout=10, max_retries=3)
+        if response is None or response.status_code != 200:
+            return partidos
+
         events = response.json().get("events", [])
         for event in events:
             event_id = event.get("id")
@@ -524,6 +569,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     multiplicador_ritmo = stats_loc.get("RITMO", 1.0) * factor_ajuste_vegas
 
     n_sims = 2000
+    np.random.seed(int(datetime.now().timestamp()) % 1000000)
     puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
     puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
