@@ -1,207 +1,23 @@
 {
-    "fecha": "2026-11-16",
-    "ultima_actualizacion": "22:04 UTC-6",
+    "fecha": "2026-11-17",
+    "ultima_actualizacion": "12:20 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
-            "jugador": "Neemias Queta",
-            "equipo": "Celtics",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Descanso programado",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Paolo Banchero",
-            "equipo": "Magic",
-            "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-22",
-            "impacto_simulador": "-6.1 pts"
-        },
-        {
-            "jugador": "Jaylon Tyson",
-            "equipo": "Cavaliers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión de tobillo",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Peyton Watson",
-            "equipo": "Cavaliers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "No especificado",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Evan Mobley",
-            "equipo": "Cavaliers",
-            "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-29",
-            "impacto_simulador": "-4.1 pts"
-        },
-        {
-            "jugador": "Sam Merrill",
-            "equipo": "Cavaliers",
-            "estatus": "OUT",
-            "motivo": "Lesión de codo",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-2.0 pts"
-        },
-        {
-            "jugador": "Jalen Smith",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Undisclosed",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
-            "jugador": "Patrick Williams",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Finger",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Tobe Awaka",
-            "equipo": "Bulls",
-            "estatus": "OUT",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.2 pts"
-        },
-        {
-            "jugador": "Caleb Wilson",
-            "equipo": "Bulls",
-            "estatus": "OUT",
-            "motivo": "Lesión de mano",
-            "fecha_regreso": "2026-12-13",
-            "impacto_simulador": "-4.4 pts"
-        },
-        {
-            "jugador": "Reece Beekman",
-            "equipo": "Wizards",
-            "estatus": "OUT",
-            "motivo": "Lesión de hombro",
-            "fecha_regreso": "2026-12-03",
-            "impacto_simulador": "-0.0 pts"
-        },
-        {
-            "jugador": "Justin Champagnie",
-            "equipo": "Wizards",
-            "estatus": "OUT",
-            "motivo": "No especificado",
-            "fecha_regreso": "2027-02-25",
-            "impacto_simulador": "-1.8 pts"
-        },
-        {
-            "jugador": "Isaiah Stewart",
-            "equipo": "Grizzlies",
+            "jugador": "Scottie Barnes",
+            "equipo": "Raptors",
             "estatus": "DAY-TO-DAY",
             "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.6 pts"
+            "fecha_regreso": "2026-11-17",
+            "impacto_simulador": "-1.4 pts"
         },
         {
-            "jugador": "Ty Jerome",
-            "equipo": "Grizzlies",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.1 pts"
-        },
-        {
-            "jugador": "Scotty Pippen Jr.",
-            "equipo": "Grizzlies",
+            "jugador": "Kawhi Leonard",
+            "equipo": "Raptors",
             "estatus": "OUT",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "GG Jackson",
-            "equipo": "Grizzlies",
-            "estatus": "OUT",
-            "motivo": "Cirugía / Recuperación",
-            "fecha_regreso": "2027-01-18",
-            "impacto_simulador": "-1.9 pts"
-        },
-        {
-            "jugador": "LeBron James",
-            "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
-            "jugador": "Adem Bona",
-            "equipo": "76ers",
-            "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-21",
-            "impacto_simulador": "-0.6 pts"
-        },
-        {
-            "jugador": "Nikola Jovic",
-            "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.1 pts"
-        },
-        {
-            "jugador": "Bam Adebayo",
-            "equipo": "Heat",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia en cadera",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-1.1 pts"
-        },
-        {
-            "jugador": "Pelle Larsson",
-            "equipo": "Heat",
-            "estatus": "OUT",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-3.2 pts"
-        },
-        {
-            "jugador": "Amen Thompson",
-            "equipo": "Rockets",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Marcus Smart",
-            "equipo": "Rockets",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Suspension",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.4 pts"
-        },
-        {
-            "jugador": "Steven Adams",
-            "equipo": "Rockets",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia en pantorrilla",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.2 pts"
-        },
-        {
-            "jugador": "Clint Capela",
-            "equipo": "Rockets",
-            "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.8 pts"
+            "motivo": "Inflamación",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-4.9 pts"
         },
         {
             "jugador": "Jonathan Kuminga",
@@ -252,59 +68,99 @@
             "impacto_simulador": "-3.9 pts"
         },
         {
-            "jugador": "Bennedict Mathurin",
-            "equipo": "Pelicans",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Plantar Fasciitis",
-            "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.3 pts"
+            "jugador": "Duncan Robinson",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-4.4 pts"
         },
         {
-            "jugador": "Bryce McGowens",
-            "equipo": "Pelicans",
+            "jugador": "Taurean Prince",
+            "equipo": "Pistons",
             "estatus": "OUT",
-            "motivo": "Infection",
+            "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-0.9 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
-            "jugador": "Trey Murphy III",
-            "equipo": "Pelicans",
+            "jugador": "Ronald Holland II",
+            "equipo": "Pistons",
             "estatus": "OUT",
-            "motivo": "Tendinitis",
+            "motivo": "Contusión / Golpe",
             "fecha_regreso": "2026-11-18",
-            "impacto_simulador": "-3.9 pts"
+            "impacto_simulador": "-1.2 pts"
         },
         {
-            "jugador": "Trendon Watford",
-            "equipo": "Pelicans",
+            "jugador": "Isaiah Joe",
+            "equipo": "Pistons",
             "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-18",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-17",
             "impacto_simulador": "-1.8 pts"
         },
         {
-            "jugador": "Dejounte Murray",
-            "equipo": "Pelicans",
+            "jugador": "Jalen Duren",
+            "equipo": "Pistons",
             "estatus": "OUT",
-            "motivo": "Lesión de tobillo",
-            "fecha_regreso": "2026-11-20",
-            "impacto_simulador": "-3.4 pts"
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-11-24",
+            "impacto_simulador": "-3.2 pts"
         },
         {
-            "jugador": "Stephen Curry",
-            "equipo": "Warriors",
+            "jugador": "Jaxson Hayes",
+            "equipo": "Jazz",
             "estatus": "OUT",
-            "motivo": "Abdomen",
-            "fecha_regreso": "2026-12-12",
-            "impacto_simulador": "-7.0 pts"
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-2.1 pts"
         },
         {
-            "jugador": "Brandon Williams",
-            "equipo": "Warriors",
+            "jugador": "Lauri Markkanen",
+            "equipo": "Jazz",
+            "estatus": "OUT",
+            "motivo": "Fracture",
+            "fecha_regreso": "2027-01-04",
+            "impacto_simulador": "-5.0 pts"
+        },
+        {
+            "jugador": "Jaren Jackson Jr.",
+            "equipo": "Jazz",
             "estatus": "OUT",
             "motivo": "No especificado",
-            "fecha_regreso": "2026-11-22",
+            "fecha_regreso": "2026-12-14",
+            "impacto_simulador": "-4.1 pts"
+        },
+        {
+            "jugador": "Austin Reaves",
+            "equipo": "Lakers",
+            "estatus": "OUT",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-6.0 pts"
+        },
+        {
+            "jugador": "Walker Kessler",
+            "equipo": "Lakers",
+            "estatus": "OUT",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-3.5 pts"
+        },
+        {
+            "jugador": "Kon Knueppel",
+            "equipo": "Hornets",
+            "estatus": "OUT",
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-12-12",
+            "impacto_simulador": "-0.8 pts"
+        },
+        {
+            "jugador": "Dennis Schroder",
+            "equipo": "Hornets",
+            "estatus": "OUT",
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-11-25",
             "impacto_simulador": "-2.6 pts"
         }
     ]
