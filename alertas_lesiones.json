@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "17:58 UTC-6",
+    "ultima_actualizacion": "18:09 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -106,14 +106,6 @@
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-6.3 pts"
-        },
-        {
-            "jugador": "Joel Embiid",
-            "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión de pie",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.9 pts"
         },
         {
             "jugador": "LeBron James",
