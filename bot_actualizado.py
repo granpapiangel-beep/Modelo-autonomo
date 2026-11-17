@@ -421,26 +421,28 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     defensa_rival_visita = stats_vis.get("DEF_R_RIVAL", 110)
     defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
 
-    # 2. Expectativas de rendimiento individual para el Moneyline / Spread
+    # 2. Expectativas de rendimiento individual
     proyeccion_loc_raw = ((poder_ofensivo_local * 0.55) + (220.0 - defensa_rival_visita * 0.45)) * pesos_optimos[2]
     proyeccion_vis_raw = ((poder_ofensivo_visita * 0.55) + (220.0 - defensa_rival_local * 0.45)) * pesos_optimos[2]
 
     proyeccion_loc_final = np.clip(proyeccion_loc_raw, 90.0, 125.0)
     proyeccion_vis_final = np.clip(proyeccion_vis_raw, 90.0, 125.0)
 
-    # 3. METODOLOGÍA PROFESIONAL: Anclaje estricto a la Línea de Vegas + Ajuste Delta del Modelo
+    # 3. DELTA SIMÉTRICO Y REALISTA BASADO EN LA LÍNEA DE VEGAS
     potencial_combinado = proyeccion_loc_final + proyeccion_vis_final
-    delta_modelo = (potencial_combinado - 220.0) * 0.35  # Ajuste marginal controlado
     
-    # El promedio simulado parte estrictamente de la línea de Las Vegas y aplica el ajuste del modelo
+    # Delta simétrico respecto a una media base de 225.0 puntos
+    delta_modelo = (potencial_combinado - 225.0) * 0.40  
+    
+    # El promedio simulado parte estrictamente de la línea de Vegas con el ajuste simétrico
     promedio_simulado_base = linea_apuesta + delta_modelo
     
-    # Rango de seguridad estricto: El bot se mueve en un rango lógico de ±10.0 puntos respecto a Las Vegas
-    promedio_simulado = float(np.clip(promedio_simulado_base, linea_apuesta - 10.0, linea_apuesta + 10.0))
+    # Rango de seguridad estricto de ±8.0 puntos respecto a Las Vegas
+    promedio_simulado = float(np.clip(promedio_simulado_base, linea_apuesta - 8.0, linea_apuesta + 8.0))
 
-    # 4. Simulación Monte Carlo acotada alrededor de este promedio inteligente
+    # 4. Simulación Monte Carlo equilibrada
     n_sims = 2000
-    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 5.5, n_sims), linea_apuesta - 18, linea_apuesta + 18)
+    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 5.0, n_sims), linea_apuesta - 15, linea_apuesta + 15)
     
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
@@ -473,7 +475,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
         "Semaforo_Ganador": semaforo_ganador,
         "Line_Apuesta": linea_apuesta,
-        "Pred_OU": "OVER (Altas)" if prob_over > 50 else "UNDER (Bajas)",
+        "Pred_OU": "OVER (Altas)" if promedio_simulado > linea_apuesta else "UNDER (Bajas)",
         "Promedio_Simulado": round(promedio_simulado, 1),
         "Semaforo_Puntos": semaforo_puntos,
         "Modo_Playoffs": PLAYOFFS_MODE,
@@ -483,7 +485,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 if __name__ == "__main__":
     logging.info("🤖 Iniciando ejecución autónoma...")
     sincronizar_titulares_y_puntajes()
-    actualizar_resultados_historicos_desde_espn()  # Cierra el ciclo de aprendizaje consultando resultados reales pasados
+    actualizar_resultados_historicos_desde_espn()  
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
