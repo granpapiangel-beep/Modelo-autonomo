@@ -148,7 +148,6 @@ def sincronizar_titulares_y_puntajes():
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
 def actualizar_resultados_historicos_desde_espn():
-    """Consulta ESPN para rellenar los marcadores reales en el historial y calcular errores (Online Learning)."""
     if not os.path.exists(ARCHIVO_HISTORIAL): return
     try:
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
@@ -252,7 +251,7 @@ def obtener_fuerza_actualizada_equipos():
         df_evaluados = df_hist[df_hist["Evaluado"] == True]
         if len(df_evaluados) < 3: return fuerzas
         
-        learning_rate = 0.05  # Tasa de auto-ajuste conservadora (5%)
+        learning_rate = 0.05  
         
         for _, row in df_evaluados.iterrows():
             local = row.get("Local")
@@ -272,7 +271,6 @@ def obtener_fuerza_actualizada_equipos():
             fuerzas[local] += learning_rate * error_local
             fuerzas[visitante] += learning_rate * error_visita
             
-        logging.info("🧠 Modelos de fuerza actualizados dinámicamente mediante aprendizaje histórico.")
     except Exception as e:
         logging.error(f"Error en auto-ajuste de fuerzas: {e}")
         
@@ -414,35 +412,33 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     spread_casa = partido["spread_casa"]
     momio = partido["momio"]
 
-    # 1. Poder ofensivo base ajustado por pesos y forma
+    # 1. Potencial puro de ataque y defensa sin sesgos artificiales
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
 
     defensa_rival_visita = stats_vis.get("DEF_R_RIVAL", 110)
     defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
 
-    # 2. Expectativas de rendimiento individual
-    proyeccion_loc_raw = ((poder_ofensivo_local * 0.55) + (220.0 - defensa_rival_visita * 0.45)) * pesos_optimos[2]
-    proyeccion_vis_raw = ((poder_ofensivo_visita * 0.55) + (220.0 - defensa_rival_local * 0.45)) * pesos_optimos[2]
+    # 2. Proyecciones individuales equilibradas de puntos
+    proyeccion_loc_raw = ((poder_ofensivo_local * 0.5) + (220.0 - defensa_rival_visita * 0.5)) * pesos_optimos[2]
+    proyeccion_vis_raw = ((poder_ofensivo_visita * 0.5) + (220.0 - defensa_rival_local * 0.5)) * pesos_optimos[2]
 
     proyeccion_loc_final = np.clip(proyeccion_loc_raw, 90.0, 125.0)
     proyeccion_vis_final = np.clip(proyeccion_vis_raw, 90.0, 125.0)
 
-    # 3. DELTA SIMÉTRICO Y REALISTA BASADO EN LA LÍNEA DE VEGAS
-    potencial_combinado = proyeccion_loc_final + proyeccion_vis_final
+    # 3. MODELO NEUTRAL DE TOTALES (Permite tanto Over como Under de forma limpia)
+    # Comparamos el ritmo/ofensiva estimada contra la media general de la liga (225.0)
+    suma_modelo = proyeccion_loc_final + proyeccion_vis_final
     
-    # Delta simétrico respecto a una media base de 225.0 puntos
-    delta_modelo = (potencial_combinado - 225.0) * 0.40  
+    # Promedio simulado basado puramente en la interacción de los equipos con una desviación equilibrada
+    promedio_simulado = float((linea_apuesta * 0.5) + (suma_modelo * 0.5))
     
-    # El promedio simulado parte estrictamente de la línea de Vegas con el ajuste simétrico
-    promedio_simulado_base = linea_apuesta + delta_modelo
-    
-    # Rango de seguridad estricto de ±8.0 puntos respecto a Las Vegas
-    promedio_simulado = float(np.clip(promedio_simulado_base, linea_apuesta - 8.0, linea_apuesta + 8.0))
+    # Acotamos de forma sensata para evitar valores absurdos
+    promedio_simulado = float(np.clip(promedio_simulado, linea_apuesta - 12.0, linea_apuesta + 12.0))
 
-    # 4. Simulación Monte Carlo equilibrada
+    # 4. Simulación Monte Carlo 
     n_sims = 2000
-    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 5.0, n_sims), linea_apuesta - 15, linea_apuesta + 15)
+    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 6.0, n_sims), 180, 270)
     
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
