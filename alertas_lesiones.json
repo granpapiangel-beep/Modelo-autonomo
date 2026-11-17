@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-16",
-    "ultima_actualizacion": "18:09 UTC-6",
+    "ultima_actualizacion": "21:29 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -18,6 +18,14 @@
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-6.1 pts"
+        },
+        {
+            "jugador": "Peyton Watson",
+            "equipo": "Cavaliers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "No especificado",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Jaylon Tyson",
@@ -42,6 +50,22 @@
             "motivo": "Lesión de codo",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.9 pts"
+        },
+        {
+            "jugador": "Jalen Smith",
+            "equipo": "Bulls",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Undisclosed",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.6 pts"
+        },
+        {
+            "jugador": "Patrick Williams",
+            "equipo": "Bulls",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Finger",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Tobe Awaka",
@@ -122,6 +146,14 @@
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Bam Adebayo",
+            "equipo": "Heat",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia en cadera",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.0 pts"
         },
         {
             "jugador": "Nikola Jovic",
@@ -244,14 +276,6 @@
             "impacto_simulador": "-3.4 pts"
         },
         {
-            "jugador": "Gui Santos",
-            "equipo": "Warriors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Inflamación",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.3 pts"
-        },
-        {
             "jugador": "Stephen Curry",
             "equipo": "Warriors",
             "estatus": "OUT",
@@ -266,14 +290,6 @@
             "motivo": "No especificado",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-2.6 pts"
-        },
-        {
-            "jugador": "Ryan Dunn",
-            "equipo": "Suns",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-16",
-            "impacto_simulador": "-0.3 pts"
         }
     ]
 }
