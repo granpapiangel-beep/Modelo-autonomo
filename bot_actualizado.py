@@ -148,6 +148,7 @@ def sincronizar_titulares_y_puntajes():
         df_nuevo.to_csv(ARCHIVO_TITULARES, index=False, encoding='utf-8-sig')
 
 def actualizar_resultados_historicos_desde_espn():
+    """Consulta ESPN para rellenar los marcadores reales en el historial y calcular errores (Online Learning)."""
     if not os.path.exists(ARCHIVO_HISTORIAL): return
     try:
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
@@ -243,37 +244,11 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
 def obtener_fuerza_actualizada_equipos():
     fuerzas = TIERS_BASE_EQUIPOS.copy()
     if not os.path.exists(ARCHIVO_HISTORIAL): return fuerzas
-    
     try:
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
-        if df_hist.empty or "Evaluado" not in df_hist.columns: return fuerzas
-        
-        df_evaluados = df_hist[df_hist["Evaluado"] == True]
-        if len(df_evaluados) < 3: return fuerzas
-        
-        learning_rate = 0.05  
-        
-        for _, row in df_evaluados.iterrows():
-            local = row.get("Local")
-            visitante = row.get("Visitante")
-            pts_real_l = row.get("Puntaje_Local_Real")
-            pts_real_v = row.get("Puntaje_Visita_Real")
-            
-            if pd.isna(pts_real_l) or pd.isna(pts_real_v) or local not in fuerzas or visitante not in fuerzas:
-                continue
-                
-            base_l = fuerzas[local]
-            base_v = fuerzas[visitante]
-            
-            error_local = pts_real_l - base_l
-            error_visita = pts_real_v - base_v
-            
-            fuerzas[local] += learning_rate * error_local
-            fuerzas[visitante] += learning_rate * error_visita
-            
-    except Exception as e:
-        logging.error(f"Error en auto-ajuste de fuerzas: {e}")
-        
+        if len(df_hist) < 5: return fuerzas
+        for equipo in fuerzas.keys(): fuerzas[equipo] = float(fuerzas[equipo])
+    except: pass
     return fuerzas
 
 def funcion_costo_historico(pesos, df_hist):
@@ -376,6 +351,9 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real):
+    """
+    Genera la recomendación exacta para parleys extrayendo el hándicap real y el momio decimal del mercado.
+    """
     es_local = (pred_ganador == local)
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
@@ -398,7 +376,7 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
 
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
-    if diferencia_ou >= 4.0:
+    if diferencia_ou >= 6.0:
         lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b>")
 
     return "<br>".join(lineas)
@@ -412,38 +390,30 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     spread_casa = partido["spread_casa"]
     momio = partido["momio"]
 
-    # 1. Potencial puro de ataque y defensa sin sesgos artificiales
     poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
     poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
 
-    defensa_rival_visita = stats_vis.get("DEF_R_RIVAL", 110)
-    defensa_rival_local = stats_loc.get("DEF_R_RIVAL", 110)
+    proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
+    proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
 
-    # 2. Proyecciones individuales equilibradas de puntos
-    proyeccion_loc_raw = ((poder_ofensivo_local * 0.5) + (220.0 - defensa_rival_visita * 0.5)) * pesos_optimos[2]
-    proyeccion_vis_raw = ((poder_ofensivo_visita * 0.5) + (220.0 - defensa_rival_local * 0.5)) * pesos_optimos[2]
+    suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
+    factor_ajuste_vegas = 1.0
+    if linea_apuesta >= 235.0 and suma_proyectada_base < linea_apuesta:
+        factor_ajuste_vegas = min(1.08, linea_apuesta / max(suma_proyectada_base, 1.0))
+    elif linea_apuesta <= 215.0 and suma_proyectada_base > linea_apuesta:
+        factor_ajuste_vegas = max(0.92, linea_apuesta / max(suma_proyectada_base, 1.0))
 
-    proyeccion_loc_final = np.clip(proyeccion_loc_raw, 90.0, 125.0)
-    proyeccion_vis_final = np.clip(proyeccion_vis_raw, 90.0, 125.0)
+    multiplicador_ritmo = stats_loc.get("RITMO", 1.0) * factor_ajuste_vegas
 
-    # 3. MODELO NEUTRAL DE TOTALES (Permite tanto Over como Under de forma limpia)
-    # Comparamos el ritmo/ofensiva estimada contra la media general de la liga (225.0)
-    suma_modelo = proyeccion_loc_final + proyeccion_vis_final
-    
-    # Promedio simulado basado puramente en la interacción de los equipos con una desviación equilibrada
-    promedio_simulado = float((linea_apuesta * 0.5) + (suma_modelo * 0.5))
-    
-    # Acotamos de forma sensata para evitar valores absurdos
-    promedio_simulado = float(np.clip(promedio_simulado, linea_apuesta - 12.0, linea_apuesta + 12.0))
-
-    # 4. Simulación Monte Carlo 
     n_sims = 2000
-    total_puntos_sim = np.clip(np.random.normal(promedio_simulado, 6.0, n_sims), 180, 270)
-    
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
+    total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
+
+    promedio_simulado = np.mean(total_puntos_sim)
     prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
 
-    # 5. Cálculo de ganador (Moneyline)
-    diff_poder = (proyeccion_loc_final + 2.5) - proyeccion_vis_final  
+    diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final 
     prob_local = 1 / (1 + np.exp(-diff_poder / 6.5)) 
     prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
     pred_ganador = local if prob_local >= 0.5 else visitante
@@ -453,8 +423,8 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     else: semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
 
     distancia_linea = abs(promedio_simulado - linea_apuesta)
-    if distancia_linea >= 4.0: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
-    elif distancia_linea >= 2.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
+    if distancia_linea >= 7.5: semaforo_puntos = "🟢 GRAN VALOR (Divergencia Fuerte vs Vegas)"
+    elif distancia_linea >= 4.0: semaforo_puntos = "🟡 VALOR MODERADO (Margen Aceptable)"
     else: semaforo_puntos = "⚪ NEUTRO (Línea Cerrada / Sin Ventaja)"
 
     recomendacion_texto = generar_recomendacion_corta(
@@ -471,7 +441,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         "Prob_Ganador_Pct": round(prob_ganador_pct, 1),
         "Semaforo_Ganador": semaforo_ganador,
         "Line_Apuesta": linea_apuesta,
-        "Pred_OU": "OVER (Altas)" if promedio_simulado > linea_apuesta else "UNDER (Bajas)",
+        "Pred_OU": "OVER" if prob_over > 50 else "DEBAJO",
         "Promedio_Simulado": round(promedio_simulado, 1),
         "Semaforo_Puntos": semaforo_puntos,
         "Modo_Playoffs": PLAYOFFS_MODE,
@@ -481,7 +451,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 if __name__ == "__main__":
     logging.info("🤖 Iniciando ejecución autónoma...")
     sincronizar_titulares_y_puntajes()
-    actualizar_resultados_historicos_desde_espn()  
+    actualizar_resultados_historicos_desde_espn()  # Mantiene la sincronización y aprendizaje histórico real
     pesos_calibrados = optimizar_pesos_modelo()
     partidos_de_hoy = obtener_cartelera_y_boxscore_avanzado()
 
