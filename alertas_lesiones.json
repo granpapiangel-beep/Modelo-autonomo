@@ -1,8 +1,16 @@
 {
     "fecha": "2026-11-17",
-    "ultima_actualizacion": "12:20 UTC-6",
+    "ultima_actualizacion": "16:53 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
+        {
+            "jugador": "Kawhi Leonard",
+            "equipo": "Raptors",
+            "estatus": "OUT",
+            "motivo": "Inflamación",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-4.9 pts"
+        },
         {
             "jugador": "Scottie Barnes",
             "equipo": "Raptors",
@@ -12,20 +20,20 @@
             "impacto_simulador": "-1.4 pts"
         },
         {
-            "jugador": "Kawhi Leonard",
-            "equipo": "Raptors",
+            "jugador": "Zyon Pullin",
+            "equipo": "Timberwolves",
             "estatus": "OUT",
-            "motivo": "Inflamación",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-4.9 pts"
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-19",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Jonathan Kuminga",
             "equipo": "Timberwolves",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Lesión de hombro",
-            "fecha_regreso": "2026-11-17",
-            "impacto_simulador": "-0.6 pts"
+            "fecha_regreso": "2026-11-19",
+            "impacto_simulador": "-3.1 pts"
         },
         {
             "jugador": "Jaylen Clark",
@@ -44,11 +52,19 @@
             "impacto_simulador": "-8.3 pts"
         },
         {
+            "jugador": "Deni Avdija",
+            "equipo": "Trail Blazers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Lesión de pie",
+            "fecha_regreso": "2026-11-17",
+            "impacto_simulador": "-1.2 pts"
+        },
+        {
             "jugador": "Chris Youngblood",
             "equipo": "Trail Blazers",
             "estatus": "OUT",
             "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-17",
+            "fecha_regreso": "2026-11-19",
             "impacto_simulador": "-1.5 pts"
         },
         {
@@ -66,6 +82,14 @@
             "motivo": "No especificado",
             "fecha_regreso": "2026-12-01",
             "impacto_simulador": "-3.9 pts"
+        },
+        {
+            "jugador": "Isaiah Joe",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-18",
+            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Duncan Robinson",
@@ -90,14 +114,6 @@
             "motivo": "Contusión / Golpe",
             "fecha_regreso": "2026-11-18",
             "impacto_simulador": "-1.2 pts"
-        },
-        {
-            "jugador": "Isaiah Joe",
-            "equipo": "Pistons",
-            "estatus": "OUT",
-            "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-17",
-            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Jalen Duren",
