@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-19",
-    "ultima_actualizacion": "12:19 UTC-6",
+    "ultima_actualizacion": "16:20 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -12,20 +12,28 @@
             "impacto_simulador": "-0.6 pts"
         },
         {
-            "jugador": "GG Jackson",
+            "jugador": "Zach Edey",
             "equipo": "Grizzlies",
             "estatus": "OUT",
-            "motivo": "Cirugía / Recuperación",
-            "fecha_regreso": "2027-01-18",
-            "impacto_simulador": "-1.9 pts"
+            "motivo": "Lesión de tobillo",
+            "fecha_regreso": "2026-11-21",
+            "impacto_simulador": "-2.6 pts"
         },
         {
             "jugador": "Ty Jerome",
             "equipo": "Grizzlies",
             "estatus": "OUT",
             "motivo": "Molestia en cadera",
-            "fecha_regreso": "2026-11-19",
+            "fecha_regreso": "2026-11-21",
             "impacto_simulador": "-5.7 pts"
+        },
+        {
+            "jugador": "GG Jackson",
+            "equipo": "Grizzlies",
+            "estatus": "OUT",
+            "motivo": "Cirugía / Recuperación",
+            "fecha_regreso": "2027-01-18",
+            "impacto_simulador": "-1.9 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
@@ -38,18 +46,18 @@
         {
             "jugador": "Draymond Green",
             "equipo": "Warriors",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Descanso programado",
-            "fecha_regreso": "2026-11-19",
-            "impacto_simulador": "-0.2 pts"
+            "fecha_regreso": "2026-11-22",
+            "impacto_simulador": "-0.8 pts"
         },
         {
-            "jugador": "Al Horford",
+            "jugador": "LJ Cryer",
             "equipo": "Warriors",
             "estatus": "DAY-TO-DAY",
             "motivo": "Dolor de espalda",
             "fecha_regreso": "2026-11-19",
-            "impacto_simulador": "-0.2 pts"
+            "impacto_simulador": "-0.3 pts"
         },
         {
             "jugador": "Brandon Williams",
@@ -68,12 +76,20 @@
             "impacto_simulador": "-7.0 pts"
         },
         {
-            "jugador": "Ryan Rollins",
+            "jugador": "Kyle Kuzma",
             "equipo": "Bucks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-19",
-            "impacto_simulador": "-0.5 pts"
+            "estatus": "OUT",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-21",
+            "impacto_simulador": "-3.0 pts"
+        },
+        {
+            "jugador": "Myles Turner",
+            "equipo": "Bucks",
+            "estatus": "OUT",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-21",
+            "impacto_simulador": "-1.8 pts"
         },
         {
             "jugador": "Ousmane Dieng",
@@ -124,14 +140,6 @@
             "impacto_simulador": "-0.7 pts"
         },
         {
-            "jugador": "Zyon Pullin",
-            "equipo": "Timberwolves",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-19",
-            "impacto_simulador": "-0.1 pts"
-        },
-        {
             "jugador": "Jonathan Kuminga",
             "equipo": "Timberwolves",
             "estatus": "DAY-TO-DAY",
@@ -160,7 +168,7 @@
             "equipo": "Spurs",
             "estatus": "OUT",
             "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-21",
+            "fecha_regreso": "2026-12-13",
             "impacto_simulador": "-4.6 pts"
         }
     ]
