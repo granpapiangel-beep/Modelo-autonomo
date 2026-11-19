@@ -22,7 +22,7 @@ PLAYOFFS_MODE = False
 
 TIERS_BASE_EQUIPOS = {
     "Celtics": 118.0, "Thunder": 114.5, "Cavaliers": 113.5, "Nuggets": 113.0, "Mavericks": 115.5,
-    "Spurs": 117.0, "Bucks": 109.5, "76ers": 116.5, "Timberwolves": 114.0, "Knicks": 114.0,
+    "Spurs": 117.0, "Bucks": 103.0, "76ers": 116.5, "Timberwolves": 114.0, "Knicks": 114.0,
     "Suns": 109.5, "Rockets": 113.0, "Lakers": 116.5, "Warriors": 112.0, "Kings": 112.0,
     "Magic": 111.0, "Pacers": 109.0, "Grizzlies": 110.5, "Pistons": 112.0, "Heat": 109.5,
     "Clippers": 109.0, "Pelicans": 108.5, "Hawks": 108.0, "Bulls": 107.5, "Raptors": 106.0,
