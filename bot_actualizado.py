@@ -145,6 +145,146 @@ def traducir_motivo_lesion(motivo):
     return motivo if motivo else "No especificado"
 
 
+# ==============================================================================
+# MÉTODOS NUMÉRICOS: EXTRAPOLACIÓN DE RICHARDSON + CUADRATURA DE GAUSS-LEGENDRE
+# ==============================================================================
+
+def extrapolacion_richardson(q_h, q_h2, p=2, max_delta=6.5):
+    """
+    Aplica Extrapolación de Richardson: R = [2^p * Q(h/2) - Q(h)] / (2^p - 1)
+    q_h: promedio ventana larga (últimos 8 partidos)
+    q_h2: promedio ventana corta (últimos 4 partidos)
+    """
+    r = ((2**p) * q_h2 - q_h) / ((2**p) - 1)
+    return float(np.clip(r, q_h - max_delta, q_h + max_delta))
+
+
+def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
+    """
+    Consulta los resultados recientes de ESPN para obtener los últimos 8 y 4 juegos
+    de cada equipo (puntos anotados y recibidos) y calcular la media real de la liga.
+    """
+    logging.info("📐 Calculando ventanas de 8 y 4 partidos (Richardson) desde ESPN...")
+    tz_mexico = timezone(timedelta(hours=-6))
+    hoy = datetime.now(tz_mexico).date()
+
+    historial_equipos = {eq: {"anotados": [], "recibidos": []} for eq in TIERS_BASE_EQUIPOS.keys()}
+
+    # Recorremos del más reciente (ayer) hacia atrás para tener orden cronológico inverso
+    for d in range(1, dias_atras + 1):
+        fecha_dt = hoy - timedelta(days=d)
+        fecha_api = fecha_dt.strftime("%Y%m%d")
+        url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_api}"
+        resp = pedido_espn(url, timeout=8, max_retries=2)
+        if resp is None or resp.status_code != 200:
+            continue
+
+        for event in resp.json().get("events", []):
+            comps = event.get("competitions", [])
+            if not comps:
+                continue
+            if not comps[0].get("status", {}).get("type", {}).get("completed", False):
+                continue
+
+            competitors = comps[0].get("competitors", [])
+            if len(competitors) < 2:
+                continue
+
+            equipos_juego = []
+            for comp in competitors:
+                nombre = resolver_nombre_equipo(comp.get("team", {}).get("name", ""))
+                try:
+                    pts = float(comp.get("score", 0))
+                except ValueError:
+                    pts = 0.0
+                equipos_juego.append((nombre, pts))
+
+            if len(equipos_juego) == 2 and equipos_juego[0][1] > 0 and equipos_juego[1][1] > 0:
+                eq_a, pts_a = equipos_juego[0]
+                eq_b, pts_b = equipos_juego[1]
+                if eq_a in historial_equipos:
+                    historial_equipos[eq_a]["anotados"].append(pts_a)
+                    historial_equipos[eq_a]["recibidos"].append(pts_b)
+                if eq_b in historial_equipos:
+                    historial_equipos[eq_b]["anotados"].append(pts_b)
+                    historial_equipos[eq_b]["recibidos"].append(pts_a)
+
+    ventanas = {}
+    todos_los_puntajes = []
+
+    for eq, datos in historial_equipos.items():
+        anotados = datos["anotados"]
+        recibidos = datos["recibidos"]
+        base_fallback = float(fuerzas_base.get(eq, 112.0))
+
+        if len(anotados) >= 4:
+            off_8 = float(np.mean(anotados[:8]))
+            off_4 = float(np.mean(anotados[:4]))
+            def_8 = float(np.mean(recibidos[:8]))
+            def_4 = float(np.mean(recibidos[:4]))
+            todos_los_puntajes.extend(anotados[:8])
+        elif len(anotados) > 0:
+            off_8 = off_4 = float(np.mean(anotados))
+            def_8 = def_4 = float(np.mean(recibidos))
+            todos_los_puntajes.extend(anotados)
+        else:
+            off_8 = off_4 = base_fallback
+            def_8 = def_4 = 112.0
+
+        ventanas[eq] = {
+            "off_R": extrapolacion_richardson(off_8, off_4, p=2),
+            "def_R": extrapolacion_richardson(def_8, def_4, p=2),
+        }
+
+    media_liga = float(np.mean(todos_los_puntajes)) if len(todos_los_puntajes) >= 20 else 112.0
+    logging.info(f"📊 Media ofensiva real de la liga calibrada en: {media_liga:.1f} pts/equipo")
+    return ventanas, media_liga
+
+
+def proyectar_gauss_legendre(off_loc, def_loc, off_vis, def_vis, media_liga=112.0):
+    """
+    Cuadratura de Gauss-Legendre (m=3, exacta hasta grado 5) para ponderar
+    el choque de estilos (ofensivo vs defensivo) y la creciente de puntos.
+    """
+    nodos, pesos = np.polynomial.legendre.leggauss(3)
+
+    influencia_ofensiva = ((off_loc - media_liga) + (off_vis - media_liga)) / 2.0
+    influencia_defensiva = ((media_liga - def_loc) + (media_liga - def_vis)) / 2.0
+
+    # Determinar qué estilo impone condiciones en el encuentro
+    if abs(influencia_defensiva) > abs(influencia_ofensiva):
+        estilo_dominante = "Defensivo"
+        factor_control = 0.65
+    else:
+        estilo_dominante = "Ofensivo"
+        factor_control = 0.35
+
+    # Puntos base cruzando ofensiva propia contra puntos permitidos del rival
+    esp_loc_base = (off_loc + def_vis) / 2.0
+    esp_vis_base = (off_vis + def_loc) / 2.0
+    base_puntos = esp_loc_base + esp_vis_base
+
+    valores_f = []
+    for x in nodos:
+        # x < 0 pondera el control defensivo; x > 0 pondera la aceleración ofensiva
+        ajuste_nodo = (
+            influencia_ofensiva * (1.0 + x) * (1.0 - factor_control)
+            - influencia_defensiva * (1.0 - x) * factor_control
+        )
+        valores_f.append(base_puntos + ajuste_nodo * 1.5)
+
+    total_gauss = float(np.sum(pesos * np.array(valores_f)) / 2.0)
+
+    ratio_loc = esp_loc_base / max(base_puntos, 1.0)
+    proy_loc = total_gauss * ratio_loc
+    proy_vis = total_gauss * (1.0 - ratio_loc)
+    return proy_loc, proy_vis, estilo_dominante
+
+
+# ==============================================================================
+# SINCRONIZACIÓN DE TITULARES, RESULTADOS Y LESIONES
+# ==============================================================================
+
 def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
     tz_mexico = timezone(timedelta(hours=-6))
@@ -257,7 +397,7 @@ def actualizar_resultados_historicos_desde_espn():
         for idx, row in df_hist.iterrows():
             if row.get("Evaluado", False) is True:
                 continue
-        
+
             fecha_str = str(row.get("Fecha", ""))
             local = row.get("Local", "")
             visitante = row.get("Visitante", "")
@@ -419,6 +559,7 @@ def obtener_cartelera_y_boxscore_avanzado():
     fecha_hoy_api = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y%m%d")
     url = f"https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={fecha_hoy_api}"
     fuerzas_actuales = obtener_fuerza_actualizada_equipos()
+    ventanas_richardson, media_liga = obtener_ventanas_richardson_espn(fuerzas_actuales, dias_atras=22)
 
     linea_promedio_historica = 225.5
     if os.path.exists(ARCHIVO_HISTORIAL):
@@ -453,18 +594,35 @@ def obtener_cartelera_y_boxscore_avanzado():
             if not local_team or not visitante_team:
                 continue
 
-            base_loc = fuerzas_actuales.get(local_team, 110.0)
-            base_vis = fuerzas_actuales.get(visitante_team, 110.0)
+            # Ratings extrapolados con Richardson (8 juegos vs 4 juegos)
+            r_loc = ventanas_richardson.get(local_team, {"off_R": fuerzas_actuales.get(local_team, 112.0), "def_R": 112.0})
+            r_vis = ventanas_richardson.get(visitante_team, {"off_R": fuerzas_actuales.get(visitante_team, 112.0), "def_R": 112.0})
+
             pen_loc, alert_loc = detectar_lesiones_y_calcular_impacto(event_id, local_team)
             pen_vis, alert_vis = detectar_lesiones_y_calcular_impacto(event_id, visitante_team)
             todas_las_alertas.extend(alert_loc + alert_vis)
 
-            base_loc_ofensiva = max(98.0, base_loc - pen_loc)
-            base_vis_ofensiva = max(98.0, base_vis - pen_vis)
-            stats_loc = {"PTS_OFENSIVA": base_loc_ofensiva, "DEF_R_RIVAL": base_vis, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
-            stats_vis = {"PTS_OFENSIVA": base_vis_ofensiva, "DEF_R_RIVAL": base_loc, "RITMO": 1.0, "FACTOR_FORMA": 1.0}
+            off_loc_ajustada = max(95.0, r_loc["off_R"] - pen_loc)
+            off_vis_ajustada = max(95.0, r_vis["off_R"] - pen_vis)
 
-            linea_apuesta = round((base_loc + base_vis) * 1.01, 1)
+            stats_loc = {
+                "PTS_OFENSIVA": off_loc_ajustada,
+                "DEF_PROPIA": r_loc["def_R"],
+                "DEF_R_RIVAL": r_vis["def_R"],
+                "MEDIA_LIGA": media_liga,
+                "RITMO": 1.0,
+                "FACTOR_FORMA": 1.0,
+            }
+            stats_vis = {
+                "PTS_OFENSIVA": off_vis_ajustada,
+                "DEF_PROPIA": r_vis["def_R"],
+                "DEF_R_RIVAL": r_loc["def_R"],
+                "MEDIA_LIGA": media_liga,
+                "RITMO": 1.0,
+                "FACTOR_FORMA": 1.0,
+            }
+
+            linea_apuesta = round(off_loc_ajustada + off_vis_ajustada, 1)
             spread_casa = 3.5
             momio_decimal = 1.88
             odds_info = comp_data.get("odds", [])
@@ -516,7 +674,7 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 
-def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real):
+def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real, estilo_dominante="Equilibrado"):
     es_local = pred_ganador == local
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
@@ -539,7 +697,7 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
     if diferencia_ou >= 6.0:
-        lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b>")
+        lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b> [Ritmo {estilo_dominante}]")
 
     return "<br>".join(lineas)
 
@@ -553,20 +711,21 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     spread_casa = partido["spread_casa"]
     momio = partido["momio"]
 
-    poder_ofensivo_local = (stats_loc["PTS_OFENSIVA"] * pesos_optimos[0]) * stats_loc["FACTOR_FORMA"]
-    poder_ofensivo_visita = (stats_vis["PTS_OFENSIVA"] * pesos_optimos[1]) * stats_vis["FACTOR_FORMA"]
+    off_loc = stats_loc["PTS_OFENSIVA"] * stats_loc["FACTOR_FORMA"]
+    off_vis = stats_vis["PTS_OFENSIVA"] * stats_vis["FACTOR_FORMA"]
+    def_loc = stats_loc.get("DEF_PROPIA", stats_vis.get("DEF_R_RIVAL", 112.0))
+    def_vis = stats_vis.get("DEF_PROPIA", stats_loc.get("DEF_R_RIVAL", 112.0))
+    media_liga = stats_loc.get("MEDIA_LIGA", 112.0)
 
-    proyeccion_loc_final = (poder_ofensivo_local + stats_vis.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
-    proyeccion_vis_final = (poder_ofensivo_visita + stats_loc.get("DEF_R_RIVAL", 110)) / 2 * pesos_optimos[2]
+    # Cuadratura de Gauss-Legendre (m=3) sobre los ratings extrapolados con Richardson
+    proy_loc_gauss, proy_vis_gauss, estilo_dominante = proyectar_gauss_legendre(
+        off_loc, def_loc, off_vis, def_vis, media_liga=media_liga
+    )
 
-    suma_proyectada_base = proyeccion_loc_final + proyeccion_vis_final
-    factor_ajuste_vegas = 1.0
-    if linea_apuesta >= 235.0 and suma_proyectada_base < linea_apuesta:
-        factor_ajuste_vegas = min(1.08, linea_apuesta / max(suma_proyectada_base, 1.0))
-    elif linea_apuesta <= 215.0 and suma_proyectada_base > linea_apuesta:
-        factor_ajuste_vegas = max(0.92, linea_apuesta / max(suma_proyectada_base, 1.0))
+    proyeccion_loc_final = proy_loc_gauss * pesos_optimos[0] * pesos_optimos[2]
+    proyeccion_vis_final = proy_vis_gauss * pesos_optimos[1] * pesos_optimos[2]
 
-    multiplicador_ritmo = stats_loc.get("RITMO", 1.0) * factor_ajuste_vegas
+    multiplicador_ritmo = stats_loc.get("RITMO", 1.0)
 
     n_sims = 2000
     np.random.seed(int(datetime.now().timestamp()) % 1000000)
@@ -606,6 +765,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         linea_apuesta,
         spread_casa,
         momio,
+        estilo_dominante=estilo_dominante,
     )
 
     fecha_actual_mexico = datetime.now(timezone(timedelta(hours=-6))).strftime("%Y-%m-%d")
