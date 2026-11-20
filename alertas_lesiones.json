@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-19",
-    "ultima_actualizacion": "16:48 UTC-6",
+    "ultima_actualizacion": "18:01 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -50,14 +50,6 @@
             "motivo": "Descanso programado",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "LJ Cryer",
-            "equipo": "Warriors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-19",
-            "impacto_simulador": "-0.3 pts"
         },
         {
             "jugador": "Brandon Williams",
