@@ -1,209 +1,323 @@
-from datetime import datetime
+from __future__ import annotations
+
 import json
 import os
+import re
+import unicodedata
+from pathlib import Path
+from typing import Any
+
 import numpy as np
 import pandas as pd
 import streamlit as st
-import unicodedata
 
-# Configuración de página con el logo oficial como favicon
+
+# Paths are relative to the app's working directory, as in the original app.
+EVALUATIONS_FILE = Path("historial_evaluaciones_nba.csv")
+PLAYERS_FILE = Path("Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv")
+INJURIES_FILE = Path("alertas_lesiones.json")
+LOGO_FILE = Path("Logo de stephy.png")
+
 st.set_page_config(
-    page_title="NBA AI Stephy | Analytics", 
-    page_icon="Logo de stephy.png" if os.path.exists("Logo de stephy.png") else "🏀", 
-    layout="wide", 
-    initial_sidebar_state="expanded"
+    page_title="NBA AI Stephy | Analytics",
+    page_icon=str(LOGO_FILE) if LOGO_FILE.is_file() else "🏀",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.markdown("""
-<style>
-    .stApp { background-color: #0E1117; color: #E2E8F0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    section[data-testid="stSidebar"] { background-color: #111827 !important; border-right: 1px solid #1F2937 !important; }
-    section[data-testid="stSidebar"] * { color: #F8FAFC !important; }
-    
-    @keyframes radar-pulse { 0% { transform: scale(0.1); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
-    .radar-container { position: relative; width: 100px; height: 100px; margin: 20px auto; }
-    .radar-ring1 { position: absolute; width: 100%; height: 100%; border: 3px solid #FF4B4B; border-radius: 50%; opacity: 1; animation: radar-pulse 2s linear infinite; }
-    .radar-ring2 { position: absolute; width: 100%; height: 100%; border: 3px solid #FF8C00; border-radius: 50%; opacity: 0; animation: radar-pulse 2s linear infinite; animation-delay: 1s; }
-    .radar-core { position: absolute; top: 43px; left: 43px; width: 14px; height: 14px; background-color: #34D399; border-radius: 50%; box-shadow: 0 0 15px #34D399; }
+st.markdown(
+    """
+    <style>
+      .stApp { background-color: #0E1117; color: #E2E8F0; }
+      section[data-testid="stSidebar"] { background-color: #111827; }
+      [data-testid="stMetricValue"] { color: #F8FAFC; font-weight: 800; }
+      [data-testid="stMetricLabel"] { color: #94A3B8; }
+      .main-title { font-size: clamp(2rem, 5vw, 3rem); font-weight: 800;
+        background: linear-gradient(45deg, #FF4B4B, #FF8C00);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+      .sub-title { color: #94A3B8; margin-top: -1rem; }
+      .radar { width: 76px; height: 76px; margin: 18px auto; position: relative; }
+      .radar:before, .radar:after { content: ""; position: absolute; inset: 0;
+        border: 2px solid #FF4B4B; border-radius: 50%; animation: pulse 2s linear infinite; }
+      .radar:after { border-color: #FF8C00; animation-delay: 1s; }
+      @keyframes pulse { from { transform: scale(.2); opacity: 1; }
+        to { transform: scale(1.45); opacity: 0; } }
+      @media (prefers-reduced-motion: reduce) { .radar:before, .radar:after { animation: none; } }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-    .main-title { font-size: 3rem; font-weight: 800; background: -webkit-linear-gradient(45deg, #FF4B4B, #FF8C00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 5px; }
-    .sub-title { font-size: 1.2rem; color: #94A3B8; margin-bottom: 25px; }
-    
-    .card { background-color: #1E293B; padding: 25px; border-radius: 16px; border: 1px solid #334155; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }
-    .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 12px; margin-bottom: 15px; }
-    .team-vs { font-size: 1.6rem; font-weight: 700; color: #F8FAFC; }
-    
-    .badge { padding: 4px 10px; border-radius: 20px; font-weight: 700; font-size: 0.80rem; display: inline-block; }
-    [data-testid="stMetricValue"] { color: #F8FAFC !important; font-size: 2.2rem !important; font-weight: 800 !important; }
-    [data-testid="stMetricLabel"] { color: #94A3B8 !important; font-size: 1rem !important; font-weight: 600 !important; }
-    
-    .player-list { list-style-type: none; padding-left: 0; margin-top: 5px; }
-    .player-item { background-color: #0F172A; margin-bottom: 8px; padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border-left: 3px solid #475569; font-size: 0.95rem; }
-    .player-name { font-weight: 600; color: #E2E8F0; }
-    .player-stat { color: #94A3B8; font-size: 0.85rem; }
-    
-    .injury-panel { background: #1F0D0D; border: 1px solid #7F1D1D; padding: 12px; border-radius: 8px; margin-top: 15px; }
-    .injury-item { background: #2F1515; padding: 8px; border-radius: 6px; margin-top: 6px; border-left: 4px solid #EF4444; font-size: 0.9rem; }
-</style>
-""", unsafe_allow_html=True)
 
-def render_badge(texto):
-    texto_str = str(texto).upper()
-    bg, text = "#334155", "#F8FAFC"
-    if "VERDE" in texto_str or "GRAN VALOR" in texto_str: bg, text = "#065F46", "#34D399"
-    elif "AMARILLO" in texto_str or "MODERADO" in texto_str: bg, text = "#78350F", "#FBBF24"
-    elif "NEUTRO" in texto_str or "SIN VALOR" in texto_str: bg, text = "#334155", "#94A3B8"
-    elif "ROJO" in texto_str: bg, text = "#7F1D1D", "#F87171"
-    return f'<span class="badge" style="background-color: {bg}; color: {text}; border: 1px solid {text}40;">{texto}</span>'
+def safe_text(value: Any, default: str = "N/A") -> str:
+    """Return readable text for CSV/JSON values without exposing null markers."""
+    if value is None or pd.isna(value):
+        return default
+    text = str(value).strip()
+    return text if text and text.lower() not in {"nan", "none", "null"} else default
 
-def obtener_patron_titulares(nombre_equipo):
-    csv_filename = "Titulares_NBA_Oficiales_30_Equipos(Puntajes Diarios).csv"
-    if not os.path.exists(csv_filename): return []
-    try: df_titulares = pd.read_csv(csv_filename, encoding='utf-8-sig')
-    except: return []
-        
-    df_titulares.columns = [str(col).strip().replace("'", "").replace('"', "") for col in df_titulares.columns]
-    col_eq, col_jug = df_titulares.columns[0], df_titulares.columns[2]
-    
-    jugadores_equipo = []
-    for _, row in df_titulares.iterrows():
-        eq_fila = str(row.get(col_eq, '')).lower()
-        if nombre_equipo.lower() in eq_fila or eq_fila in nombre_equipo.lower():
-            nombre_jugador = str(row.get(col_jug, 'Desconocido'))
-            puntos_lista = [float(str(row.get(col, "")).replace("pts", "").strip()) for col in df_titulares.columns[3:] if "pts" in str(row.get(col, ""))]
-            if not puntos_lista: continue
-            
-            promedio = np.mean(puntos_lista)
-            desviacion = np.std(puntos_lista) if len(puntos_lista) > 1 else 1.0
-            
-            if promedio >= 18.0 and desviacion < 6.0: patron, semaforo = "Estrella", "VERDE"
-            elif promedio >= 12.0: patron, semaforo = "Estable", "VERDE"
-            elif desviacion >= 7.0: patron, semaforo = "Volátil", "ROJO"
-            else: patron, semaforo = "Rotación", "AMARILLO"
-                
-            jugadores_equipo.append((nombre_jugador, round(promedio, 1), patron, semaforo, promedio))
-            
-    jugadores_equipo.sort(key=lambda x: x[4], reverse=True)
-    return jugadores_equipo[:6]
 
-# Encabezado principal
-st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
-st.markdown('<p class="sub-title">Análisis táctico autónomo, spread real y selección para Parley.</p>', unsafe_allow_html=True)
-
-alertas_data = {"mensaje_general": "Monitoreo activo.", "alertas_criticas": []}
-if os.path.exists("alertas_lesiones.json"):
+def safe_float(value: Any, default: float = float("nan")) -> float:
+    """Convert common numeric strings safely, rejecting infinities and NaN."""
+    if value is None:
+        return default
     try:
-        with open("alertas_lesiones.json", "r", encoding="utf-8") as f:
-            alertas_data = json.load(f)
-    except: pass
+        text = str(value).strip().lower().replace(",", ".")
+        text = re.sub(r"\s*(pts|pt|%)\s*$", "", text)
+        number = float(text)
+        return number if np.isfinite(number) else default
+    except (TypeError, ValueError, OverflowError):
+        return default
 
-# Barra Lateral con Logo y Monitoreo
+
+def normalize_name(value: Any) -> str:
+    text = safe_text(value, "")
+    text = unicodedata.normalize("NFKD", text)
+    text = "".join(char for char in text if not unicodedata.combining(char))
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def load_csv(path: str, modified_at: float) -> tuple[pd.DataFrame, str | None]:
+    """Read a CSV safely; modified_at makes file updates invalidate the cache."""
+    del modified_at
+    try:
+        return pd.read_csv(path, encoding="utf-8-sig"), None
+    except FileNotFoundError:
+        return pd.DataFrame(), f"No se encontró el archivo {Path(path).name}."
+    except (OSError, UnicodeDecodeError, pd.errors.ParserError, ValueError) as exc:
+        return pd.DataFrame(), f"No se pudo leer {Path(path).name}: {exc}"
+
+
+def cached_csv(path: Path) -> tuple[pd.DataFrame, str | None]:
+    try:
+        modified_at = path.stat().st_mtime
+    except OSError:
+        modified_at = 0.0
+    return load_csv(str(path), modified_at)
+
+
+def load_injuries(path: Path) -> tuple[dict[str, Any], str | None]:
+    if not path.is_file():
+        return {"mensaje_general": "Sin bajas críticas registradas.", "alertas_criticas": []}, None
+    try:
+        with path.open("r", encoding="utf-8") as file:
+            data = json.load(file)
+        if not isinstance(data, dict):
+            raise ValueError("El contenido debe ser un objeto JSON.")
+        alerts = data.get("alertas_criticas", [])
+        data["alertas_criticas"] = alerts if isinstance(alerts, list) else []
+        return data, None
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
+        return {"mensaje_general": "No se pudieron cargar las alertas.", "alertas_criticas": []}, str(exc)
+
+
+def find_column(df: pd.DataFrame, *terms: str) -> Any | None:
+    """Find a column by normalized name, including common variants."""
+    for column in df.columns:
+        normalized = normalize_name(column).replace(" ", "_")
+        if any(term in normalized for term in terms):
+            return column
+    return None
+
+
+@st.cache_data(ttl=300, show_spinner=False)
+def player_patterns(path: str, modified_at: float, team: str) -> list[tuple[str, float, str, str]]:
+    del modified_at
+    try:
+        players = pd.read_csv(path, encoding="utf-8-sig")
+    except (OSError, UnicodeDecodeError, pd.errors.ParserError, ValueError):
+        return []
+    if players.empty or len(players.columns) < 3:
+        return []
+
+    players.columns = [str(column).strip().strip("'\" ") for column in players.columns]
+    team_column = find_column(players, "equipo", "team") or players.columns[0]
+    player_column = find_column(players, "jugador", "player") or players.columns[2]
+    search_team = normalize_name(team)
+    if not search_team:
+        return []
+
+    results: list[tuple[str, float, str, str]] = []
+    for _, row in players.iterrows():
+        row_team = normalize_name(row.get(team_column))
+        if not row_team or (search_team not in row_team and row_team not in search_team):
+            continue
+
+        points: list[float] = []
+        for column in players.columns:
+            # Keep compatibility with the source file's daily cells such as "24 pts";
+            # also accept numeric columns explicitly named as points.
+            cell = row.get(column)
+            if "pts" not in normalize_name(column) and "pt" not in str(cell).lower():
+                continue
+            number = safe_float(cell)
+            if np.isfinite(number) and 0 <= number <= 100:
+                points.append(number)
+        if not points:
+            continue
+
+        average = float(np.mean(points))
+        deviation = float(np.std(points)) if len(points) > 1 else 1.0
+        if average >= 18 and deviation < 6:
+            pattern, signal = "Estrella", "VERDE"
+        elif average >= 12:
+            pattern, signal = "Estable", "VERDE"
+        elif deviation >= 7:
+            pattern, signal = "Volátil", "ROJO"
+        else:
+            pattern, signal = "Rotación", "AMARILLO"
+        results.append((safe_text(row.get(player_column), "Desconocido"), round(average, 1), pattern, signal))
+
+    results.sort(key=lambda item: item[1], reverse=True)
+    return results[:6]
+
+
+def date_sort_key(value: Any) -> pd.Timestamp:
+    return pd.to_datetime(safe_text(value, ""), errors="coerce", utc=True)
+
+
+def show_players(team: str, patterns: list[tuple[str, float, str, str]]) -> None:
+    st.markdown(f"**{team} — jugadores destacados**")
+    if not patterns:
+        st.caption("Sin registros de jugadores para este equipo.")
+        return
+    for name, average, pattern, _signal in patterns:
+        st.write(f"**{name}** · {average:.1f} pts de promedio · {pattern}")
+
+
+# Header
+st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Panel de análisis estadístico y proyecciones NBA.</p>', unsafe_allow_html=True)
+st.caption("Las proyecciones son estimaciones estadísticas; no garantizan resultados ni constituyen asesoría financiera.")
+
 with st.sidebar:
-    if os.path.exists("Logo de stephy.png"):
-        st.image("Logo de stephy.png", use_container_width=True)
-    else:
-        st.image("https://cdn-icons-png.flaticon.com/512/889/889442.png", width=80)
-    
+    if LOGO_FILE.is_file():
+        st.image(str(LOGO_FILE), use_container_width=True)
     st.markdown("### 📡 Monitor IA Stephy")
-    st.markdown("""<div class="radar-container"><div class="radar-ring1"></div><div class="radar-ring2"></div><div class="radar-core"></div></div>""", unsafe_allow_html=True)
-    st.info("⚡ Sistema operando con normalidad.")
-    st.caption("v 3.9.4 | Proyección Neuronal & Monte Carlo")
-    
-    st.markdown("---")
-    st.markdown(f"**Última act. médica:** `{alertas_data.get('ultima_actualizacion', 'N/A')}`")
-    
-    if alertas_data.get("alertas_criticas"):
-        st.markdown('<div class="injury-panel">🏥 <b>Bajas Confirmadas</b>', unsafe_allow_html=True)
-        for alerta in alertas_data["alertas_criticas"]:
-            st.markdown(f"""
-            <div class="injury-item">
-                <span style="color:#F8FAFC; font-weight:bold;">{alerta['jugador']}</span> ({alerta['equipo']})<br>
-                <span style="color:#94A3B8; font-size:0.8rem;">Motivo: {alerta.get('motivo', 'Lesión')}</span><br>
-                <span style="color:#94A3B8; font-size:0.8rem;">Fecha ret.: {alerta.get('fecha_regreso', 'N/A')}</span><br>
-                <span style="color:#F87171; font-weight:bold; font-size:0.85rem;">Estatus: {alerta['estatus']}</span>
-            </div>
-            """, unsafe_allow_html=True)
-        st.markdown('</div>', unsafe_allow_html=True)
-    else:
-        st.success(alertas_data.get("mensaje_general", "Sin bajas críticas."))
+    st.markdown('<div class="radar" aria-hidden="true"></div>', unsafe_allow_html=True)
+    st.info("Monitoreo de datos activo")
+    st.caption("v 4.0 | Panel de análisis")
+    if st.button("↻ Actualizar datos", use_container_width=True):
+        st.cache_data.clear()
+        st.rerun()
 
-ARCHIVO_EVAL = "historial_evaluaciones_nba.csv"
-if os.path.exists(ARCHIVO_EVAL):
-    try: df = pd.read_csv(ARCHIVO_EVAL, encoding='utf-8-sig')
-    except: df = pd.DataFrame()
-    
-    if "Fecha" in df.columns and len(df) > 0:
-        df["Fecha_Clean"] = df["Fecha"].astype(str).str.strip()
-        fecha_seleccionada = df["Fecha_Clean"].max()
-        df_hoy = df[df["Fecha_Clean"] == fecha_seleccionada]
-        
-        c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Encuentros", len(df_hoy))
-        conf_prom = df_hoy["Prob_Ganador_Pct"].dropna().mean() if not df_hoy.empty else 0
-        c2.metric("Certeza Moneyline", f"{conf_prom:.1f}%")
-        c3.metric("Jornada Activa", fecha_seleccionada)
-        c4.metric("Status AI", "🟢 Óptimo")
-        st.markdown("---")
-        
-        for _, row in df_hoy.iterrows():
-            local, visita = row.get("Local", "Local"), row.get("Visitante", "Visitante")
-            ganador, prob = row.get("Pred_Ganador", "N/A"), row.get("Prob_Ganador_Pct", 50.0)
-            linea = float(row.get("Line_Apuesta", 225.5))
-            prom_sim_raw = float(row.get("Promedio_Simulado", 225.5))
-            
-            # FILTRO DE SEGURIDAD: Evitar promedios irreales (ej. > 270 pts por error histórico)
-            prom_sim = prom_sim_raw if 170 <= prom_sim_raw <= 270 else linea
-            
-            # Recálculo limpio de Over/Under basado en el puntaje seguro
-            pred_ou = "OVER (Altas)" if prom_sim > linea else "UNDER (Bajas)"
-            
-            sem_puntos = row.get("Semaforo_Puntos", "Estándar")
-            rec_autonoma = row.get("Recomendacion_Autonoma", "Análisis rápido en proceso...")
-            
-            borde_ou = "#34D399" if prom_sim > linea else "#F87171"
-            if "NEUTRO" in str(sem_puntos): borde_ou = "#64748B"
-            
-            jugadores_loc = obtener_patron_titulares(local)
-            jugadores_vis = obtener_patron_titulares(visita)
-            
-            tarjeta = f"""
-            <div class="card">
-                <div class="card-header"><div class="team-vs">🏀 {local} <span style="color:#64748B;">vs</span> {visita}</div><div>{render_badge(row.get("Semaforo_Ganador", ""))}</div></div>
-                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
-                    <div style="background:#0F172A; padding: 12px 20px; border-radius:8px; flex:1; border-left:4px solid #3B82F6;">
-                        <span style="color:#94A3B8; font-size:0.9rem; display:block;">MONEYLINE (PROYECCIÓN)</span>
-                        <span style="color:#F8FAFC; font-size:1.2rem; font-weight:700;">🏆 {ganador} <span style="color:#34D399;">({prob}%)</span></span>
-                    </div>
-                    <div style="background:#0F172A; padding: 12px 20px; border-radius:8px; flex:1; border-left:4px solid {borde_ou};">
-                        <span style="color:#94A3B8; font-size:0.9rem; display:block;">ANÁLISIS OVER/UNDER (Vegas: {linea})</span>
-                        <span style="color:#F8FAFC; font-size:1.2rem; font-weight:700;">📉 {pred_ou} <span style="color:#94A3B8; font-size:1rem;">(Bot Sim: {prom_sim:.1f})</span></span>
-                        <br><span style="font-size:0.85rem; color:#CBD5E1;">{sem_puntos}</span>
-                    </div>
-                </div>
-                <div style="background:#111827; padding: 16px; border-radius:8px; border-left:4px solid #F59E0B; font-size:0.95rem; color:#E2E8F0; line-height: 1.6;">
-                    <b>💡 Recomendación Rápida para Parley:</b><br><br>{rec_autonoma}
-                </div>
-            </div>
-            """
-            st.markdown(tarjeta, unsafe_allow_html=True)
-            
-            c_loc, c_vis = st.columns(2)
-            with c_loc:
-                st.markdown(f"#### 🛡️ {local}")
-                html_j_loc = "<ul class='player-list'>"
-                for j in jugadores_loc:
-                    html_j_loc += f"<li class='player-item'><div><span class='player-name'>{j[0]}</span><br><span class='player-stat'>Promedio: <b style='color:#F8FAFC;'>{j[1]} pts</b></span></div><div>{render_badge(j[3])}</div></li>"
-                html_j_loc += "</ul>" if jugadores_loc else "<li class='player-item'>Sin registros</li>"
-                st.markdown(html_j_loc, unsafe_allow_html=True)
-                
-            with c_vis:
-                st.markdown(f"#### ⚔️ {visita}")
-                html_j_vis = "<ul class='player-list'>"
-                for j in jugadores_vis:
-                    html_j_vis += f"<li class='player-item'><div><span class='player-name'>{j[0]}</span><br><span class='player-stat'>Promedio: <b style='color:#F8FAFC;'>{j[1]} pts</b></span></div><div>{render_badge(j[3])}</div></li>"
-                html_j_vis += "</ul>" if jugadores_vis else "<li class='player-item'>Sin registros</li>"
-                st.markdown(html_j_vis, unsafe_allow_html=True)
-                
-            st.markdown("<br>", unsafe_allow_html=True)
-else:
-    st.warning("⚠️ Esperando primer ciclo de datos del bot...")
+    injury_data, injury_error = load_injuries(INJURIES_FILE)
+    st.markdown("---")
+    st.markdown(f"**Última actualización médica:** {safe_text(injury_data.get('ultima_actualizacion'))}")
+    if injury_error:
+        st.warning(f"No se pudieron cargar las alertas médicas: {injury_error}")
+    alerts = injury_data.get("alertas_criticas", [])
+    if alerts:
+        st.markdown("#### 🏥 Bajas confirmadas")
+        for alert in alerts:
+            if not isinstance(alert, dict):
+                continue
+            with st.container():
+                st.warning(
+                    f"**{safe_text(alert.get('jugador'), 'Jugador')}** ({safe_text(alert.get('equipo'), 'Equipo')})\n\n"
+                    f"Motivo: {safe_text(alert.get('motivo'), 'Lesión')} · "
+                    f"Regreso: {safe_text(alert.get('fecha_regreso'))} · "
+                    f"Estado: {safe_text(alert.get('estatus'), 'N/A')}"
+                )
+    else:
+        st.success(safe_text(injury_data.get("mensaje_general"), "Sin bajas críticas."))
+
+
+df, load_error = cached_csv(EVALUATIONS_FILE)
+if load_error:
+    st.warning(load_error)
+
+if df.empty:
+    st.info("Esperando datos de evaluaciones. Cuando el bot genere el historial, aparecerán aquí los encuentros.")
+    st.stop()
+
+# Normalize columns needed by the dashboard and tolerate incomplete historical rows.
+if "Fecha" not in df.columns:
+    st.error("El historial no contiene la columna requerida 'Fecha'.")
+    st.stop()
+for column, default in {
+    "Local": "Local", "Visitante": "Visitante", "Pred_Ganador": "N/A",
+    "Prob_Ganador_Pct": np.nan, "Line_Apuesta": np.nan,
+    "Promedio_Simulado": np.nan, "Semaforo_Puntos": "Estándar",
+    "Semaforo_Ganador": "", "Recomendacion_Autonoma": "Sin recomendación disponible.",
+}.items():
+    if column not in df.columns:
+        df[column] = default
+
+df["Fecha_Clean"] = df["Fecha"].map(lambda value: safe_text(value, ""))
+df = df[df["Fecha_Clean"] != ""].copy()
+if df.empty:
+    st.info("No hay filas con una fecha válida en el historial.")
+    st.stop()
+
+df["Prob_Ganador_Pct"] = pd.to_numeric(df["Prob_Ganador_Pct"], errors="coerce").clip(0, 100)
+df["Line_Apuesta"] = pd.to_numeric(df["Line_Apuesta"], errors="coerce")
+df["Promedio_Simulado"] = pd.to_numeric(df["Promedio_Simulado"], errors="coerce")
+unique_dates = df["Fecha_Clean"].drop_duplicates().tolist()
+unique_dates.sort(key=lambda value: (pd.isna(date_sort_key(value)), date_sort_key(value), value))
+
+selected_date = st.selectbox("Jornada", unique_dates, index=len(unique_dates) - 1)
+matchups = df[df["Fecha_Clean"] == selected_date].copy()
+
+c1, c2, c3, c4 = st.columns(4)
+c1.metric("Encuentros", len(matchups))
+mean_probability = matchups["Prob_Ganador_Pct"].mean()
+c2.metric("Probabilidad media", f"{mean_probability:.1f}%" if pd.notna(mean_probability) else "N/D")
+c3.metric("Jornada", selected_date)
+c4.metric("Estado", "Datos cargados")
+st.divider()
+
+try:
+    players_mtime = PLAYERS_FILE.stat().st_mtime
+except OSError:
+    players_mtime = 0.0
+
+for _, row in matchups.iterrows():
+    home = safe_text(row.get("Local"), "Local")
+    away = safe_text(row.get("Visitante"), "Visitante")
+    winner = safe_text(row.get("Pred_Ganador"))
+    probability = safe_float(row.get("Prob_Ganador_Pct"), float("nan"))
+    line = safe_float(row.get("Line_Apuesta"), float("nan"))
+    simulated = safe_float(row.get("Promedio_Simulado"), float("nan"))
+
+    # Ignore implausible totals and avoid inventing a pick when the line is missing.
+    if not np.isfinite(line) or not 100 <= line <= 350:
+        safe_line = None
+        projected_total = None
+        st.warning(f"{home} vs {away}: línea de apuesta ausente o fuera de rango; se omite Over/Under.")
+    else:
+        safe_line = line
+        projected_total = simulated if np.isfinite(simulated) and 170 <= simulated <= 270 else safe_line
+
+    status_points = safe_text(row.get("Semaforo_Puntos"), "Estándar")
+    status_winner = safe_text(row.get("Semaforo_Ganador"), "Sin indicador")
+    recommendation = safe_text(row.get("Recomendacion_Autonoma"), "Sin recomendación disponible.")
+
+    with st.container():
+        st.markdown(f"### 🏀 {home} vs {away}")
+        left, right = st.columns(2)
+        with left:
+            st.markdown("**Moneyline — proyección**")
+            confidence_text = f" · {probability:.1f}%" if np.isfinite(probability) else ""
+            st.write(f"🏆 {winner}{confidence_text}")
+            st.caption(f"Indicador: {status_winner}")
+        with right:
+            st.markdown("**Total de puntos**")
+            if safe_line is None or projected_total is None:
+                st.write("Proyección no disponible")
+            else:
+                pick = "OVER (Altas)" if projected_total > safe_line else "UNDER (Bajas)"
+                st.write(f"{pick} · línea {safe_line:.1f} · proyección {projected_total:.1f}")
+            st.caption(f"{status_points}")
+        st.markdown("**Nota del modelo**")
+        st.write(recommendation)
+
+        home_players = player_patterns(str(PLAYERS_FILE), players_mtime, home)
+        away_players = player_patterns(str(PLAYERS_FILE), players_mtime, away)
+        player_left, player_right = st.columns(2)
+        with player_left:
+            show_players(home, home_players)
+        with player_right:
+            show_players(away, away_players)
+        st.divider()
