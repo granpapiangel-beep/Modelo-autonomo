@@ -170,7 +170,6 @@ def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
 
     historial_equipos = {eq: {"anotados": [], "recibidos": []} for eq in TIERS_BASE_EQUIPOS.keys()}
 
-    # Recorremos del más reciente (ayer) hacia atrás para tener orden cronológico inverso
     for d in range(1, dias_atras + 1):
         fecha_dt = hoy - timedelta(days=d)
         fecha_api = fecha_dt.strftime("%Y%m%d")
@@ -251,7 +250,6 @@ def proyectar_gauss_legendre(off_loc, def_loc, off_vis, def_vis, media_liga=112.
     influencia_ofensiva = ((off_loc - media_liga) + (off_vis - media_liga)) / 2.0
     influencia_defensiva = ((media_liga - def_loc) + (media_liga - def_vis)) / 2.0
 
-    # Determinar qué estilo impone condiciones en el encuentro
     if abs(influencia_defensiva) > abs(influencia_ofensiva):
         estilo_dominante = "Defensivo"
         factor_control = 0.65
@@ -259,14 +257,12 @@ def proyectar_gauss_legendre(off_loc, def_loc, off_vis, def_vis, media_liga=112.
         estilo_dominante = "Ofensivo"
         factor_control = 0.35
 
-    # Puntos base cruzando ofensiva propia contra puntos permitidos del rival
     esp_loc_base = (off_loc + def_vis) / 2.0
     esp_vis_base = (off_vis + def_loc) / 2.0
     base_puntos = esp_loc_base + esp_vis_base
 
     valores_f = []
     for x in nodos:
-        # x < 0 pondera el control defensivo; x > 0 pondera la aceleración ofensiva
         ajuste_nodo = (
             influencia_ofensiva * (1.0 + x) * (1.0 - factor_control)
             - influencia_defensiva * (1.0 - x) * factor_control
@@ -289,7 +285,10 @@ def sincronizar_titulares_y_puntajes():
     logging.info("🔄 Sincronizando plantillas y puntajes desde ESPN...")
     tz_mexico = timezone(timedelta(hours=-6))
     hoy = datetime.now(tz_mexico).date()
-    meses_abreviados = {1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr', 5: 'may', 6: 'jun', 7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct', 11: 'nov', 12: 'dic'}
+    meses_abreviados = {
+        1: 'ene', 2: 'feb', 3: 'mar', 4: 'abr', 5: 'may', 6: 'jun',
+        7: 'jul', 8: 'ago', 9: 'sep', 10: 'oct', 11: 'nov', 12: 'dic'
+    }
 
     df_existente = pd.DataFrame()
     if os.path.exists(ARCHIVO_TITULARES):
@@ -364,7 +363,11 @@ def sincronizar_titulares_y_puntajes():
                                 if 0 <= pts <= 75:
                                     clave = (nombre_equipo, posicion, nombre_jugador)
                                     if clave not in base_datos_jugadores:
-                                        base_datos_jugadores[clave] = {'Equipo': nombre_equipo, 'Posicion': posicion, 'Jugador': nombre_jugador}
+                                        base_datos_jugadores[clave] = {
+                                            'Equipo': nombre_equipo,
+                                            'Posicion': posicion,
+                                            'Jugador': nombre_jugador
+                                        }
                                     base_datos_jugadores[clave][col_nombre] = f"{pts} pts"
                             except ValueError:
                                 pass
@@ -458,7 +461,9 @@ def detectar_lesiones_y_calcular_impacto(event_id, nombre_equipo):
             if normalizar_texto(nombre_equipo) in normalizar_texto(team_name) or normalizar_texto(team_name) in normalizar_texto(nombre_equipo):
                 for inj in team_inj.get("injuries", []):
                     status = inj.get("status", "").upper()
-                    multiplicador = 0.25 if "OUT" in status else (0.05 if "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status else 0.0)
+                    multiplicador = 0.25 if "OUT" in status else (
+                        0.05 if "QUESTIONABLE" in status or "DAY-TO-DAY" in status or "DOUBTFUL" in status else 0.0
+                    )
                     if multiplicador == 0.0:
                         continue
 
@@ -546,7 +551,13 @@ def optimizar_pesos_modelo():
         df_hist = pd.read_csv(ARCHIVO_HISTORIAL)
         if len(df_hist) < 5:
             return [1.0, 1.0, 1.0]
-        resultado = minimize(funcion_costo_historico, [1.0, 1.0, 1.0], args=(df_hist,), method="SLSQP", bounds=[(0.95, 1.05), (0.95, 1.05), (0.98, 1.02)])
+        resultado = minimize(
+            funcion_costo_historico,
+            [1.0, 1.0, 1.0],
+            args=(df_hist,),
+            method="SLSQP",
+            bounds=[(0.95, 1.05), (0.95, 1.05), (0.98, 1.02)]
+        )
         if resultado.success:
             return resultado.x
     except Exception:
@@ -594,7 +605,6 @@ def obtener_cartelera_y_boxscore_avanzado():
             if not local_team or not visitante_team:
                 continue
 
-            # Ratings extrapolados con Richardson (8 juegos vs 4 juegos)
             r_loc = ventanas_richardson.get(local_team, {"off_R": fuerzas_actuales.get(local_team, 112.0), "def_R": 112.0})
             r_vis = ventanas_richardson.get(visitante_team, {"off_R": fuerzas_actuales.get(visitante_team, 112.0), "def_R": 112.0})
 
@@ -679,6 +689,7 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
     underdog = visitante if es_local else local
+    spread_abs = abs(spread_casa)
 
     lineas = []
     if prob_fav < 56.0:
@@ -686,18 +697,40 @@ def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct
         return "<br>".join(lineas)
 
     if prob_fav >= 72.0:
-        spread_real = -abs(spread_casa) if favorito == local else abs(spread_casa)
         lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%).")
-        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_real:+.1f})</b> (Cuota mercado: <b>{momio_real}x</b>)")
+        if spread_abs >= 11.5:
+            linea_segura = round(spread_abs - 5.5, 1)
+            signo = "-" if favorito == local else "+"
+            lineas.append(
+                f"🎯 <b>Apuesta Recomendada (Línea Segura):</b> <b>{favorito} Hándicap ({signo}{linea_segura:.1f})</b> "
+                f"(Línea original casa: {spread_abs:.1f} · ajustada para proteger margen)"
+            )
+        elif spread_abs >= 7.5:
+            linea_segura = round(spread_abs - 3.0, 1)
+            signo = "-" if favorito == local else "+"
+            lineas.append(
+                f"🎯 <b>Apuesta Recomendada (Línea Segura):</b> <b>{favorito} Hándicap ({signo}{linea_segura:.1f})</b> "
+                f"(Cuota base: <b>{momio_real}x</b>)"
+            )
+        else:
+            spread_real = -spread_abs if favorito == local else spread_abs
+            lineas.append(
+                f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_real:+.1f})</b> (Cuota mercado: <b>{momio_real}x</b>)"
+            )
     else:
-        spread_protegido = abs(spread_casa) + 3.5
+        extra_puntos = 4.5 if spread_abs <= 6.0 else 3.5
+        spread_protegido = spread_abs + extra_puntos
         lineas.append(f"• <b>Análisis:</b> Ventaja ajustada para <b>{favorito}</b> ({prob_fav}%).")
-        lineas.append(f"🎯 <b>Apuesta Recomendada:</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen protegido)")
+        lineas.append(f"🎯 <b>Apuesta Recomendada (Protegida):</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen ampliado)")
 
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
     if diferencia_ou >= 6.0:
-        lineas.append(f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_apuesta})</b> [Ritmo {estilo_dominante}]")
+        linea_ou_segura = round(linea_apuesta - 3.5, 1) if tipo_ou.startswith("Altas") else round(linea_apuesta + 3.5, 1)
+        lineas.append(
+            f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_ou_segura})</b> "
+            f"[Línea casa: {linea_apuesta} · Ritmo {estilo_dominante}]"
+        )
 
     return "<br>".join(lineas)
 
@@ -717,7 +750,6 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
     def_vis = stats_vis.get("DEF_PROPIA", stats_loc.get("DEF_R_RIVAL", 112.0))
     media_liga = stats_loc.get("MEDIA_LIGA", 112.0)
 
-    # Cuadratura de Gauss-Legendre (m=3) sobre los ratings extrapolados con Richardson
     proy_loc_gauss, proy_vis_gauss, estilo_dominante = proyectar_gauss_legendre(
         off_loc, def_loc, off_vis, def_vis, media_liga=media_liga
     )
