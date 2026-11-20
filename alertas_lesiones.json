@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-20",
-    "ultima_actualizacion": "16:46 UTC-6",
+    "ultima_actualizacion": "17:09 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -116,20 +116,20 @@
             "impacto_simulador": "-0.3 pts"
         },
         {
-            "jugador": "Andrew Nembhard",
-            "equipo": "Pacers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-20",
-            "impacto_simulador": "-0.8 pts"
-        },
-        {
             "jugador": "Braden Smith",
             "equipo": "Pacers",
             "estatus": "DAY-TO-DAY",
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-20",
             "impacto_simulador": "-0.2 pts"
+        },
+        {
+            "jugador": "Ben Sheppard",
+            "equipo": "Pacers",
+            "estatus": "OUT",
+            "motivo": "Lesión de rodilla",
+            "fecha_regreso": "2027-01-02",
+            "impacto_simulador": "-0.8 pts"
         },
         {
             "jugador": "Ronald Holland II",
