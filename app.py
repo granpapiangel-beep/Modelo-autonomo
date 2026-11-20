@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import html
 import json
 import os
 import re
@@ -43,6 +44,27 @@ st.markdown(
       @keyframes pulse { from { transform: scale(.2); opacity: 1; }
         to { transform: scale(1.45); opacity: 0; } }
       @media (prefers-reduced-motion: reduce) { .radar:before, .radar:after { animation: none; } }
+      .recommendation-list { display: grid; gap: .65rem; margin: .4rem 0 1rem; }
+      .recommendation-card { display: flex; gap: .75rem; align-items: flex-start;
+        padding: .85rem 1rem; border: 1px solid #334155; border-left: 4px solid #64748B;
+        border-radius: 12px; background: linear-gradient(110deg, #172033, #141923);
+        color: #E2E8F0; line-height: 1.55; }
+      .recommendation-card .rec-icon { font-size: 1.1rem; line-height: 1.4; }
+      .recommendation-card .rec-label { display: block; font-size: .76rem; font-weight: 800;
+        letter-spacing: .06em; text-transform: uppercase; margin-bottom: .12rem; }
+      .recommendation-card .rec-copy { color: #D7DEE9; }
+      .rec-analysis { border-left-color: #38BDF8; }
+      .rec-analysis .rec-label { color: #7DD3FC; }
+      .rec-pick { border-left-color: #FB923C; background: linear-gradient(110deg, #2A211A, #171923); }
+      .rec-pick .rec-label { color: #FDBA74; }
+      .rec-total { border-left-color: #A78BFA; background: linear-gradient(110deg, #211D32, #171923); }
+      .rec-total .rec-label { color: #C4B5FD; }
+      .rec-verdict { border-left-color: #FBBF24; background: linear-gradient(110deg, #2A2518, #171923); }
+      .rec-verdict .rec-label { color: #FDE68A; }
+      .rec-neutral .rec-label { color: #CBD5E1; }
+      @media (max-width: 640px) {
+        .recommendation-card { padding: .75rem; gap: .55rem; }
+      }
     </style>
     """,
     unsafe_allow_html=True,
@@ -186,6 +208,48 @@ def show_players(team: str, patterns: list[tuple[str, float, str, str]]) -> None
         st.write(f"**{name}** · {average:.1f} pts de promedio · {pattern}")
 
 
+def render_recommendation(value: Any) -> None:
+    """Render legacy HTML recommendation text as safe, styled dashboard cards."""
+    raw = safe_text(value, "Sin recomendación disponible.")
+    plain = re.sub(r"<\s*br\s*/?\s*>", "\n", raw, flags=re.IGNORECASE)
+    plain = re.sub(r"<[^>]*>", "", plain)
+    plain = html.unescape(plain)
+    lines = [re.sub(r"\s+", " ", line).strip() for line in plain.splitlines()]
+    lines = [line for line in lines if line]
+
+    categories = {
+        "análisis": ("rec-analysis", "📊", "Análisis"),
+        "apuesta recomendada": ("rec-pick", "🎯", "Apuesta recomendada"),
+        "alternativa totales": ("rec-total", "🏀", "Totales"),
+        "veredicto": ("rec-verdict", "🧭", "Veredicto"),
+    }
+    cards: list[str] = []
+    for line in lines:
+        match = re.match(
+            r"^(?:🎯\s*)?(Análisis|Apuesta\s+Recomendada|Alternativa\s+Totales|Veredicto)\s*:\s*(.*)$",
+            line,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            key = re.sub(r"\s+", " ", match.group(1).lower())
+            style, icon, label = categories[key]
+            copy = match.group(2).strip()
+        else:
+            style, icon, label, copy = "rec-neutral", "💬", "Modelo", line
+
+        cards.append(
+            f'<div class="recommendation-card {style}">'
+            f'<span class="rec-icon">{icon}</span>'
+            f'<div><span class="rec-label">{html.escape(label)}</span>'
+            f'<span class="rec-copy">{html.escape(copy)}</span></div></div>'
+        )
+
+    if cards:
+        st.markdown('<div class="recommendation-list">' + "".join(cards) + "</div>", unsafe_allow_html=True)
+    else:
+        st.caption("Sin recomendación disponible.")
+
+
 # Header
 st.markdown('<p class="main-title">🏀 NBA AI Stephy</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-title">Panel de análisis estadístico y proyecciones NBA.</p>', unsafe_allow_html=True)
@@ -310,8 +374,9 @@ for _, row in matchups.iterrows():
                 pick = "OVER (Altas)" if projected_total > safe_line else "UNDER (Bajas)"
                 st.write(f"{pick} · línea {safe_line:.1f} · proyección {projected_total:.1f}")
             st.caption(f"{status_points}")
-        st.markdown("**Nota del modelo**")
-        st.write(recommendation)
+
+        st.markdown("**Recomendación del modelo**")
+        render_recommendation(recommendation)
 
         home_players = player_patterns(str(PLAYERS_FILE), players_mtime, home)
         away_players = player_patterns(str(PLAYERS_FILE), players_mtime, away)
