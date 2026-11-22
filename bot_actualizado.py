@@ -684,52 +684,68 @@ def obtener_cartelera_y_boxscore_avanzado():
     return partidos
 
 
-def generar_recomendacion_corta(local, visitante, pred_ganador, prob_ganador_pct, promedio_simulado, linea_apuesta, spread_casa, momio_real, estilo_dominante="Equilibrado"):
+def generar_recomendacion_corta(
+    local,
+    visitante,
+    pred_ganador,
+    prob_ganador_pct,
+    margen_proyectado,
+    promedio_simulado,
+    linea_apuesta,
+    spread_casa,
+    momio_real,
+    estilo_dominante="Equilibrado",
+):
+    """
+    Compara el margen real proyectado contra el spread de Vegas para recomendar
+    solo líneas donde exista ventaja estadística (edge) y margen protegido.
+    """
     es_local = pred_ganador == local
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
     underdog = visitante if es_local else local
+
+    margen_fav = abs(margen_proyectado)
     spread_abs = abs(spread_casa)
 
     lineas = []
     if prob_fav < 56.0:
         lineas.append("🛑 <b>Veredicto:</b> Partido muy parejo y volátil. <i>Preferible no meterle a este encuentro.</i>")
-        return "<br>".join(lineas)
+    else:
+        lineas.append(
+            f"• <b>Análisis:</b> Ventaja para <b>{favorito}</b> ({prob_fav:.1f}%) · "
+            f"Margen proyectado: <b>+{margen_fav:.1f} pts</b> (Línea casa: {spread_abs:.1f})."
+        )
 
-    if prob_fav >= 72.0:
-        lineas.append(f"• <b>Análisis:</b> Sólido favoritismo para <b>{favorito}</b> ({prob_fav}%).")
-        if spread_abs >= 11.5:
-            linea_segura = round(spread_abs - 5.5, 1)
-            signo = "-" if favorito == local else "+"
+        edge_favorito = margen_fav - spread_abs
+
+        if edge_favorito >= 3.5 and prob_fav >= 64.0:
+            colchon = 3.5 if spread_abs >= 8.0 else 2.0
+            linea_segura = max(1.5, round(spread_abs - colchon, 1))
             lineas.append(
-                f"🎯 <b>Apuesta Recomendada (Línea Segura):</b> <b>{favorito} Hándicap ({signo}{linea_segura:.1f})</b> "
-                f"(Línea original casa: {spread_abs:.1f} · ajustada para proteger margen)"
+                f"🎯 <b>Apuesta Recomendada (Hándicap Seguro):</b> <b>{favorito} Hándicap (-{linea_segura:.1f})</b> "
+                f"(Cubre línea casa {spread_abs:.1f} con +{edge_favorito:.1f} pts de ventaja)"
             )
-        elif spread_abs >= 7.5:
-            linea_segura = round(spread_abs - 3.0, 1)
-            signo = "-" if favorito == local else "+"
+        elif prob_fav >= 63.0 and spread_abs <= 5.5:
             lineas.append(
-                f"🎯 <b>Apuesta Recomendada (Línea Segura):</b> <b>{favorito} Hándicap ({signo}{linea_segura:.1f})</b> "
-                f"(Cuota base: <b>{momio_real}x</b>)"
+                f"🎯 <b>Apuesta Recomendada (Moneyline Seguro):</b> <b>{favorito} a Ganar (ML)</b> "
+                f"(Evitamos hándicap corto de -{spread_abs:.1f})"
             )
         else:
-            spread_real = -spread_abs if favorito == local else spread_abs
+            puntos_extra = 4.5 if spread_abs <= 6.5 else 3.5
+            linea_underdog = round(spread_abs + puntos_extra, 1)
             lineas.append(
-                f"🎯 <b>Apuesta Recomendada:</b> <b>{favorito} Hándicap ({spread_real:+.1f})</b> (Cuota mercado: <b>{momio_real}x</b>)"
+                f"🎯 <b>Apuesta Recomendada (Margen Protegido):</b> <b>{underdog} Hándicap (+{linea_underdog:.1f})</b> "
+                f"(Línea de casa inflada para {favorito})"
             )
-    else:
-        extra_puntos = 4.5 if spread_abs <= 6.0 else 3.5
-        spread_protegido = spread_abs + extra_puntos
-        lineas.append(f"• <b>Análisis:</b> Ventaja ajustada para <b>{favorito}</b> ({prob_fav}%).")
-        lineas.append(f"🎯 <b>Apuesta Recomendada (Protegida):</b> <b>{underdog} Hándicap (+{spread_protegido:.1f})</b> (Margen ampliado)")
 
     diferencia_ou = abs(promedio_simulado - linea_apuesta)
     tipo_ou = "Altas (Over)" if promedio_simulado > linea_apuesta else "Bajas (Under)"
-    if diferencia_ou >= 6.0:
+    if diferencia_ou >= 6.5:
         linea_ou_segura = round(linea_apuesta - 3.5, 1) if tipo_ou.startswith("Altas") else round(linea_apuesta + 3.5, 1)
         lineas.append(
-            f"🎯 <b>Alternativa Totales:</b> <b>{tipo_ou} ({linea_ou_segura})</b> "
-            f"[Línea casa: {linea_apuesta} · Ritmo {estilo_dominante}]"
+            f"🎯 <b>Alternativa Totales (Alta Confianza):</b> <b>{tipo_ou} ({linea_ou_segura})</b> "
+            f"[Proyección: {promedio_simulado:.1f} vs Casa: {linea_apuesta} · Ritmo {estilo_dominante}]"
         )
 
     return "<br>".join(lineas)
@@ -761,21 +777,21 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
     n_sims = 2000
     np.random.seed(int(datetime.now().timestamp()) % 1000000)
-    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
-    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.0, n_sims), 80, 155)
+    puntos_locales_sim = np.clip(np.random.normal(proyeccion_loc_final * multiplicador_ritmo, 9.5, n_sims), 80, 155)
+    puntos_visitas_sim = np.clip(np.random.normal(proyeccion_vis_final * multiplicador_ritmo, 9.5, n_sims), 80, 155)
     total_puntos_sim = puntos_locales_sim + puntos_visitas_sim
 
-    promedio_simulado = np.mean(total_puntos_sim)
-    prob_over = np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100
+    promedio_simulado = float(np.mean(total_puntos_sim))
+    prob_over = float(np.sum(total_puntos_sim > linea_apuesta) / n_sims * 100)
 
-    diff_poder = (proyeccion_loc_final + 3.0) - proyeccion_vis_final
-    prob_local = 1 / (1 + np.exp(-diff_poder / 6.5))
-    prob_ganador_pct = max(prob_local, 1 - prob_local) * 100
+    margen_proyectado = (proyeccion_loc_final + 2.5) - proyeccion_vis_final
+    prob_local = 1.0 / (1.0 + np.exp(-margen_proyectado / 11.5))
+    prob_ganador_pct = max(prob_local, 1.0 - prob_local) * 100.0
     pred_ganador = local if prob_local >= 0.5 else visitante
 
-    if prob_ganador_pct >= 65.0:
+    if prob_ganador_pct >= 66.0:
         semaforo_ganador = "🟢 VERDE (Alta Confiabilidad)"
-    elif prob_ganador_pct >= 55.0:
+    elif prob_ganador_pct >= 56.0:
         semaforo_ganador = "🟡 AMARILLO (Precaución - Juego Cerrado)"
     else:
         semaforo_ganador = "🔴 ROJO (Volátil - Evitar Moneyline)"
@@ -793,6 +809,7 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
         visitante,
         pred_ganador,
         round(prob_ganador_pct, 1),
+        round(margen_proyectado, 1),
         round(promedio_simulado, 1),
         linea_apuesta,
         spread_casa,
