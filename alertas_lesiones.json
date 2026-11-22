@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-22",
-    "ultima_actualizacion": "12:09 UTC-6",
+    "ultima_actualizacion": "12:47 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -124,6 +124,14 @@
             "impacto_simulador": "-1.9 pts"
         },
         {
+            "jugador": "Bub Carrington",
+            "equipo": "Wizards",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Enfermedad / Indispuesto",
+            "fecha_regreso": "2026-11-22",
+            "impacto_simulador": "-0.3 pts"
+        },
+        {
             "jugador": "Deandre Ayton",
             "equipo": "Wizards",
             "estatus": "DAY-TO-DAY",
@@ -236,6 +244,14 @@
             "impacto_simulador": "-1.3 pts"
         },
         {
+            "jugador": "OG Anunoby",
+            "equipo": "Knicks",
+            "estatus": "OUT",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-25",
+            "impacto_simulador": "-4.0 pts"
+        },
+        {
             "jugador": "Karl-Anthony Towns",
             "equipo": "Knicks",
             "estatus": "DAY-TO-DAY",
@@ -246,18 +262,10 @@
         {
             "jugador": "Jordan Clarkson",
             "equipo": "Knicks",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Plantar Fasciitis",
             "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-0.3 pts"
-        },
-        {
-            "jugador": "OG Anunoby",
-            "equipo": "Knicks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia en pantorrilla",
-            "fecha_regreso": "2026-11-22",
-            "impacto_simulador": "-0.8 pts"
+            "impacto_simulador": "-1.5 pts"
         },
         {
             "jugador": "T.J. McConnell",
