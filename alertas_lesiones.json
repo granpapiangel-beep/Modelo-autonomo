@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-21",
-    "ultima_actualizacion": "16:39 UTC-6",
+    "ultima_actualizacion": "18:23 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -36,20 +36,20 @@
             "impacto_simulador": "-1.1 pts"
         },
         {
+            "jugador": "Karl-Anthony Towns",
+            "equipo": "Knicks",
+            "estatus": "OUT",
+            "motivo": "Enfermedad / Indispuesto",
+            "fecha_regreso": "2026-11-22",
+            "impacto_simulador": "-5.3 pts"
+        },
+        {
             "jugador": "OG Anunoby",
             "equipo": "Knicks",
             "estatus": "OUT",
             "motivo": "Molestia en pantorrilla",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-4.0 pts"
-        },
-        {
-            "jugador": "Karl-Anthony Towns",
-            "equipo": "Knicks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-21",
-            "impacto_simulador": "-1.1 pts"
         },
         {
             "jugador": "Jordan Clarkson",
@@ -86,10 +86,10 @@
         {
             "jugador": "P.J. Washington",
             "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-21",
-            "impacto_simulador": "-0.7 pts"
+            "fecha_regreso": "2026-11-22",
+            "impacto_simulador": "-3.4 pts"
         },
         {
             "jugador": "Tobi Lawal",
@@ -98,14 +98,6 @@
             "motivo": "Groin",
             "fecha_regreso": "2026-11-22",
             "impacto_simulador": "-0.3 pts"
-        },
-        {
-            "jugador": "Walter Clayton Jr.",
-            "equipo": "Mavericks",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Lesión de rodilla",
-            "fecha_regreso": "2026-11-21",
-            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Sergio de Larrea",
