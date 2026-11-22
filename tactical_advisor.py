@@ -19,7 +19,11 @@ def _norm(texto: Any) -> str:
 
 
 def construir_parley_seguro(matchups: pd.DataFrame, max_picks: int = 3) -> list[dict[str, Any]]:
-    """Selecciona los mejores picks ajustados de la jornada para armar un parley conservador."""
+    """
+    Construye un parley conservador priorizando:
+    1) Totales (Over/Under) con divergencia >= 7.5 pts y margen ajustado.
+    2) Moneyline seguro o Hándicap con colchón comprobado.
+    """
     candidatos: list[dict[str, Any]] = []
 
     for _, row in matchups.iterrows():
@@ -31,28 +35,35 @@ def construir_parley_seguro(matchups: pd.DataFrame, max_picks: int = 3) -> list[
         sim = float(row.get("Promedio_Simulado", 0) or 0)
         rec = re.sub(r"<[^>]+>", "", str(row.get("Recomendacion_Autonoma", "")))
 
-        if prob >= 64.0 and ganador in (local, visitante):
-            m_pick = re.search(r"Apuesta Recomendada[^:]*:\s*([^\(\n]+(?:\([+-]?\d+\.?\d*\))?)", rec)
-            seleccion = m_pick.group(1).strip() if m_pick else f"{ganador} Moneyline"
-            candidatos.append({
-                "partido": f"{local} vs {visitante}",
-                "seleccion": seleccion,
-                "confianza": round(prob, 1),
-                "tipo": "Hándicap / Línea",
-                "razon": f"Ventaja proyectada de {prob:.1f}% para {ganador} con margen protegido.",
-            })
-
+        # 1. Prioridad máxima: Totales con divergencia fuerte
         diff_ou = abs(sim - linea)
         if linea > 0 and sim > 0 and diff_ou >= 7.5:
             tipo_ou = "Altas (Over)" if sim > linea else "Bajas (Under)"
             linea_segura = round(linea - 3.5, 1) if sim > linea else round(linea + 3.5, 1)
+            score_ou = min(92.0, 68.0 + diff_ou * 1.6)
             candidatos.append({
                 "partido": f"{local} vs {visitante}",
                 "seleccion": f"{tipo_ou} {linea_segura}",
-                "confianza": round(min(85.0, 55.0 + diff_ou * 2.2), 1),
-                "tipo": "Totales Alternativos",
+                "confianza": round(score_ou, 1),
+                "tipo": "Totales (Alta Efectividad)",
                 "razon": f"Proyección ({sim:.1f} pts) diverge {diff_ou:.1f} pts de la línea ({linea:.1f}).",
             })
+
+        # 2. Picks de lado (Moneyline / Hándicap Protegido / Hándicap Seguro con Edge)
+        if prob >= 62.0 and ganador in (local, visitante):
+            m_pick = re.search(r"Apuesta Recomendada[^:]*:\s*([^\(\n]+(?:\([A-Za-z0-9+.\-]+\))?)", rec)
+            if m_pick:
+                seleccion = m_pick.group(1).strip()
+                es_handicap_negativo = bool(re.search(r"\(-\d+", seleccion))
+                score_lado = prob - (6.0 if es_handicap_negativo else 0.0)
+                if score_lado >= 60.0:
+                    candidatos.append({
+                        "partido": f"{local} vs {visitante}",
+                        "seleccion": seleccion,
+                        "confianza": round(score_lado, 1),
+                        "tipo": "Línea / Moneyline",
+                        "razon": f"Respaldo estadístico de {prob:.1f}% con línea ajustada al margen proyectado.",
+                    })
 
     candidatos.sort(key=lambda x: x["confianza"], reverse=True)
     parley: list[dict[str, Any]] = []
