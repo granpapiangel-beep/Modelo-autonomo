@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-23",
-    "ultima_actualizacion": "07:34 UTC-6",
+    "ultima_actualizacion": "12:20 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -76,6 +76,14 @@
             "impacto_simulador": "-0.5 pts"
         },
         {
+            "jugador": "Joel Embiid",
+            "equipo": "76ers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Enfermedad / Indispuesto",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-1.0 pts"
+        },
+        {
             "jugador": "Adem Bona",
             "equipo": "76ers",
             "estatus": "OUT",
@@ -126,10 +134,10 @@
         {
             "jugador": "T.J. McConnell",
             "equipo": "Pacers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Molestia en isquiotibiales",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.6 pts"
+            "impacto_simulador": "-0.3 pts"
         },
         {
             "jugador": "Tyrese Haliburton",
@@ -150,42 +158,50 @@
         {
             "jugador": "Aday Mara",
             "equipo": "Thunder",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Contusión / Golpe",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-2.3 pts"
-        },
-        {
-            "jugador": "Shai Gilgeous-Alexander",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-7.7 pts"
-        },
-        {
-            "jugador": "Nikola Topic",
-            "equipo": "Thunder",
-            "estatus": "OUT",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.0 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Jaylin Williams",
             "equipo": "Thunder",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Espasmos musculares",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.7 pts"
+            "impacto_simulador": "-0.1 pts"
+        },
+        {
+            "jugador": "Nikola Topic",
+            "equipo": "Thunder",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-0.2 pts"
+        },
+        {
+            "jugador": "Shai Gilgeous-Alexander",
+            "equipo": "Thunder",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Contusión / Golpe",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-1.5 pts"
         },
         {
             "jugador": "Alex Caruso",
             "equipo": "Thunder",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Molestia muscular",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.9 pts"
+            "impacto_simulador": "-0.4 pts"
+        },
+        {
+            "jugador": "Jaden Bradley",
+            "equipo": "Raptors",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Esguince",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-0.1 pts"
         },
         {
             "jugador": "Collin Murray-Boyles",
@@ -215,8 +231,8 @@
             "jugador": "Ousmane Dieng",
             "equipo": "Bucks",
             "estatus": "OUT",
-            "motivo": "Cirugía / Recuperación",
-            "fecha_regreso": "2026-11-23",
+            "motivo": "No especificado",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-1.1 pts"
         },
         {
@@ -240,16 +256,16 @@
             "equipo": "Nets",
             "estatus": "OUT",
             "motivo": "Distensión muscular",
-            "fecha_regreso": "2026-11-25",
+            "fecha_regreso": "2027-01-27",
             "impacto_simulador": "-3.2 pts"
         },
         {
             "jugador": "Nic Claxton",
             "equipo": "Bulls",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-2.3 pts"
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Norman Powell",
@@ -342,10 +358,10 @@
         {
             "jugador": "Jaxson Hayes",
             "equipo": "Jazz",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "No especificado",
             "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-2.2 pts"
+            "impacto_simulador": "-0.4 pts"
         },
         {
             "jugador": "Lauri Markkanen",
