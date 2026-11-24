@@ -4,4 +4,7 @@ numpy
 scipy
 requests
 Pillow
+opencv-python-headless
 rapidocr-onnxruntime
+libgl1
+libglib2.0-0
