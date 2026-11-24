@@ -146,29 +146,27 @@ def traducir_motivo_lesion(motivo):
 
 
 # ==============================================================================
-# MÉTODOS NUMÉRICOS: EXTRAPOLACIÓN DE RICHARDSON + CUADRATURA DE GAUSS-LEGENDRE
+# MÉTODOS NUMÉRICOS: EXTRAPOLACIÓN DE RICHARDSON + GAUSS-LEGENDRE CON RITMO (PACE)
 # ==============================================================================
 
-def extrapolacion_richardson(q_h, q_h2, p=2, max_delta=6.5):
-    """
-    Aplica Extrapolación de Richardson: R = [2^p * Q(h/2) - Q(h)] / (2^p - 1)
-    q_h: promedio ventana larga (últimos 8 partidos)
-    q_h2: promedio ventana corta (últimos 4 partidos)
-    """
+def extrapolacion_richardson(q_h, q_h2, p=2, max_delta=7.5):
     r = ((2**p) * q_h2 - q_h) / ((2**p) - 1)
     return float(np.clip(r, q_h - max_delta, q_h + max_delta))
 
 
 def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
     """
-    Consulta los resultados recientes de ESPN para obtener los últimos 8 y 4 juegos
-    de cada equipo (puntos anotados y recibidos) y calcular la media real de la liga.
+    Obtiene últimos 8 y 4 juegos de cada equipo (anotados, recibidos y ritmo total)
+    además de medir la volatilidad/adaptabilidad del ritmo del equipo.
     """
-    logging.info("📐 Calculando ventanas de 8 y 4 partidos (Richardson) desde ESPN...")
+    logging.info("📐 Calculando ventanas de 8 y 4 partidos + Ritmo (Pace) desde ESPN...")
     tz_mexico = timezone(timedelta(hours=-6))
     hoy = datetime.now(tz_mexico).date()
 
-    historial_equipos = {eq: {"anotados": [], "recibidos": []} for eq in TIERS_BASE_EQUIPOS.keys()}
+    historial_equipos = {
+        eq: {"anotados": [], "recibidos": [], "totales": []}
+        for eq in TIERS_BASE_EQUIPOS.keys()
+    }
 
     for d in range(1, dias_atras + 1):
         fecha_dt = hoy - timedelta(days=d)
@@ -180,9 +178,7 @@ def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
 
         for event in resp.json().get("events", []):
             comps = event.get("competitions", [])
-            if not comps:
-                continue
-            if not comps[0].get("status", {}).get("type", {}).get("completed", False):
+            if not comps or not comps[0].get("status", {}).get("type", {}).get("completed", False):
                 continue
 
             competitors = comps[0].get("competitors", [])
@@ -201,12 +197,15 @@ def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
             if len(equipos_juego) == 2 and equipos_juego[0][1] > 0 and equipos_juego[1][1] > 0:
                 eq_a, pts_a = equipos_juego[0]
                 eq_b, pts_b = equipos_juego[1]
+                total_juego = pts_a + pts_b
                 if eq_a in historial_equipos:
                     historial_equipos[eq_a]["anotados"].append(pts_a)
                     historial_equipos[eq_a]["recibidos"].append(pts_b)
+                    historial_equipos[eq_a]["totales"].append(total_juego)
                 if eq_b in historial_equipos:
                     historial_equipos[eq_b]["anotados"].append(pts_b)
                     historial_equipos[eq_b]["recibidos"].append(pts_a)
+                    historial_equipos[eq_b]["totales"].append(total_juego)
 
     ventanas = {}
     todos_los_puntajes = []
@@ -214,7 +213,8 @@ def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
     for eq, datos in historial_equipos.items():
         anotados = datos["anotados"]
         recibidos = datos["recibidos"]
-        base_fallback = float(fuerzas_base.get(eq, 112.0))
+        totales = datos["totales"]
+        base_fallback = float(fuerzas_base.get(eq, 113.0))
 
         if len(anotados) >= 4:
             off_8 = float(np.mean(anotados[:8]))
@@ -228,46 +228,64 @@ def obtener_ventanas_richardson_espn(fuerzas_base, dias_atras=22):
             todos_los_puntajes.extend(anotados)
         else:
             off_8 = off_4 = base_fallback
-            def_8 = def_4 = 112.0
+            def_8 = def_4 = 113.0
+
+        # Desviación estándar del total de puntos: mide qué tanto se adapta un equipo al ritmo del rival
+        adaptabilidad_ritmo = float(np.std(totales[:8])) if len(totales) >= 3 else 10.0
 
         ventanas[eq] = {
             "off_R": extrapolacion_richardson(off_8, off_4, p=2),
             "def_R": extrapolacion_richardson(def_8, def_4, p=2),
+            "ritmo_total_8": float(np.mean(totales[:8])) if totales else 226.0,
+            "adaptabilidad": adaptabilidad_ritmo,
         }
 
-    media_liga = float(np.mean(todos_los_puntajes)) if len(todos_los_puntajes) >= 20 else 112.0
+    media_liga = float(np.mean(todos_los_puntajes)) if len(todos_los_puntajes) >= 20 else 113.5
     logging.info(f"📊 Media ofensiva real de la liga calibrada en: {media_liga:.1f} pts/equipo")
     return ventanas, media_liga
 
 
-def proyectar_gauss_legendre(off_loc, def_loc, off_vis, def_vis, media_liga=112.0):
+def proyectar_gauss_legendre(off_loc, def_loc, off_vis, def_vis, media_liga=113.5, adapt_loc=10.0, adapt_vis=10.0):
     """
-    Cuadratura de Gauss-Legendre (m=3, exacta hasta grado 5) para ponderar
-    el choque de estilos (ofensivo vs defensivo) y la creciente de puntos.
+    Cuadratura de Gauss-Legendre (m=3) calibrada con asimetría de ritmo:
+    En la NBA actual, cuando un equipo acelerado enfrenta a uno camaleónico/adaptable
+    (alta desviación en sus totales, como Nuggets), el ritmo sube hacia el equipo rápido.
     """
     nodos, pesos = np.polynomial.legendre.leggauss(3)
 
-    influencia_ofensiva = ((off_loc - media_liga) + (off_vis - media_liga)) / 2.0
-    influencia_defensiva = ((media_liga - def_loc) + (media_liga - def_vis)) / 2.0
-
-    if abs(influencia_defensiva) > abs(influencia_ofensiva):
-        estilo_dominante = "Defensivo"
-        factor_control = 0.65
-    else:
-        estilo_dominante = "Ofensivo"
-        factor_control = 0.35
-
+    # Potencial ofensivo de cada choque individual (ataque vs defensa rival)
     esp_loc_base = (off_loc + def_vis) / 2.0
     esp_vis_base = (off_vis + def_loc) / 2.0
     base_puntos = esp_loc_base + esp_vis_base
 
+    # Medimos el empuje ofensivo (cuánto superan ambos equipos la media de la liga)
+    empuje_ofensivo = ((off_loc - media_liga) + (off_vis - media_liga)) / 2.0
+    # Medimos qué tanto permiten puntos sus defensas respecto a la media
+    permeabilidad_def = ((def_loc - media_liga) + (def_vis - media_liga)) / 2.0
+
+    # Si uno de los dos equipos tiene alta adaptabilidad (std >= 11 pts) y el otro es muy ofensivo,
+    # el ritmo NO se frena: se acelera hacia el equipo ofensivo.
+    equipo_rapido_presente = max(off_loc, off_vis) >= (media_liga + 3.0) or max(def_loc, def_vis) >= (media_liga + 4.0)
+    camaleon_presente = max(adapt_loc, adapt_vis) >= 11.0
+
+    if equipo_rapido_presente and camaleon_presente:
+        estilo_dominante = "Acelerado / Adaptativo"
+        sesgo_ritmo = 1.0  # Favorece nodos superiores de la cuadratura
+    elif (empuje_ofensivo + permeabilidad_def) > 1.5:
+        estilo_dominante = "Ofensivo"
+        sesgo_ritmo = 0.65
+    elif (empuje_ofensivo + permeabilidad_def) < -2.5:
+        estilo_dominante = "Defensivo"
+        sesgo_ritmo = -0.55
+    else:
+        estilo_dominante = "Equilibrado"
+        sesgo_ritmo = 0.15
+
     valores_f = []
     for x in nodos:
-        ajuste_nodo = (
-            influencia_ofensiva * (1.0 + x) * (1.0 - factor_control)
-            - influencia_defensiva * (1.0 - x) * factor_control
-        )
-        valores_f.append(base_puntos + ajuste_nodo * 1.5)
+        # En la NBA moderna los partidos rápidos escalan más de lo que los lentos frenan
+        ajuste_nodo = (empuje_ofensivo + permeabilidad_def) * (1.0 + 0.5 * x) + (sesgo_ritmo * 4.5 * (1.0 + x))
+        valores_f.append(base_puntos + ajuste_nodo)
 
     total_gauss = float(np.sum(pesos * np.array(valores_f)) / 2.0)
 
@@ -572,7 +590,7 @@ def obtener_cartelera_y_boxscore_avanzado():
     fuerzas_actuales = obtener_fuerza_actualizada_equipos()
     ventanas_richardson, media_liga = obtener_ventanas_richardson_espn(fuerzas_actuales, dias_atras=22)
 
-    linea_promedio_historica = 225.5
+    linea_promedio_historica = 226.5
     if os.path.exists(ARCHIVO_HISTORIAL):
         try:
             df_h = pd.read_csv(ARCHIVO_HISTORIAL)
@@ -605,8 +623,8 @@ def obtener_cartelera_y_boxscore_avanzado():
             if not local_team or not visitante_team:
                 continue
 
-            r_loc = ventanas_richardson.get(local_team, {"off_R": fuerzas_actuales.get(local_team, 112.0), "def_R": 112.0})
-            r_vis = ventanas_richardson.get(visitante_team, {"off_R": fuerzas_actuales.get(visitante_team, 112.0), "def_R": 112.0})
+            r_loc = ventanas_richardson.get(local_team, {"off_R": fuerzas_actuales.get(local_team, 113.0), "def_R": 113.0, "adaptabilidad": 10.0})
+            r_vis = ventanas_richardson.get(visitante_team, {"off_R": fuerzas_actuales.get(visitante_team, 113.0), "def_R": 113.0, "adaptabilidad": 10.0})
 
             pen_loc, alert_loc = detectar_lesiones_y_calcular_impacto(event_id, local_team)
             pen_vis, alert_vis = detectar_lesiones_y_calcular_impacto(event_id, visitante_team)
@@ -620,6 +638,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                 "DEF_PROPIA": r_loc["def_R"],
                 "DEF_R_RIVAL": r_vis["def_R"],
                 "MEDIA_LIGA": media_liga,
+                "ADAPTABILIDAD": r_loc.get("adaptabilidad", 10.0),
                 "RITMO": 1.0,
                 "FACTOR_FORMA": 1.0,
             }
@@ -628,6 +647,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                 "DEF_PROPIA": r_vis["def_R"],
                 "DEF_R_RIVAL": r_loc["def_R"],
                 "MEDIA_LIGA": media_liga,
+                "ADAPTABILIDAD": r_vis.get("adaptabilidad", 10.0),
                 "RITMO": 1.0,
                 "FACTOR_FORMA": 1.0,
             }
@@ -655,7 +675,7 @@ def obtener_cartelera_y_boxscore_avanzado():
                 except Exception:
                     pass
 
-            if linea_apuesta < 200 or linea_apuesta > 255:
+            if linea_apuesta < 195 or linea_apuesta > 265:
                 linea_apuesta = linea_promedio_historica
 
             partidos.append({
@@ -696,10 +716,6 @@ def generar_recomendacion_corta(
     momio_real,
     estilo_dominante="Equilibrado",
 ):
-    """
-    Compara el margen real proyectado contra el spread de Vegas para recomendar
-    solo líneas donde exista ventaja estadística (edge) y margen protegido.
-    """
     es_local = pred_ganador == local
     prob_fav = prob_ganador_pct if es_local else (100.0 - prob_ganador_pct)
     favorito = local if es_local else visitante
@@ -762,12 +778,15 @@ def simular_monte_carlo_con_rotacion(partido, pesos_optimos):
 
     off_loc = stats_loc["PTS_OFENSIVA"] * stats_loc["FACTOR_FORMA"]
     off_vis = stats_vis["PTS_OFENSIVA"] * stats_vis["FACTOR_FORMA"]
-    def_loc = stats_loc.get("DEF_PROPIA", stats_vis.get("DEF_R_RIVAL", 112.0))
-    def_vis = stats_vis.get("DEF_PROPIA", stats_loc.get("DEF_R_RIVAL", 112.0))
-    media_liga = stats_loc.get("MEDIA_LIGA", 112.0)
+    def_loc = stats_loc.get("DEF_PROPIA", stats_vis.get("DEF_R_RIVAL", 113.5))
+    def_vis = stats_vis.get("DEF_PROPIA", stats_loc.get("DEF_R_RIVAL", 113.5))
+    media_liga = stats_loc.get("MEDIA_LIGA", 113.5)
+    adapt_loc = stats_loc.get("ADAPTABILIDAD", 10.0)
+    adapt_vis = stats_vis.get("ADAPTABILIDAD", 10.0)
 
     proy_loc_gauss, proy_vis_gauss, estilo_dominante = proyectar_gauss_legendre(
-        off_loc, def_loc, off_vis, def_vis, media_liga=media_liga
+        off_loc, def_loc, off_vis, def_vis,
+        media_liga=media_liga, adapt_loc=adapt_loc, adapt_vis=adapt_vis
     )
 
     proyeccion_loc_final = proy_loc_gauss * pesos_optimos[0] * pesos_optimos[2]
