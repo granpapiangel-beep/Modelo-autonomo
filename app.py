@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import html
+import io
 import json
 import re
 import unicodedata
@@ -9,6 +10,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 import streamlit as st
 
 from tactical_advisor import (
@@ -186,6 +188,17 @@ def render_model_note(recommendation: str) -> None:
     st.markdown("".join(blocks_html), unsafe_allow_html=True)
 
 
+@st.cache_data(ttl=600, show_spinner=False)
+def procesar_imagen_cacheada(image_bytes: bytes) -> str:
+    img = Image.open(io.BytesIO(image_bytes)).convert("RGB")
+    if max(img.size) > 1100:
+        img.thumbnail((1100, 1100), Image.Resampling.LANCZOS)
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG", quality=85)
+    buf.seek(0)
+    return extraer_texto_captura(buf)
+
+
 @st.cache_data(ttl=300, show_spinner=False)
 def load_csv(path: str, modified_at: float) -> tuple[pd.DataFrame, str | None]:
     del modified_at
@@ -245,7 +258,6 @@ def player_patterns(path: str, modified_at: float, team: str) -> list[tuple[str,
     if not search_team:
         return []
 
-    # Agrupar por jugador para evitar duplicados cuando cambia de posición
     grouped_points: dict[str, tuple[str, list[float]]] = {}
     for _, row in players.iterrows():
         row_team = normalize_name(row.get(team_column))
@@ -321,7 +333,7 @@ with st.sidebar:
     st.markdown("### 📡 Monitor IA Stephy")
     st.markdown('<div class="radar" aria-hidden="true"></div>', unsafe_allow_html=True)
     st.info("Monitoreo de datos activo")
-    st.caption("v 4.1 | Panel de análisis & Asesor")
+    st.caption("v 4.2 | Panel de análisis & Asesor")
     if st.button("↻ Actualizar datos", use_container_width=True):
         st.cache_data.clear()
         st.rerun()
@@ -427,7 +439,7 @@ with st.expander("🎯 Asesor Táctico: Armar Parley Seguro o Revisar Captura de
             with col_res:
                 with st.spinner("Leyendo boleto y cruzando estadísticas..."):
                     try:
-                        texto_detectado = extraer_texto_captura(uploaded_ticket)
+                        texto_detectado = procesar_imagen_cacheada(uploaded_ticket.getvalue())
                         diagnosticos = auditar_parley_desde_texto(texto_detectado, matchups, alerts)
                         if not diagnosticos:
                             st.warning("No se identificaron equipos de la jornada seleccionada en la imagen. Asegúrate de haber elegido la fecha correcta arriba.")
