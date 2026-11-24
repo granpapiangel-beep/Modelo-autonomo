@@ -1,8 +1,16 @@
 {
     "fecha": "2026-11-23",
-    "ultima_actualizacion": "16:52 UTC-6",
+    "ultima_actualizacion": "21:17 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
+        {
+            "jugador": "Ryan Kalkbrenner",
+            "equipo": "Hornets",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-25",
+            "impacto_simulador": "-0.2 pts"
+        },
         {
             "jugador": "Grayson Allen",
             "equipo": "Hornets",
@@ -36,20 +44,20 @@
             "impacto_simulador": "-2.6 pts"
         },
         {
+            "jugador": "Cameron Boozer",
+            "equipo": "Grizzlies",
+            "estatus": "OUT",
+            "motivo": "Esguince",
+            "fecha_regreso": "2026-12-21",
+            "impacto_simulador": "-4.3 pts"
+        },
+        {
             "jugador": "Jerami Grant",
             "equipo": "Grizzlies",
             "estatus": "OUT",
             "motivo": "No especificado",
             "fecha_regreso": "2026-12-12",
             "impacto_simulador": "-2.7 pts"
-        },
-        {
-            "jugador": "Cameron Boozer",
-            "equipo": "Grizzlies",
-            "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-4.3 pts"
         },
         {
             "jugador": "GG Jackson",
@@ -70,34 +78,10 @@
         {
             "jugador": "Joel Embiid",
             "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.0 pts"
-        },
-        {
-            "jugador": "Adem Bona",
-            "equipo": "76ers",
             "estatus": "OUT",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.6 pts"
-        },
-        {
-            "jugador": "Jaylen Brown",
-            "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "No especificado",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.2 pts"
-        },
-        {
-            "jugador": "Dean Wade",
-            "equipo": "76ers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Molestia muscular",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.2 pts"
+            "motivo": "Enfermedad / Indispuesto",
+            "fecha_regreso": "2026-11-25",
+            "impacto_simulador": "-5.0 pts"
         },
         {
             "jugador": "Chris Youngblood",
@@ -124,6 +108,14 @@
             "impacto_simulador": "-3.9 pts"
         },
         {
+            "jugador": "Larry Nance Jr.",
+            "equipo": "Pacers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-0.2 pts"
+        },
+        {
             "jugador": "T.J. McConnell",
             "equipo": "Pacers",
             "estatus": "OUT",
@@ -138,14 +130,6 @@
             "motivo": "Lesión de pie",
             "fecha_regreso": "2026-11-27",
             "impacto_simulador": "-3.1 pts"
-        },
-        {
-            "jugador": "Pascal Siakam",
-            "equipo": "Pacers",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "No especificado",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Tyrese Haliburton",
@@ -196,22 +180,6 @@
             "impacto_simulador": "-1.9 pts"
         },
         {
-            "jugador": "Jaden Bradley",
-            "equipo": "Raptors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Esguince",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.1 pts"
-        },
-        {
-            "jugador": "Collin Murray-Boyles",
-            "equipo": "Raptors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Protocolo de conmoción",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
             "jugador": "Kawhi Leonard",
             "equipo": "Raptors",
             "estatus": "OUT",
@@ -252,22 +220,6 @@
             "impacto_simulador": "-3.2 pts"
         },
         {
-            "jugador": "Jalen Smith",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.8 pts"
-        },
-        {
-            "jugador": "Nic Claxton",
-            "equipo": "Bulls",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
             "jugador": "Norman Powell",
             "equipo": "Bulls",
             "estatus": "OUT",
@@ -284,28 +236,12 @@
             "impacto_simulador": "-4.4 pts"
         },
         {
-            "jugador": "Jaylon Tyson",
-            "equipo": "Cavaliers",
-            "estatus": "OUT",
-            "motivo": "Lesión de tobillo",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-2.4 pts"
-        },
-        {
             "jugador": "Evan Mobley",
             "equipo": "Cavaliers",
             "estatus": "OUT",
             "motivo": "Esguince",
             "fecha_regreso": "2026-11-29",
             "impacto_simulador": "-4.1 pts"
-        },
-        {
-            "jugador": "Zion Williamson",
-            "equipo": "Pelicans",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.1 pts"
         },
         {
             "jugador": "Trendon Watford",
@@ -330,6 +266,14 @@
             "motivo": "Lesión de tobillo",
             "fecha_regreso": "2026-11-27",
             "impacto_simulador": "-3.4 pts"
+        },
+        {
+            "jugador": "Collin Gillespie",
+            "equipo": "Suns",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "No especificado",
+            "fecha_regreso": "2026-11-23",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Austin Reaves",
@@ -364,28 +308,20 @@
             "impacto_simulador": "-4.1 pts"
         },
         {
-            "jugador": "Victor Wembanyama",
-            "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-1.4 pts"
-        },
-        {
             "jugador": "De'Aaron Fox",
             "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.7 pts"
+            "fecha_regreso": "2026-11-25",
+            "impacto_simulador": "-3.4 pts"
         },
         {
-            "jugador": "Jordan McLaughlin",
+            "jugador": "Victor Wembanyama",
             "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-23",
-            "impacto_simulador": "-0.2 pts"
+            "estatus": "OUT",
+            "motivo": "Dolor de espalda",
+            "fecha_regreso": "2026-11-25",
+            "impacto_simulador": "-7.2 pts"
         },
         {
             "jugador": "Dylan Harper",
