@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-24",
-    "ultima_actualizacion": "12:17 UTC-6",
+    "ultima_actualizacion": "14:44 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -16,8 +16,24 @@
             "equipo": "Pistons",
             "estatus": "OUT",
             "motivo": "Distensión muscular",
-            "fecha_regreso": "2026-11-30",
+            "fecha_regreso": "2026-12-13",
             "impacto_simulador": "-0.6 pts"
+        },
+        {
+            "jugador": "Taurean Prince",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "Cirugía / Recuperación",
+            "fecha_regreso": "2026-12-26",
+            "impacto_simulador": "-0.5 pts"
+        },
+        {
+            "jugador": "Duncan Robinson",
+            "equipo": "Pistons",
+            "estatus": "OUT",
+            "motivo": "Distensión muscular",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-4.4 pts"
         },
         {
             "jugador": "Jalen Duren",
@@ -34,22 +50,6 @@
             "motivo": "Lesión de rodilla",
             "fecha_regreso": "2026-11-24",
             "impacto_simulador": "-1.3 pts"
-        },
-        {
-            "jugador": "Taurean Prince",
-            "equipo": "Pistons",
-            "estatus": "OUT",
-            "motivo": "Cirugía / Recuperación",
-            "fecha_regreso": "2026-12-13",
-            "impacto_simulador": "-0.5 pts"
-        },
-        {
-            "jugador": "Duncan Robinson",
-            "equipo": "Pistons",
-            "estatus": "OUT",
-            "motivo": "Distensión muscular",
-            "fecha_regreso": "2026-11-27",
-            "impacto_simulador": "-4.4 pts"
         },
         {
             "jugador": "Tre Mann",
