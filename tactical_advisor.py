@@ -89,16 +89,18 @@ def _variantes_equipo(equipo: str) -> tuple[str, ...]:
 def _equipo_en_texto(equipo: str, texto_norm: str, texto_raw: str = "") -> bool:
     if not texto_norm:
         return False
-    # 1. Búsqueda normalizada (detecta palabras pegadas como "indianapacers")
+    # 1. Nombres completos o ciudades (>= 4 letras), incluso pegados como "IndianaPacers"
     for variante in _variantes_equipo(equipo):
         if len(variante) >= 4 and variante in texto_norm:
             return True
-    # 2. Búsqueda de siglas en mayúsculas en el texto crudo (ej. OKCvsIND, BKNvsMIN)
+    # 2. Siglas de 3 letras estrictamente en MAYÚSCULAS (ej. OKCvsIND, BKNvsMIN)
     if texto_raw:
+        # Limpiamos palabras de interfaz que puedan confundirse
+        raw_limpio = re.sub(r"\b(BALANCE|DISPONIBLE|MONTO|MOMIO|GANANCIA|RECOMPENSA|ASCENSO|SELECCIONES|VER|TODOS|ACEPTAR|SIEMPRE|CAMBIO|TICKET|DESLIZA|JUGAR)\b", "", texto_raw)
         for variante in _variantes_equipo(equipo):
             if len(variante) == 3:
                 sigla = variante.upper()
-                if re.search(rf"(?<![A-Z]){sigla}(?![A-Z])", texto_raw):
+                if re.search(rf"(?<![A-Z]){sigla}(?![A-Z])", raw_limpio):
                     return True
     return False
 
@@ -315,15 +317,23 @@ def auditar_parley_desde_texto(
         prob = _numero(row.get("Prob_Ganador_Pct"), float("nan"))
         linea = _numero(row.get("Line_Apuesta"))
         sim = _numero(row.get("Promedio_Simulado"))
+
         numeros_boleto: list[str] = []
-        for linea_texto in lineas_raw:
+        for idx, linea_texto in enumerate(lineas_raw):
             ln = _norm(linea_texto)
+            # Ignorar horas (ej. 3h:40m, 2:50), momios (1.95x) y montos ($)
+            if re.search(r"\d+\s*h\s*[:]\s*\d+|\d+\.\d+\s*x|\$", linea_texto.lower()):
+                continue
             asociado = _equipo_en_texto(local, ln, linea_texto) or _equipo_en_texto(visitante, ln, linea_texto)
-            es_linea = any(k in ln.split() for k in (
-                "handicap", "spread", "total", "over", "under", "altas", "bajas", "mas", "menos"
-            )) or bool(re.search(r"(mas|menos|over|under)\s*\d", ln))
-            if asociado or es_linea:
-                numeros_boleto.extend(re.findall(r"[+-]?\d+(?:[.,]\d+)?", linea_texto))
+            # También revisa si la línea siguiente menciona el partido (ej. "Mas 224.5" encima de "3h:40m · BKN vs MIN")
+            siguiente_asociado = False
+            if idx + 1 < len(lineas_raw):
+                sig_txt = lineas_raw[idx + 1]
+                siguiente_asociado = _equipo_en_texto(local, _norm(sig_txt), sig_txt) or _equipo_en_texto(visitante, _norm(sig_txt), sig_txt)
+            if asociado or siguiente_asociado:
+                for num in re.findall(r"[+-]?\d+(?:[.,]\d+)?", linea_texto):
+                    if num not in numeros_boleto:
+                        numeros_boleto.append(num)
 
         notas_lesiones: list[str] = []
         for equipo_norm in (loc_n, vis_n):
@@ -348,7 +358,7 @@ def auditar_parley_desde_texto(
             consejo += "Ventaja moderada, no concluyente; revisa hándicap y cuota antes de decidir. "
 
         if numeros_boleto:
-            consejo += f"Números detectados por OCR: {', '.join(numeros_boleto)}; verifica que sean la línea del juego y no la cuota u otro dato. "
+            consejo += f"Línea detectada en boleto: {', '.join(numeros_boleto)}. "
 
         if np.isfinite(linea) and np.isfinite(sim) and 170 <= linea <= 270 and 170 <= sim <= 270:
             diferencia = sim - linea
