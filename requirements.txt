@@ -1,8 +1,7 @@
 streamlit
 pandas
 numpy
-nba_api
 scipy
 requests
 Pillow
-easyocr
+rapidocr-onnxruntime
