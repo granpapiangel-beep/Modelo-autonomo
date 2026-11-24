@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+scipy
+requests
+Pillow
+opencv-python-headless
+rapidocr-onnxruntime
