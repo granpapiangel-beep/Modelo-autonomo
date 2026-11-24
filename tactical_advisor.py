@@ -14,36 +14,36 @@ from PIL import Image
 _HISTORIAL_FILE = Path(__file__).resolve().with_name("historial_evaluaciones_nba.csv")
 
 _SINONIMOS_BOLETO: dict[str, tuple[str, ...]] = {
-    "bulls": ("bulls", "chicago", "toros"),
-    "nuggets": ("nuggets", "denver", "pepitas"),
-    "lakers": ("lakers", "los angeles lakers", "la lakers"),
-    "clippers": ("clippers", "la clippers", "los angeles clippers"),
-    "warriors": ("warriors", "golden state", "guerreros"),
-    "kings": ("kings", "sacramento", "reyes"),
-    "suns": ("suns", "phoenix", "soles"),
-    "mavericks": ("mavericks", "dallas", "mavs"),
-    "spurs": ("spurs", "san antonio", "espuelas"),
-    "rockets": ("rockets", "houston", "cohetes"),
+    "bulls": ("bulls", "chicago", "toros", "chi"),
+    "nuggets": ("nuggets", "denver", "pepitas", "den"),
+    "lakers": ("lakers", "los angeles lakers", "la lakers", "lal"),
+    "clippers": ("clippers", "la clippers", "los angeles clippers", "lac"),
+    "warriors": ("warriors", "golden state", "guerreros", "gsw"),
+    "kings": ("kings", "sacramento", "reyes", "sac"),
+    "suns": ("suns", "phoenix", "soles", "phx"),
+    "mavericks": ("mavericks", "dallas", "mavs", "dal"),
+    "spurs": ("spurs", "san antonio", "espuelas", "sas"),
+    "rockets": ("rockets", "houston", "cohetes", "hou"),
     "thunder": ("thunder", "oklahoma", "okc", "trueno"),
-    "timberwolves": ("timberwolves", "minnesota", "wolves", "lobos"),
-    "jazz": ("jazz", "utah"),
-    "trail blazers": ("trail blazers", "blazers", "portland"),
-    "grizzlies": ("grizzlies", "memphis", "osos"),
-    "pelicans": ("pelicans", "new orleans", "nueva orleans", "pelicanos"),
-    "celtics": ("celtics", "boston"),
-    "nets": ("nets", "brooklyn"),
-    "knicks": ("knicks", "new york", "nueva york"),
-    "76ers": ("76ers", "sixers", "philadelphia", "filadelfia"),
-    "raptors": ("raptors", "toronto"),
-    "bucks": ("bucks", "milwaukee", "ciervos"),
-    "cavaliers": ("cavaliers", "cleveland", "cavs"),
-    "pacers": ("pacers", "indiana"),
-    "pistons": ("pistons", "detroit", "pistones"),
-    "heat": ("heat", "miami", "calor"),
-    "magic": ("magic", "orlando", "magia"),
-    "hawks": ("hawks", "atlanta", "halcones"),
-    "hornets": ("hornets", "charlotte", "avispones"),
-    "wizards": ("wizards", "washington", "magos"),
+    "timberwolves": ("timberwolves", "minnesota", "wolves", "lobos", "min"),
+    "jazz": ("jazz", "utah", "uta"),
+    "trail blazers": ("trail blazers", "blazers", "portland", "por"),
+    "grizzlies": ("grizzlies", "memphis", "osos", "mem"),
+    "pelicans": ("pelicans", "new orleans", "nueva orleans", "pelicanos", "nop"),
+    "celtics": ("celtics", "boston", "bos"),
+    "nets": ("nets", "brooklyn", "bkn"),
+    "knicks": ("knicks", "new york", "nueva york", "nyk"),
+    "76ers": ("76ers", "sixers", "philadelphia", "filadelfia", "phi"),
+    "raptors": ("raptors", "toronto", "tor"),
+    "bucks": ("bucks", "milwaukee", "ciervos", "mil"),
+    "cavaliers": ("cavaliers", "cleveland", "cavs", "cle"),
+    "pacers": ("pacers", "indiana", "ind"),
+    "pistons": ("pistons", "detroit", "pistones", "det"),
+    "heat": ("heat", "miami", "calor", "mia"),
+    "magic": ("magic", "orlando", "magia", "orl"),
+    "hawks": ("hawks", "atlanta", "halcones", "atl"),
+    "hornets": ("hornets", "charlotte", "avispones", "cha"),
+    "wizards": ("wizards", "washington", "magos", "was"),
 }
 
 
@@ -86,12 +86,20 @@ def _variantes_equipo(equipo: str) -> tuple[str, ...]:
     return (eq_norm,)
 
 
-def _equipo_en_texto(equipo: str, texto_norm: str) -> bool:
+def _equipo_en_texto(equipo: str, texto_norm: str, texto_raw: str = "") -> bool:
     if not texto_norm:
         return False
+    # 1. Búsqueda normalizada (detecta palabras pegadas como "indianapacers")
     for variante in _variantes_equipo(equipo):
-        if variante and variante in texto_norm:
+        if len(variante) >= 4 and variante in texto_norm:
             return True
+    # 2. Búsqueda de siglas en mayúsculas en el texto crudo (ej. OKCvsIND, BKNvsMIN)
+    if texto_raw:
+        for variante in _variantes_equipo(equipo):
+            if len(variante) == 3:
+                sigla = variante.upper()
+                if re.search(rf"(?<![A-Z]){sigla}(?![A-Z])", texto_raw):
+                    return True
     return False
 
 
@@ -300,7 +308,7 @@ def auditar_parley_desde_texto(
         local = str(row.get("Local", "")).strip()
         visitante = str(row.get("Visitante", "")).strip()
         loc_n, vis_n = _norm(local), _norm(visitante)
-        if not (_equipo_en_texto(local, texto_norm) or _equipo_en_texto(visitante, texto_norm)):
+        if not (_equipo_en_texto(local, texto_norm, texto_ocr) or _equipo_en_texto(visitante, texto_norm, texto_ocr)):
             continue
 
         ganador = str(row.get("Pred_Ganador", "No disponible"))
@@ -310,10 +318,10 @@ def auditar_parley_desde_texto(
         numeros_boleto: list[str] = []
         for linea_texto in lineas_raw:
             ln = _norm(linea_texto)
-            asociado = _equipo_en_texto(local, ln) or _equipo_en_texto(visitante, ln)
+            asociado = _equipo_en_texto(local, ln, linea_texto) or _equipo_en_texto(visitante, ln, linea_texto)
             es_linea = any(k in ln.split() for k in (
                 "handicap", "spread", "total", "over", "under", "altas", "bajas", "mas", "menos"
-            ))
+            )) or bool(re.search(r"(mas|menos|over|under)\s*\d", ln))
             if asociado or es_linea:
                 numeros_boleto.extend(re.findall(r"[+-]?\d+(?:[.,]\d+)?", linea_texto))
 
