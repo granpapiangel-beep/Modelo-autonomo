@@ -13,6 +13,39 @@ from PIL import Image
 
 _HISTORIAL_FILE = Path(__file__).resolve().with_name("historial_evaluaciones_nba.csv")
 
+_SINONIMOS_BOLETO: dict[str, tuple[str, ...]] = {
+    "bulls": ("bulls", "chicago", "toros"),
+    "nuggets": ("nuggets", "denver", "pepitas"),
+    "lakers": ("lakers", "los angeles lakers", "la lakers"),
+    "clippers": ("clippers", "la clippers", "los angeles clippers"),
+    "warriors": ("warriors", "golden state", "guerreros"),
+    "kings": ("kings", "sacramento", "reyes"),
+    "suns": ("suns", "phoenix", "soles"),
+    "mavericks": ("mavericks", "dallas", "mavs"),
+    "spurs": ("spurs", "san antonio", "espuelas"),
+    "rockets": ("rockets", "houston", "cohetes"),
+    "thunder": ("thunder", "oklahoma", "okc", "trueno"),
+    "timberwolves": ("timberwolves", "minnesota", "wolves", "lobos"),
+    "jazz": ("jazz", "utah"),
+    "trail blazers": ("trail blazers", "blazers", "portland"),
+    "grizzlies": ("grizzlies", "memphis", "osos"),
+    "pelicans": ("pelicans", "new orleans", "nueva orleans", "pelicanos"),
+    "celtics": ("celtics", "boston"),
+    "nets": ("nets", "brooklyn"),
+    "knicks": ("knicks", "new york", "nueva york"),
+    "76ers": ("76ers", "sixers", "philadelphia", "filadelfia"),
+    "raptors": ("raptors", "toronto"),
+    "bucks": ("bucks", "milwaukee", "ciervos"),
+    "cavaliers": ("cavaliers", "cleveland", "cavs"),
+    "pacers": ("pacers", "indiana"),
+    "pistons": ("pistons", "detroit", "pistones"),
+    "heat": ("heat", "miami", "calor"),
+    "magic": ("magic", "orlando", "magia"),
+    "hawks": ("hawks", "atlanta", "halcones"),
+    "hornets": ("hornets", "charlotte", "avispones"),
+    "wizards": ("wizards", "washington", "magos"),
+}
+
 
 def _norm(texto: Any) -> str:
     if texto is None:
@@ -41,6 +74,25 @@ def _cargar_historial(historico: pd.DataFrame | None) -> pd.DataFrame:
         return pd.read_csv(_HISTORIAL_FILE, encoding="utf-8-sig")
     except (OSError, UnicodeDecodeError, pd.errors.ParserError, ValueError):
         return pd.DataFrame()
+
+
+def _variantes_equipo(equipo: str) -> tuple[str, ...]:
+    eq_norm = _norm(equipo)
+    if not eq_norm:
+        return ()
+    for clave, variantes in _SINONIMOS_BOLETO.items():
+        if clave in eq_norm or eq_norm in clave:
+            return variantes
+    return (eq_norm,)
+
+
+def _equipo_en_texto(equipo: str, texto_norm: str) -> bool:
+    if not texto_norm:
+        return False
+    for variante in _variantes_equipo(equipo):
+        if variante and variante in texto_norm:
+            return True
+    return False
 
 
 def _forma_reciente(
@@ -121,11 +173,7 @@ def construir_parley_seguro(
     max_picks: int = 3,
     historico: pd.DataFrame | None = None,
 ) -> list[dict[str, Any]]:
-    """Prioriza selecciones con señal de modelo y añade contexto histórico verificable.
-
-    El valor ``confianza`` es un indicador heurístico/modelado, no una probabilidad
-    de cobro. No se inventan hándicaps alternativos cuando el mercado no los aporta.
-    """
+    """Prioriza selecciones con señal de modelo y añade contexto histórico verificable."""
     if max_picks <= 0 or matchups.empty:
         return []
 
@@ -144,13 +192,11 @@ def construir_parley_seguro(
         sufijo_contexto = f" Contexto: {contexto}" if contexto else ""
         partido = f"{local} vs {visitante}"
 
-        # Los totales solo se consideran si hay proyección y línea válidas.
         if np.isfinite(linea) and np.isfinite(sim) and 170 <= linea <= 270 and 170 <= sim <= 270:
             diferencia = sim - linea
             distancia = abs(diferencia)
             if distancia >= 6.5:
                 tipo = "Altas (Over)" if diferencia > 0 else "Bajas (Under)"
-                # Ajuste prudente hacia la línea, no una promesa de seguridad.
                 ajuste = min(3.0, max(1.0, round(distancia * 0.25, 1)))
                 linea_objetivo = round(linea - ajuste if diferencia > 0 else linea + ajuste, 1)
                 indice = min(75.0, 50.0 + distancia * 1.5)
@@ -166,7 +212,6 @@ def construir_parley_seguro(
                     ),
                 })
 
-        # Solo tomar la selección textual del modelo si coincide con un equipo del juego.
         if 60 <= prob <= 100 and ganador in {local, visitante}:
             m_pick = re.search(
                 r"Apuesta Recomendada[^:]*:\s*([^\n<]+)", rec,
@@ -211,17 +256,22 @@ def construir_parley_seguro(
 
 @st.cache_resource(show_spinner=False)
 def _cargar_lector_ocr():
-    import easyocr
-    return easyocr.Reader(["es", "en"], gpu=False)
+    from rapidocr_onnxruntime import RapidOCR
+    return RapidOCR()
 
 
 def extraer_texto_captura(imagen_file) -> str:
-    """Extrae el texto de una captura de boleto usando EasyOCR."""
+    """Extrae el texto de una captura de boleto usando RapidOCR ligero en CPU."""
     img = Image.open(imagen_file).convert("RGB")
+    if max(img.size) > 1100:
+        img.thumbnail((1100, 1100), Image.Resampling.LANCZOS)
     img_np = np.array(img)
-    reader = _cargar_lector_ocr()
-    resultados = reader.readtext(img_np, detail=0)
-    return "\n".join(resultados)
+    engine = _cargar_lector_ocr()
+    resultados, _ = engine(img_np)
+    if not resultados:
+        return ""
+    lineas = [str(item[1]).strip() for item in resultados if len(item) >= 2 and str(item[1]).strip()]
+    return "\n".join(lineas)
 
 
 def auditar_parley_desde_texto(
@@ -250,7 +300,7 @@ def auditar_parley_desde_texto(
         local = str(row.get("Local", "")).strip()
         visitante = str(row.get("Visitante", "")).strip()
         loc_n, vis_n = _norm(local), _norm(visitante)
-        if not ((loc_n and loc_n in texto_norm) or (vis_n and vis_n in texto_norm)):
+        if not (_equipo_en_texto(local, texto_norm) or _equipo_en_texto(visitante, texto_norm)):
             continue
 
         ganador = str(row.get("Pred_Ganador", "No disponible"))
@@ -260,7 +310,7 @@ def auditar_parley_desde_texto(
         numeros_boleto: list[str] = []
         for linea_texto in lineas_raw:
             ln = _norm(linea_texto)
-            asociado = (loc_n and loc_n in ln) or (vis_n and vis_n in ln)
+            asociado = _equipo_en_texto(local, ln) or _equipo_en_texto(visitante, ln)
             es_linea = any(k in ln.split() for k in (
                 "handicap", "spread", "total", "over", "under", "altas", "bajas", "mas", "menos"
             ))
