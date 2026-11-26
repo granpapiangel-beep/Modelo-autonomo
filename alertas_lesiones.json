@@ -1,23 +1,23 @@
 {
     "fecha": "2026-11-25",
-    "ultima_actualizacion": "19:06 UTC-6",
+    "ultima_actualizacion": "22:05 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
-            "jugador": "Jaylen Brown",
-            "equipo": "76ers",
-            "estatus": "OUT",
-            "motivo": "Molestia en isquiotibiales",
-            "fecha_regreso": "2026-11-27",
-            "impacto_simulador": "-5.8 pts"
-        },
-        {
             "jugador": "Joel Embiid",
             "equipo": "76ers",
-            "estatus": "OUT",
+            "estatus": "DAY-TO-DAY",
             "motivo": "Enfermedad / Indispuesto",
             "fecha_regreso": "2026-11-27",
-            "impacto_simulador": "-5.0 pts"
+            "impacto_simulador": "-1.0 pts"
+        },
+        {
+            "jugador": "Jaylen Brown",
+            "equipo": "76ers",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia en isquiotibiales",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-1.2 pts"
         },
         {
             "jugador": "Ryan Kalkbrenner",
@@ -74,6 +74,14 @@
             "motivo": "Lesión de mano",
             "fecha_regreso": "2026-12-13",
             "impacto_simulador": "-4.4 pts"
+        },
+        {
+            "jugador": "Andre Drummond",
+            "equipo": "Knicks",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "No especificado",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-0.2 pts"
         },
         {
             "jugador": "OG Anunoby",
@@ -140,6 +148,14 @@
             "impacto_simulador": "-3.4 pts"
         },
         {
+            "jugador": "LaMelo Ball",
+            "equipo": "Timberwolves",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Lesión de tobillo",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-0.9 pts"
+        },
+        {
             "jugador": "Jaylen Clark",
             "equipo": "Timberwolves",
             "estatus": "OUT",
@@ -154,6 +170,14 @@
             "motivo": "Cirugía / Recuperación",
             "fecha_regreso": "2026-12-21",
             "impacto_simulador": "-8.3 pts"
+        },
+        {
+            "jugador": "Zach Edey",
+            "equipo": "Grizzlies",
+            "estatus": "DAY-TO-DAY",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-0.5 pts"
         },
         {
             "jugador": "Scotty Pippen Jr.",
@@ -188,28 +212,20 @@
             "impacto_simulador": "-1.9 pts"
         },
         {
+            "jugador": "Moritz Wagner",
+            "equipo": "Nets",
+            "estatus": "OUT",
+            "motivo": "Molestia muscular",
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-2.7 pts"
+        },
+        {
             "jugador": "Nolan Traore",
             "equipo": "Nets",
             "estatus": "OUT",
             "motivo": "Distensión muscular",
             "fecha_regreso": "2027-01-27",
             "impacto_simulador": "-3.2 pts"
-        },
-        {
-            "jugador": "Yaxel Lendeborg",
-            "equipo": "Warriors",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-1.0 pts"
-        },
-        {
-            "jugador": "Brandon Williams",
-            "equipo": "Warriors",
-            "estatus": "OUT",
-            "motivo": "Distensión muscular",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-2.6 pts"
         },
         {
             "jugador": "Stephen Curry",
@@ -254,18 +270,10 @@
         {
             "jugador": "De'Aaron Fox",
             "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
+            "estatus": "OUT",
             "motivo": "Contusión / Golpe",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-0.7 pts"
-        },
-        {
-            "jugador": "Victor Wembanyama",
-            "equipo": "Spurs",
-            "estatus": "DAY-TO-DAY",
-            "motivo": "Dolor de espalda",
-            "fecha_regreso": "2026-11-25",
-            "impacto_simulador": "-1.4 pts"
+            "fecha_regreso": "2026-11-27",
+            "impacto_simulador": "-3.4 pts"
         },
         {
             "jugador": "Dylan Harper",
