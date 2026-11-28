@@ -1,6 +1,6 @@
 {
     "fecha": "2026-11-27",
-    "ultima_actualizacion": "17:56 UTC-6",
+    "ultima_actualizacion": "18:10 UTC-6",
     "mensaje_general": "🏥 Reporte médico procesado.",
     "alertas_criticas": [
         {
@@ -127,8 +127,8 @@
             "jugador": "Joel Embiid",
             "equipo": "76ers",
             "estatus": "DAY-TO-DAY",
-            "motivo": "Enfermedad / Indispuesto",
-            "fecha_regreso": "2026-11-27",
+            "motivo": "No especificado",
+            "fecha_regreso": "Por definir",
             "impacto_simulador": "-1.0 pts"
         },
         {
